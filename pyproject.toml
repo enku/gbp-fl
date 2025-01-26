@@ -10,6 +10,10 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "GPL-3+"}
 
+[project.optional-dependencies]
+server = [
+    "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
