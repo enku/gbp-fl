@@ -36,3 +36,32 @@ dev = [
     "unittest-fixtures @ git+https://github.com/enku/unittest-fixtures.git",
     "isort>=5.13.2",
 ]
+
+[tool.black]
+skip-magic-trailing-comma = true
+
+[tool.django-stubs]
+django_settings_module = "settings"
+
+[tool.mypy]
+plugins =["mypy_django_plugin.main"]
+exclude = ["/migrations/"]
+files = ["src/gbp_fl"]
+mypy_path = ["tests", "stubs"]
+strict = true
+
+[tool.pylint.master]
+load-plugins = "pylint_django,pylint.extensions.bad_builtin"
+django-settings-module = "settings"
+init-hook = "import sys; sys.path.insert(0, 'tests')"
+bad-functions = ["print"]
+ignore = ["/migrations/"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.coverage.run]
+branch = true
+source = ["gbp_fl"]
+omit = ["src/gbp_fl/migrations/*"]
