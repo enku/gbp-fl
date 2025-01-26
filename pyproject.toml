@@ -1,0 +1,34 @@
+[project]
+name = "gbp-fl"
+dynamic = ["version"]
+description = "pfl-inspired plugin for Gentoo Build Publisher"
+authors = [
+    {name = "Albert Hopkins", email = "marduk@letterboxes.org"},
+]
+dependencies = []
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "GPL-3+"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.version]
+source = "scm"
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "coverage[toml]>=7.6.10",
+    "pylint>=3.3.3",
+    "pylint-django>=2.6.1",
+    "django-stubs[compatible-mypy]>=5.1.2",
+    "typos>=1.29.4",
+    "unittest-fixtures @ git+https://github.com/enku/unittest-fixtures.git",
+    "isort>=5.13.2",
+]
