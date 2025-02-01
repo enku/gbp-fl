@@ -16,11 +16,11 @@ access gbp-local attributes or else type checkers will hollar.
 
 from pathlib import PurePath as Path
 from tarfile import TarFile, TarInfo
-from typing import Any, Callable, Iterator, ParamSpec
+from typing import Any, Callable, Iterator, ParamSpec, cast
 
 from pydispatch import Dispatcher  # type: ignore
 
-from gbp_fl.types import Build, Package
+from gbp_fl.types import Build, BuildLike, Package
 
 P = ParamSpec("P")
 
@@ -48,6 +48,43 @@ class GBPGateway:
         """
         dispatcher = self._dispatcher
         dispatcher.emit(signal, **kwargs)
+
+    def list_machine_names(self) -> list[str]:
+        """Return the list of machines that GBP holds builds for"""
+        from gentoo_build_publisher import publisher
+
+        repo = publisher.repo
+
+        return repo.build_records.list_machines()
+
+    def get_builds_for_machine(self, machine: str) -> Iterator[Build]:
+        """Return the builds for the given machine"""
+        from gentoo_build_publisher import publisher
+
+        repo = publisher.repo
+
+        yield from (
+            Build(machine=build.machine, build_id=build.build_id)
+            for build in repo.build_records.for_machine(machine)
+        )
+
+    def get_build_record(self, build: Build) -> BuildLike:
+        """Return the build record given the build
+
+        Internally we should only treat this like a BuildLike, however GraphQL may treat
+        it like a GBP BuildRecord.
+        """
+        from gentoo_build_publisher import publisher
+        from gentoo_build_publisher.types import Build as GBPBuild
+
+        build_records = publisher.repo.build_records
+
+        record = build_records.get(
+            GBPBuild(machine=build.machine, build_id=build.build_id)
+        )
+
+        # I dont' think you should need to cast but mypy begs to differ
+        return cast(BuildLike, record)
 
     def get_full_package_path(self, build: Build, package: Package) -> Path:
         """Return the full path of the given Package"""

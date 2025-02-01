@@ -14,6 +14,7 @@ class MockGBPGateway:
         self.builds: list[BuildLike] = []
         self.packages: dict[Build, list[Package]] = {}
         self.contents: dict[tuple[Build, Package], list[TarInfo]] = {}
+        self.machines: list[str] = []
 
     def get_packages(self, build: Build) -> list[Package]:
         try:
@@ -26,3 +27,6 @@ class MockGBPGateway:
             return self.contents[build, package]
         except KeyError:
             raise LookupError(build, package) from None
+
+    def list_machine_names(self) -> list[str]:
+        return self.machines

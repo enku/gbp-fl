@@ -1,0 +1,18 @@
+type flBinPkg {
+  build: Build
+  cpvb: String!
+  repo: String!
+  url: String!
+}
+
+type flContentFile {
+  binpkg: flBinPkg!
+  path: String!
+  timestamp: DateTime!
+  size: Int!
+}
+
+extend type Query {
+  flSearch(key: String!, machine: String): [flContentFile!]!
+  flCount(machine: String, buildId: String): Int!
+}

@@ -5,7 +5,7 @@
 groups = ["default", "dev", "server"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:dc43b5d16f71e2303a382343794f61ac50d70ff2367a60326dcdb592e69337f3"
+content_hash = "sha256:4304aac8349496fc61a732eafac035a8249a2362a3098400515d92c67e430e71"
 
 [[metadata.targets]]
 requires_python = ">=3.11"
@@ -616,10 +616,10 @@ files = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.2.1.dev40"
+version = "2.2.1.dev43"
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher"
-revision = "e048dd8946a31150bbb4b2a7d249611485e9c6fe"
+revision = "372a080a73121f50f24d9a88e0f0db65cbf41264"
 summary = "Gentoo Build Publisher"
 groups = ["server"]
 dependencies = [

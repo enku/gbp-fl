@@ -43,6 +43,16 @@ class BinPkg:
 
     build_time: dt.datetime
 
+    @property
+    def cpv(self) -> str:
+        """The BinPkg's cpv"""
+        return self.cpvb.rsplit("-", 1)[0]
+
+    @property
+    def build_id(self) -> int:
+        """The BinPkg's build id"""
+        return int(self.cpvb.rsplit("-", 1)[1])
+
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class ContentFile:

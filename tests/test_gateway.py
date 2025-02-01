@@ -151,3 +151,41 @@ class RunTaskTests(TestCase):
             gbp.run_task(func, 1, 2, buckle_my="shoe")
 
         worker.run.assert_called_once_with(func, 1, 2, buckle_my="shoe")
+
+
+class ListMachineNamesTests(TestCase):
+    @mock.patch("gentoo_build_publisher.publisher")
+    def test(self, publisher: mock.Mock) -> None:
+        machines = ["babette", "lighthouse", "polaris"]
+        publisher.repo.build_records.list_machines.return_value = machines
+
+        gbp = gw.GBPGateway()
+
+        self.assertEqual(gbp.list_machine_names(), machines)
+        publisher.repo.build_records.list_machines.assert_called_once_with()
+
+
+class GetBuildsForMachineTests(TestCase):
+    @mock.patch("gentoo_build_publisher.publisher")
+    def test(self, publisher: mock.Mock) -> None:
+        builds = [Build(machine="babette", build_id=f"150{i}") for i in range(5)]
+        publisher.repo.build_records.for_machine.return_value = iter(builds)
+
+        gbp = gw.GBPGateway()
+
+        self.assertEqual(list(gbp.get_builds_for_machine("babette")), builds)
+        publisher.repo.build_records.for_machine.assert_called_once_with("babette")
+
+
+class GetBuildRecordTests(TestCase):
+    @mock.patch("gentoo_build_publisher.publisher")
+    def test(self, publisher: mock.Mock) -> None:
+        bdict = {"machine": "babette", "build_id": "1507"}
+        build_record = mock.Mock(**bdict)
+        publisher.repo.build_records.get.return_value = build_record
+        gbp = gw.GBPGateway()
+
+        result = gbp.get_build_record(Build(**bdict))
+
+        self.assertEqual(result, build_record)
+        publisher.repo.build_records.get.assert_called_once_with(gtype.Build(**bdict))

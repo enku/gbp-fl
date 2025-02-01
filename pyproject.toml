@@ -14,9 +14,13 @@ license = {text = "GPL-3+"}
 memory = "gbp_fl.records.memory"
 django = "gbp_fl.records.django_orm"
 
+[project.entry-points."gentoo_build_publisher.graphql_schema"]
+gbp_fl = "gbp_fl.graphql"
+
 [project.optional-dependencies]
 server = [
     "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher",
+    "ariadne>=0.24.0",
 ]
 [build-system]
 requires = ["pdm-backend"]
