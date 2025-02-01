@@ -1,5 +1,7 @@
 """AppsConfig for gbp-fl"""
 
+from importlib import import_module
+
 from django.apps import AppConfig
 
 

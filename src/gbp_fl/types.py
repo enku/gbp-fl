@@ -7,6 +7,18 @@ metadata.
 import datetime as dt
 from dataclasses import dataclass
 from pathlib import PurePath as Path
+from typing import Protocol
+
+
+@dataclass(frozen=True)
+class Package:
+    """GBP Package proxy object"""
+
+    cpv: str
+    repo: str
+    build_id: int
+    build_time: int
+    path: str
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -42,3 +54,28 @@ class ContentFile:
 
     size: int
     """size of file in bytes"""
+
+
+class BuildLike(Protocol):  # pylint: disable=too-few-public-methods
+    """A GBP Build that we want to pretend we don't know is a gbp-fl Build"""
+
+    machine: str
+    build_id: str
+
+
+@dataclass(frozen=True)
+class ContentFileInfo:
+    """Interface for ContentFile metadata
+
+    IRL this wrapper around the tarfile.TarInfo object
+    """
+
+    # pylint: disable=too-few-public-methods, missing-docstring
+    name: str
+    """name of the image file"""
+
+    mtime: int
+    """modification time in seconds since epoch"""
+
+    size: int
+    """file size in bytes"""
