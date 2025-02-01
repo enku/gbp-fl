@@ -12,6 +12,7 @@ from unittest import mock
 
 from gentoo_build_publisher import publisher as publisher_mod
 from gentoo_build_publisher import types as gbp
+from gentoo_build_publisher import worker as gbp_worker
 from gentoo_build_publisher.publisher import BuildPublisher
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.settings import Settings as GBPSettings
@@ -180,6 +181,15 @@ def publisher(
             stack.enter_context(cm)
 
         yield bp
+
+
+@depends("gbp_settings")
+def worker(
+    _options: FixtureOptions, fixtures: Fixtures
+) -> FixtureContext[gbp_worker.WorkerInterface]:
+    sync_worker = gbp_worker.Worker(fixtures.gbp_settings)
+    with mock.patch("gentoo_build_publisher.worker", sync_worker):
+        yield sync_worker
 
 
 @depends("environ")
