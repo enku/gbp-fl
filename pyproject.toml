@@ -5,10 +5,14 @@ description = "pfl-inspired plugin for Gentoo Build Publisher"
 authors = [
     {name = "Albert Hopkins", email = "marduk@letterboxes.org"},
 ]
-dependencies = []
+dependencies = ["gbpcli>=2.4.1"]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "GPL-3+"}
+
+[project.entry-points."gbp_fl.records"]
+memory = "gbp_fl.records.memory"
+django = "gbp_fl.records.django_orm"
 
 [project.optional-dependencies]
 server = [
