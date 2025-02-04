@@ -1,0 +1,15 @@
+query search($key: String!, $machine: String) {
+  flSearch(key: $key, machine: $machine) {
+    path
+    size
+    timestamp
+    binpkg {
+      cpvb
+      repo
+      build {
+        machine
+        id
+      }
+    }
+  }
+}

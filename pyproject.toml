@@ -5,7 +5,7 @@ description = "pfl-inspired plugin for Gentoo Build Publisher"
 authors = [
     {name = "Albert Hopkins", email = "marduk@letterboxes.org"},
 ]
-dependencies = ["gbpcli>=2.4.1"]
+dependencies = ["gbpcli>=2.4.1", "yarl>=1.18.3", "requests>=2.32.3", "rich>=13.9.4"]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "GPL-3+"}
@@ -16,6 +16,9 @@ django = "gbp_fl.records.django_orm"
 
 [project.entry-points."gentoo_build_publisher.graphql_schema"]
 gbp_fl = "gbp_fl.graphql"
+
+[project.entry-points."gbpcli.subcommands"]
+fl = "gbp_fl.cli"
 
 [project.optional-dependencies]
 server = [
@@ -43,6 +46,8 @@ dev = [
     "typos>=1.29.4",
     "unittest-fixtures @ git+https://github.com/enku/unittest-fixtures.git",
     "isort>=5.13.2",
+    "requests>=2.32.3",
+    "types-requests>=2.32.0.20241016",
 ]
 
 [tool.black]

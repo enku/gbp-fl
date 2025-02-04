@@ -3,21 +3,28 @@
 # pylint: disable=missing-docstring
 
 import datetime as dt
+import io
 import os
 import tempfile
 from contextlib import ExitStack
 from pathlib import PurePath as Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 from unittest import mock
 
+from django.test.client import Client
+from gbpcli.gbp import GBP
 from gentoo_build_publisher import publisher as publisher_mod
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
 from gentoo_build_publisher.publisher import BuildPublisher
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.settings import Settings as GBPSettings
+from requests import PreparedRequest, Response
+from requests.adapters import BaseAdapter
+from requests.structures import CaseInsensitiveDict
 from unittest_fixtures import FixtureContext, FixtureOptions, Fixtures, depends
 
+from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, Package
 
@@ -28,6 +35,15 @@ from gbp_fl.types import BinPkg, Build, ContentFile, Package
 @depends("tmpdir", "environ")
 def settings(_options: FixtureOptions, _fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
+
+
+@depends("settings")
+def repo(options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
+    where: str = options.get("repo", {}).get("where", "gbp_fl.records.Repo")
+    repo_: Repo = Repo.from_settings(fixtures.settings)
+
+    with mock.patch(f"{where}.from_settings", return_value=repo_):
+        yield repo_
 
 
 @depends("binpkg", "now")
@@ -219,6 +235,16 @@ def gbp_package(options: FixtureOptions, fixtures: Fixtures) -> gbp.Package:
     return gbp.Package(**pkg_options)
 
 
+def gbp_client(options: FixtureOptions, _fixtures: Fixtures) -> GBP:
+    url = options.get("gbp", {}).get("url", "http://gbp.invalid/")
+    gbp_ = GBP(url)
+    gbp_.query._session.mount(  # pylint: disable=protected-access
+        url, DjangoToRequestsAdapter()
+    )
+
+    return gbp_
+
+
 def get_options(options: FixtureOptions, **defaults: Any) -> FixtureOptions:
     return {item: options.get(item, default) for item, default in defaults.items()}
 
@@ -239,3 +265,36 @@ def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
         return seq[index]
     except IndexError:
         return default
+
+
+class DjangoToRequestsAdapter(BaseAdapter):  # pylint: disable=abstract-method
+    """Requests Adapter to call Django views"""
+
+    def send(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+        self,
+        request: PreparedRequest,
+        stream: bool = False,
+        timeout: None | float | tuple[float, float] | tuple[float, None] = None,
+        verify: bool | str = True,
+        cert: None | bytes | str | tuple[bytes | str, bytes | str] = None,
+        proxies: Mapping[str, str] | None = None,
+    ) -> Response:
+        assert request.method is not None
+        django_response = Client().generic(
+            request.method,
+            request.path_url,
+            data=request.body,
+            content_type=request.headers["Content-Type"],
+            **request.headers,
+        )
+
+        requests_response = Response()
+        requests_response.raw = io.BytesIO(django_response.content)
+        requests_response.raw.seek(0)
+        requests_response.status_code = django_response.status_code
+        requests_response.headers = CaseInsensitiveDict(django_response.headers)
+        requests_response.encoding = django_response.get("Content-Type", None)
+        requests_response.url = str(request.url)
+        requests_response.request = request
+
+        return requests_response
