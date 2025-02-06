@@ -10,7 +10,7 @@ Publisher and a CLI tool.
 As a plugin for Gentoo Build Publisher, when builds are pushed to GBP, gbp-fl
 indexes the files for all the packages in the build.  It also provides a
 convenient [web
-API](https://raw.githubusercontent.com/enku/screenshots/gbp-fl/graphql.png)
+API](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/graphql.png)
 for querying the index.
 
 As a CLI tool, gbp-fl provides a plugin for
@@ -98,7 +98,7 @@ This command will display any filenames that matching the keyword for all the
 builds that are hosted on the Gentoo Build Publisher instance. To restrict the
 search to an particular screen name, use the `-m` argument.
 
-![screenshot](https://raw.githubusercontent.com/enku/screenshots/gbp-fl/search.png)
+![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/head/master/gbp-fl/search.png)
 
 > Here `ripgrep-14.1.0` appears to have an unusually small man page file,
 > especially compared to the others. I suspect that's the reason for the `-r1`
@@ -114,7 +114,7 @@ command:
 $ gbp fl fetch <pkgspec>
 ```
 
-![screenshot](https://raw.githubusercontent.com/enku/screenshots/gbp-fl/search.png)
+![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/head/master/gbp-fl/search.png)
 
 > Yep, that was a bad file!
 
