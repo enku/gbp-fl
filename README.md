@@ -114,7 +114,7 @@ command:
 $ gbp fl fetch <pkgspec>
 ```
 
-![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/search.png)
+![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/fetch.png)
 
 > Yep, that was a bad file!
 
