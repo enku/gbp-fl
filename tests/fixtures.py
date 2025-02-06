@@ -11,8 +11,11 @@ from pathlib import PurePath as Path
 from typing import Any, Mapping, Sequence
 from unittest import mock
 
+import rich.console
 from django.test.client import Client
 from gbpcli.gbp import GBP
+from gbpcli.theme import DEFAULT_THEME
+from gbpcli.types import Console
 from gentoo_build_publisher import publisher as publisher_mod
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
@@ -22,11 +25,14 @@ from gentoo_build_publisher.settings import Settings as GBPSettings
 from requests import PreparedRequest, Response
 from requests.adapters import BaseAdapter
 from requests.structures import CaseInsensitiveDict
+from rich.theme import Theme
 from unittest_fixtures import FixtureContext, FixtureOptions, Fixtures, depends
 
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, Package
+
+COUNTER = 0
 
 
 ################
@@ -81,7 +87,9 @@ def bulk_content_files(
         bld = Build(machine=machine, build_id=build_id)
         pkg = BinPkg(build=bld, cpvb=cpvb, build_time=fixtures.now, repo=repo_)
         content_files.append(
-            ContentFile(binpkg=pkg, path=Path(path), timestamp=fixtures.now, size=22)
+            ContentFile(
+                binpkg=pkg, path=Path(path), timestamp=fixtures.now, size=850648
+            )
         )
 
     return content_files
@@ -164,7 +172,7 @@ def environ(
         "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
         **options.get("environ", {}),
     }
-    with mock.patch.dict(os.environ, mock_environ, clear=True):
+    with mock.patch.dict(os.environ, mock_environ):
         yield mock_environ
 
 
@@ -174,6 +182,28 @@ def now(options: FixtureOptions, _fixtures: Fixtures) -> dt.datetime:
         "now", dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
     )
     return time
+
+
+@depends()
+def console(_options: FixtureOptions, _fixtures: Fixtures) -> FixtureContext[Console]:
+    """StringIO Console"""
+    out = io.StringIO()
+    err = io.StringIO()
+
+    c = Console(
+        out=rich.console.Console(
+            file=out, width=88, theme=Theme(DEFAULT_THEME), highlight=False, record=True
+        ),
+        err=rich.console.Console(file=err, record=True),
+    )
+    yield c
+
+    if "SAVE_VIRTUAL_CONSOLE" in os.environ:
+        global COUNTER  # pylint: disable=global-statement
+
+        COUNTER += 1
+        filename = f"{COUNTER}.svg"
+        c.out.save_svg(filename, title="gbp-fl")
 
 
 ################################

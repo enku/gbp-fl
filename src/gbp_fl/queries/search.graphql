@@ -5,7 +5,6 @@ query search($key: String!, $machine: String) {
     timestamp
     binpkg {
       cpvb
-      repo
       build {
         machine
         id

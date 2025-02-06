@@ -2,24 +2,23 @@
 import argparse
 from unittest import mock
 
-from unittest_fixtures import TestCase
+from unittest_fixtures import TestCase, requires
 
 from gbp_fl import cli
 
-from .utils import string_console
 
-
+@requires("console")
 class HandlerTests(TestCase):
     def test(self) -> None:
         args = argparse.Namespace()
         gbp = mock.Mock()
-        console, out, err = string_console()
+        console = self.fixtures.console
 
         status = cli.handler(args, gbp, console)
 
         self.assertEqual(status, 1)
-        self.assertEqual(out.getvalue(), "")
-        self.assertTrue(err.getvalue().startswith("Subcommands:"))
+        self.assertEqual(console.out.file.getvalue(), "")
+        self.assertTrue(console.err.file.getvalue().startswith("Subcommands:"))
 
 
 class ParseArgsTests(TestCase):

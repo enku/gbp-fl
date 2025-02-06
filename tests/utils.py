@@ -1,17 +1,12 @@
 """Test utilities"""
 
 import datetime as dt
-import io
 import os
 from contextlib import contextmanager
 from tarfile import TarInfo
 from typing import Any, Generator
 
-import rich.console
 from django.test.client import Client
-from gbpcli.theme import DEFAULT_THEME
-from gbpcli.types import Console
-from rich.theme import Theme
 
 from gbp_fl.types import Build, BuildLike, Package
 
@@ -58,21 +53,6 @@ def graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
     )
 
     return response.json()
-
-
-def string_console() -> tuple[Console, io.StringIO, io.StringIO]:
-    """StringIO Console"""
-    out = io.StringIO()
-    err = io.StringIO()
-
-    return (
-        Console(
-            out=rich.console.Console(file=out, width=88, theme=Theme(DEFAULT_THEME)),
-            err=rich.console.Console(file=err),
-        ),
-        out,
-        err,
-    )
 
 
 @contextmanager

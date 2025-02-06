@@ -43,8 +43,8 @@ def create_table() -> Table:
     table = Table(box=box.ROUNDED, pad_edge=False, style="box")
     table.add_column("Size", justify="right", header_style="header")
     table.add_column("Timestamp", header_style="header")
-    table.add_column("Package", header_style="header")
-    table.add_column("Path", header_style="header")
+    table.add_column("Package", header_style="header", overflow="fold")
+    table.add_column("Path", header_style="header", overflow="fold")
 
     return table
 
@@ -68,7 +68,6 @@ def format_content_file(
             f"[machine]{machine}[/machine]"
             f"/[build_id]{build_id}[/build_id]"
             f"/[package]{binpkg.cpvb}"
-            f"::{binpkg.repo}[/package]"
         ),
         f"[tag]{cf.path}[/tag]",
     )

@@ -14,8 +14,7 @@ PKGSPEC_RE_STR = r"""
 (?P<machine>[a-z]\w*)/
 (?P<build_id>[0-9]+)/
 (?P<c>[a-z0-9]+-[a-z0-9]+)/
-(?P<p>[a-z].*)-(?P<v>[0-9].*)-(?P<b>[0-9]*)::
-(?P<repo>[a-z]+)
+(?P<p>[a-z].*)-(?P<v>[0-9].*)-(?P<b>[0-9]*)
 """
 
 BUFSIZE = 1024
@@ -32,7 +31,6 @@ class Parsed:
     p: str
     v: str
     b: int
-    repo: str
 
 
 def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
