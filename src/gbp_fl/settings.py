@@ -12,5 +12,5 @@ class Settings(BaseSettings):
     env_prefix = "GBP_FL_"
 
     # pylint: disable=invalid-name
-    RECORDS_BACKEND: str = "memory"
+    RECORDS_BACKEND: str = "django"
     RECORDS_BACKEND_DJANGO_BULK_BATCH_SIZE: int = 300

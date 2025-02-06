@@ -170,6 +170,7 @@ def environ(
         "BUILD_PUBLISHER_STORAGE_PATH": str(fixtures.tmpdir / "gbp"),
         "BUILD_PUBLISHER_WORKER_BACKEND": "sync",
         "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
+        "GBP_FL_RECORDS_BACKEND": "memory",
         **options.get("environ", {}),
     }
     with mock.patch.dict(os.environ, mock_environ):

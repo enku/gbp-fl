@@ -41,14 +41,6 @@ cd /home/gbp
 sudo -u gbp -H ./bin/pip install gbp-fl[server]
 ```
 
-gbp-fl can support multiple database storage, backends. The best one to use,
-for now, is the Django ORM.  Edit `/etc/gentoo-build-publisher.conf` and add:
-
-```
-# gbp-fl
-GBP_FL_RECORDS_BACKEND=django
-```
-
 Then add `"gbp_fl"` to your `INSTALLED_APPS`:
 
 ```sh
