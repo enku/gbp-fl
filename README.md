@@ -100,10 +100,6 @@ search to an particular screen name, use the `-m` argument.
 
 ![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/search.svg)
 
-> Here `ripgrep-14.1.0` appears to have an unusually small man page file,
-> especially compared to the others. I suspect that's the reason for the `-r1`
-> release.
-
 The search command displays the machine, build, package and path of the files
 that are a match. In addition the file size and timestamp are displayed.
 
@@ -115,8 +111,6 @@ $ gbp fl fetch <pkgspec>
 ```
 
 ![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/fetch.svg)
-
-> Yep, that was a bad file!
 
 Other commands are forthcoming, for example `gbp fl stats` to display
 statistics about files in a given build/machine. `gbp fl fetch` will gain the
