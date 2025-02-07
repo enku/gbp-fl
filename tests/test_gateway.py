@@ -6,6 +6,7 @@ from contextlib import ExitStack
 from pathlib import PurePath as Path
 from unittest import mock
 
+import gentoo_build_publisher
 from gentoo_build_publisher import types as gtype
 from unittest_fixtures import FixtureContext
 from unittest_fixtures import FixtureOptions as O
@@ -20,10 +21,10 @@ TESTDIR = Path(__file__).parent
 
 def mock_publisher(_o: O, _f: F) -> FixtureContext[dict[str, mock.Mock]]:
     mocks = {"storage": mock.Mock(), "jenkins": mock.Mock(), "repo": mock.Mock()}
-    prefix = "gentoo_build_publisher.publisher"
-    c1 = (mock.patch(f"{prefix}._inst.{name}", value) for name, value in mocks.items())
-    c2 = (mock.patch(f"{prefix}.{name}", value) for name, value in mocks.items())
-    contexts = (*c1, *c2)
+    contexts = (
+        mock.patch.object(gentoo_build_publisher.publisher, name, value)
+        for name, value in mocks.items()
+    )
 
     with ExitStack() as stack:
         for cm in contexts:

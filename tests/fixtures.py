@@ -16,10 +16,10 @@ from django.test.client import Client
 from gbpcli.gbp import GBP
 from gbpcli.theme import DEFAULT_THEME
 from gbpcli.types import Console
-from gentoo_build_publisher import publisher as publisher_mod
+from gentoo_build_publisher import publisher as publisher_obj
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
-from gentoo_build_publisher.publisher import BuildPublisher
+from gentoo_build_publisher.build_publisher import BuildPublisher
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.settings import Settings as GBPSettings
 from requests import PreparedRequest, Response
@@ -216,11 +216,8 @@ def publisher(
 ) -> FixtureContext[BuildPublisher]:
     bp: BuildPublisher = BuildPublisher.from_settings(fixtures.gbp_settings)
     names = ["storage", "jenkins", "repo"]
-    module = publisher_mod
     contexts = (
-        # pylint: disable=protected-access
-        *(mock.patch.object(module._inst, name, getattr(bp, name)) for name in names),
-        *(mock.patch.object(module, name, getattr(bp, name)) for name in names),
+        mock.patch.object(publisher_obj, name, getattr(bp, name)) for name in names
     )
 
     with ExitStack() as stack:
