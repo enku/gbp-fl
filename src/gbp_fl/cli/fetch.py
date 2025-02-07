@@ -55,7 +55,7 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         with open(output, "wb", buffering=BUFSIZE) as fp:
             for chunk in response.iter_content(BUFSIZE):
                 fp.write(chunk)
-        console.out.print(f"package saved as {output}")
+        console.out.print(f"package saved as [package]{output}[/package]")
 
     return 0
 
