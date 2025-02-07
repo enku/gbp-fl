@@ -41,12 +41,6 @@ cd /home/gbp
 sudo -u gbp -H ./bin/pip install gbp-fl[server]
 ```
 
-Then add `"gbp_fl"` to your `INSTALLED_APPS`:
-
-```sh
-$EDITOR djangoproject/settings.py
-```
-
 Restart the GBP web app and task workers.
 
 ```sh

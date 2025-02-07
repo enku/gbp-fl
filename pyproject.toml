@@ -20,6 +20,9 @@ gbp_fl = "gbp_fl.graphql"
 [project.entry-points."gbpcli.subcommands"]
 fl = "gbp_fl.cli"
 
+[project.entry-points."gentoo_build_publisher.apps"]
+gbp_fl = "gbp_fl:APP"
+
 [project.optional-dependencies]
 server = [
     "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher",
