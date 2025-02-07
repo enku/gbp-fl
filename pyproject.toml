@@ -25,7 +25,7 @@ gbp_fl = "gbp_fl:APP"
 
 [project.optional-dependencies]
 server = [
-    "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher",
+    "gentoo-build-publisher>=2.3.0",
     "ariadne>=0.24.0",
 ]
 [build-system]
