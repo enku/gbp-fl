@@ -61,7 +61,7 @@ pipx install gbpcli
 Then add gbp-fl to the gbpcli environment:
 
 ```sh
-pipx inject gbpcli git+https://github.com/enku/gbp-fl.git
+pipx inject gbpcli gbp-fl
 ```
 
 ## Usage
