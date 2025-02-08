@@ -14,7 +14,7 @@ from unittest import mock
 import rich.console
 from django.test.client import Client
 from gbpcli.gbp import GBP
-from gbpcli.theme import DEFAULT_THEME
+from gbpcli.theme import get_theme_from_string
 from gbpcli.types import Console
 from gentoo_build_publisher import publisher as publisher_obj
 from gentoo_build_publisher import types as gbp
@@ -25,7 +25,6 @@ from gentoo_build_publisher.settings import Settings as GBPSettings
 from requests import PreparedRequest, Response
 from requests.adapters import BaseAdapter
 from requests.structures import CaseInsensitiveDict
-from rich.theme import Theme
 from unittest_fixtures import FixtureContext, FixtureOptions, Fixtures, depends
 
 from gbp_fl.records import Repo
@@ -188,15 +187,15 @@ def now(options: FixtureOptions, _fixtures: Fixtures) -> dt.datetime:
 @depends()
 def console(_options: FixtureOptions, _fixtures: Fixtures) -> FixtureContext[Console]:
     """StringIO Console"""
-    out = io.StringIO()
-    err = io.StringIO()
-
-    c = Console(
-        out=rich.console.Console(
-            file=out, width=88, theme=Theme(DEFAULT_THEME), highlight=False, record=True
-        ),
-        err=rich.console.Console(file=err, record=True),
+    outfile = io.StringIO()
+    errfile = io.StringIO()
+    theme = get_theme_from_string(os.getenv("GBPCLI_COLORS", ""))
+    out = rich.console.Console(
+        file=outfile, width=88, theme=theme, highlight=False, record=True
     )
+    err = rich.console.Console(file=errfile, record=True)
+    c = Console(out=out, err=err)
+
     yield c
 
     if "SAVE_VIRTUAL_CONSOLE" in os.environ:
