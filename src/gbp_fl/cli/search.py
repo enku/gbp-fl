@@ -40,7 +40,7 @@ def parse_args(parser: argparse.ArgumentParser) -> None:
 
 def create_table() -> Table:
     """Create table for displaying ContentFiles"""
-    table = Table(box=box.ROUNDED, pad_edge=False, style="box")
+    table = Table(box=box.ROUNDED, style="box")
     table.add_column("Size", justify="right", header_style="header")
     table.add_column("Timestamp", header_style="header")
     table.add_column("Package", header_style="header", overflow="fold")
