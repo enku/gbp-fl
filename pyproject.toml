@@ -28,9 +28,6 @@ server = [
     "gentoo-build-publisher>=2.3.0",
     "ariadne>=0.24.0",
 ]
-ps = [
-    "gbp-ps>=1.4.0",
-]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -48,6 +45,7 @@ dev = [
     "isort>=5.13.2",
     "requests>=2.32.3",
     "types-requests>=2.32.0.20241016",
+    "gbp-ps>=1.4.0",
 ]
 
 [tool.black]
