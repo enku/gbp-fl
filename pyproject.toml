@@ -28,16 +28,13 @@ server = [
     "gentoo-build-publisher>=2.3.0",
     "ariadne>=0.24.0",
 ]
+ps = [
+    "gbp-ps>=1.4.0",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
-
-[tool.pdm]
-distribution = true
-
-[tool.pdm.version]
-source = "scm"
 
 [dependency-groups]
 dev = [
@@ -81,3 +78,14 @@ line_length = 88
 branch = true
 source = ["gbp_fl"]
 omit = ["src/gbp_fl/migrations/*"]
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "-e git+https://github.com/enku/gentoo-build-publisher.git#egg=gentoo-build-publisher",
+]

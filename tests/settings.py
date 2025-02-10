@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from gentoo_build_publisher import utils
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "agentlemannevertells"
@@ -14,8 +16,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "gentoo_build_publisher.apps.GentooBuildPublisherConfig",
-    "gbp_fl.apps.GBPFLConfig",
 ]
+utils.for_each_app(INSTALLED_APPS.append)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -190,3 +190,34 @@ class GetBuildRecordTests(TestCase):
 
         self.assertEqual(result, build_record)
         publisher.repo.build_records.get.assert_called_once_with(gtype.Build(**bdict))
+
+
+class SetProcessTests(TestCase):
+    @mock.patch("gbp_ps.signals.set_process")
+    def test(self, set_process: mock.Mock) -> None:
+        gbp = gw.GBPGateway()
+
+        was_set = gbp.set_process(build, "index")
+
+        self.assertTrue(was_set)
+        set_process.assert_called_once_with(
+            gtype.Build(machine="babette", build_id="1442"), "index"
+        )
+
+    @mock.patch("gbp_ps.signals.set_process")
+    def test_when_no_gbp_ps_plugin(self, set_process: mock.Mock) -> None:
+        gbp = gw.GBPGateway()
+
+        with mock.patch.object(gbp, "has_plugin", return_value=False):
+            was_set = gbp.set_process(build, "index")
+
+        self.assertFalse(was_set)
+        set_process.assert_not_called()
+
+
+class HasPluginTests(TestCase):
+    def test_true(self) -> None:
+        self.assertTrue(gw.GBPGateway.has_plugin("gbp_fl"))
+
+    def test_false(self) -> None:
+        self.assertFalse(gw.GBPGateway.has_plugin("bogus"))

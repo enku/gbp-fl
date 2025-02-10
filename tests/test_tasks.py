@@ -14,19 +14,27 @@ from gbp_fl.worker import tasks
 
 
 class IndexPackagesTests(uf.TestCase):
+    @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.package_utils")
-    def test(self, package_utils: mock.Mock) -> None:
+    def test(self, package_utils: mock.Mock, set_process: mock.Mock) -> None:
         tasks.index_packages("babette", "1505")
+        build = Build(machine="babette", build_id="1505")
 
-        package_utils.index_packages.assert_called_once_with(
-            Build(machine="babette", build_id="1505")
-        )
+        package_utils.index_packages.assert_called_once_with(build)
+
+        expected = [mock.call(build, "index"), mock.call(build, "clean")]
+        set_process.assert_has_calls(expected)
 
 
 class DeleteFromBuildTests(uf.TestCase):
+    @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.records.Repo.from_settings")
-    def test(self, repo_from_settings: mock.Mock) -> None:
+    def test(self, repo_from_settings: mock.Mock, set_process: mock.Mock) -> None:
         tasks.delete_from_build("babette", "1505")
+        build = Build(machine="babette", build_id="1505")
 
         repo = repo_from_settings.return_value
         repo.files.delete_from_build.assert_called_once_with("babette", "1505")
+
+        expected = [mock.call(build, "deindex"), mock.call(build, "clean")]
+        set_process.assert_has_calls(expected)

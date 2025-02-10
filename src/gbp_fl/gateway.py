@@ -14,6 +14,7 @@ However there are wrapper types in gbp_fl.types so that receivers can at least o
 access gbp-local attributes or else type checkers will hollar.
 """
 
+import importlib.metadata
 from pathlib import PurePath as Path
 from tarfile import TarFile, TarInfo
 from typing import Any, Callable, Iterator, ParamSpec, cast
@@ -144,6 +145,37 @@ class GBPGateway:
         from gentoo_build_publisher import worker
 
         worker.run(func, *args, **kwargs)
+
+    def _really_set_process(self, build: Build, phase: str) -> None:
+        """Unconditionally set the current process state for the given build"""
+        from gbp_ps.signals import set_process
+        from gentoo_build_publisher import types
+
+        gbp_build = types.Build(machine=build.machine, build_id=build.build_id)
+        set_process(gbp_build, phase)
+
+    def set_process(self, build: Build, phase: str) -> bool:
+        """Conditinally set the current process state for the given build
+
+        If the gbp-ps plugin is not installed, this is a noop.
+
+        Return True if the process was set, otherwise return False.
+        """
+        if self.has_plugin("gbp_ps"):
+            self._really_set_process(build, phase)
+            return True
+        return False
+
+    @staticmethod
+    def has_plugin(name: str) -> bool:
+        """Return true if gbp has the given plugin"""
+        eps = importlib.metadata.entry_points().select(
+            group="gentoo_build_publisher.apps"
+        )
+        for entry_point in eps:
+            if entry_point.name == name:
+                return True
+        return False
 
     @property
     def _dispatcher(self) -> Dispatcher:
