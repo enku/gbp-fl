@@ -169,13 +169,10 @@ class GBPGateway:
     @staticmethod
     def has_plugin(name: str) -> bool:
         """Return true if gbp has the given plugin"""
-        eps = importlib.metadata.entry_points().select(
-            group="gentoo_build_publisher.apps"
-        )
-        for entry_point in eps:
-            if entry_point.name == name:
-                return True
-        return False
+        group = "gentoo_build_publisher.apps"
+        entry_points = importlib.metadata.entry_points
+
+        return any(ep.name == name for ep in entry_points().select(group=group))
 
     @property
     def _dispatcher(self) -> Dispatcher:
