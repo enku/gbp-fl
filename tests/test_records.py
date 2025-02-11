@@ -13,8 +13,6 @@ from gbp_fl.records import ContentFiles, RecordNotFound, Repo, django_orm, files
 from gbp_fl.settings import Settings
 from gbp_fl.types import ContentFile
 
-from . import parametrized
-
 now = partial(dt.datetime.now, tz=dt.UTC)
 
 BACKENDS = [["memory"], ["django"]]
@@ -23,7 +21,7 @@ BACKENDS = [["memory"], ["django"]]
 @uf.requires("content_file", "bulk_content_files")
 class ContentFilesTests(uf.TestCase, TestCase):
     # pylint: disable=too-many-public-methods
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_supports_protocol(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         cls = type(files)
@@ -46,7 +44,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
             else:
                 self.assertIs(type(prop), type(getattr(cls, name)))
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_save(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         content_file: ContentFile = self.fixtures.content_file
@@ -63,7 +61,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         self.assertIsInstance(record, ContentFile)
         self.assertEqual(record, content_file)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_bulk_save(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         content_files = self.fixtures.bulk_content_files
@@ -72,7 +70,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
 
         self.assertEqual(files.count(None, None, None), 6)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_get(self, backend_type: str) -> None:
         fixtures = self.fixtures
         content_file = fixtures.content_file
@@ -88,7 +86,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
 
         self.assertEqual(record, content_file)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_get_not_found(self, backend_type: str) -> None:
         fixtures = self.fixtures
         content_file = fixtures.content_file
@@ -99,7 +97,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         with self.assertRaises(RecordNotFound):
             files.get(build.machine, build.build_id, binpkg.cpvb, content_file.path)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_delete(self, backend_type: str) -> None:
         fixtures = self.fixtures
         content_file = fixtures.content_file
@@ -113,7 +111,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         with self.assertRaises(RecordNotFound):
             files.get(build.machine, build.build_id, binpkg.cpvb, content_file.path)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_delete_not_found(self, backend_type: str) -> None:
         fixtures = self.fixtures
         content_file = fixtures.content_file
@@ -122,7 +120,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         with self.assertRaises(RecordNotFound):
             files.delete(content_file)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_delete_from_build(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -132,7 +130,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         self.assertEqual(files.count("polaris", "26", None), 0)
         self.assertEqual(files.count(None, None, None), 3)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_count(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -149,21 +147,21 @@ class ContentFilesTests(uf.TestCase, TestCase):
 
         self.assertEqual(files.count("babette", "226", None), 0)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_count_all(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
 
         self.assertEqual(files.count(None, None, None), 6)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_count_cpv_without_build_id(self, backend_type: str) -> None:
         files = files_backend(backend_type)
 
         with self.assertRaises(ValueError):
             files.count("lighthouse", None, "app-shells/bash-5.2_p37")
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_for_package(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -180,7 +178,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         paths = {pkg.path for pkg in pkgs}
         self.assertEqual(paths, set())
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_for_build(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -201,7 +199,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         total = len(list(pkgs))
         self.assertEqual(total, 0)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_for_machine(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -216,7 +214,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         total = len(list(pkgs))
         self.assertEqual(total, 4)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_search_full_path(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -227,7 +225,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         pkg_files = list(files.search("bin/bash"))
         self.assertEqual(len(pkg_files), 4)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_search_basename(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -235,7 +233,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         pkg_files = list(files.search("bash"))
         self.assertEqual(len(pkg_files), 4)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_search_wildcard(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -255,7 +253,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         pkg_files = list(files.search("*ash"))
         self.assertEqual(len(pkg_files), 4)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_search_with_empty_string(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -263,7 +261,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         pkg_files = list(files.search(""))
         self.assertEqual(len(pkg_files), 0)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_search_machine(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
@@ -271,7 +269,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
         pkg_files = list(files.search("bash", machine="polaris"))
         self.assertEqual(len(pkg_files), 3)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_exists_false(self, backend_type: str) -> None:
         files = files_backend(backend_type)
 
@@ -281,7 +279,7 @@ class ContentFilesTests(uf.TestCase, TestCase):
 
         self.assertIs(exists, False)
 
-    @parametrized(BACKENDS)
+    @uf.parametrized(BACKENDS)
     def test_exists_true(self, backend_type: str) -> None:
         files = files_backend(backend_type)
         files.bulk_save(self.fixtures.bulk_content_files)
