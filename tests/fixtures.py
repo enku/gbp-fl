@@ -83,11 +83,22 @@ def bulk_content_files(
         except IndexError:
             repo_ = "gentoo"
 
+        try:
+            size = int(parts[5])
+        except IndexError:
+            size = 850648
+
+        try:
+            timestamp = dt.datetime.fromisoformat(parts[6])
+        except IndexError:
+            timestamp = fixtures.now
+
+
         bld = Build(machine=machine, build_id=build_id)
         pkg = BinPkg(build=bld, cpvb=cpvb, build_time=fixtures.now, repo=repo_)
         content_files.append(
             ContentFile(
-                binpkg=pkg, path=Path(path), timestamp=fixtures.now, size=850648
+                binpkg=pkg, path=Path(path), timestamp=timestamp, size=int(size)
             )
         )
 
