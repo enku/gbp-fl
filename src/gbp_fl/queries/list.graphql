@@ -1,0 +1,7 @@
+query list($machine: String!, $buildId: String!, $cpvb: String!, $extended: Boolean = false) {
+  flList(machine: $machine, buildId: $buildId, cpvb: $cpvb) {
+    path
+    size @include(if: $extended)
+    timestamp @include(if: $extended)
+  }
+}
