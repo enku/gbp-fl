@@ -1,41 +1,20 @@
 """Handler for `gbp fl fetch`"""
 
 import argparse
-import re
-from dataclasses import dataclass
 
 import requests
 from gbpcli.gbp import GBP
 from gbpcli.types import Console
 from yarl import URL
 
-# lighthouse/32284/www-client/firefox-135.0-1::gentoo
-PKGSPEC_RE_STR = r"""
-(?P<machine>[a-z]\w*)/
-(?P<build_id>[0-9]+)/
-(?P<c>[a-z0-9]+-[a-z0-9]+)/
-(?P<p>[a-z].*)-(?P<v>[0-9].*)-(?P<b>[0-9]*)
-"""
+from gbp_fl import utils
 
 BUFSIZE = 1024
-PKGSPEC_RE = re.compile(PKGSPEC_RE_STR, re.I | re.X)
-
-
-@dataclass
-class Parsed:
-    """Parsed package spec"""
-
-    machine: str
-    build_id: str
-    c: str
-    p: str
-    v: str
-    b: int
 
 
 def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
     """Get package files from Gentoo Build Publisher"""
-    if (spec := parse_pkgspec(args.pkgspec)) is None:
+    if (spec := utils.parse_pkgspec(args.pkgspec)) is None:
         console.err.print(f"[red]Invalid specifier: {args.pkgspec}[/red]")
         return 1
 
@@ -66,12 +45,3 @@ HELP = handler.__doc__
 def parse_args(parser: argparse.ArgumentParser) -> None:
     """Build command-line arguments"""
     parser.add_argument("pkgspec")
-
-
-def parse_pkgspec(pkgspec: str) -> Parsed | None:
-    """Parse the given spec"""
-    if match := PKGSPEC_RE.match(pkgspec):
-        parsed = Parsed(**match.groupdict())  # type: ignore
-        parsed.b = int(parsed.b)
-        return parsed
-    return None
