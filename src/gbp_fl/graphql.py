@@ -50,6 +50,16 @@ def resolve_file_list_count(
     return files.count(machine, build_id, None)
 
 
+@query.field("flList")
+@convert_kwargs_to_snake_case
+def resolve_file_list_list(
+    _obj: Any, _info: GraphQLResolveInfo, *, machine: str, build_id: str, cpvb: str
+) -> list[ContentFile]:
+    files = get_repo().files
+
+    return list(files.for_package(machine, build_id, cpvb))
+
+
 @binpkg.field("build")
 def resolve_binpkg_build(pkg: BinPkg, _info: GraphQLResolveInfo) -> BuildLike:
     build = pkg.build

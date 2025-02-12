@@ -143,6 +143,38 @@ class ResolveBinPkgBuildTests(TestCase):
         self.assertEqual(result, build_record)
 
 
+@requires(repo_fixture, "bulk_content_files")
+class FileListListTests(TestCase):
+    def test(self) -> None:
+        f = self.fixtures
+        repo = f.repo
+        repo.files.bulk_save(f.bulk_content_files)
+
+        query = """
+          query {
+            flList(machine: "lighthouse", buildId: "34", cpvb: "app-shells/bash-5.2_p37-1") {
+              path timestamp size
+            }
+          }
+        """
+        result = graphql(query)
+
+        self.assertTrue("errors" not in result, result.get("errors"))
+        expected = [
+            {
+                "path": "/bin/bash",
+                "size": 850648,
+                "timestamp": "2025-01-26T12:57:37+00:00",
+            },
+            {
+                "path": "/etc/skel",
+                "size": 850648,
+                "timestamp": "2025-01-26T12:57:37+00:00",
+            },
+        ]
+        self.assertEqual(expected, result["data"]["flList"])
+
+
 def graphql(query: str, **variables: Any) -> Any:
     """Execute GraphQL query on the Django test client
 
