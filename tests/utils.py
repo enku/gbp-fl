@@ -1,12 +1,17 @@
 """Test utilities"""
 
+import argparse
 import datetime as dt
 import os
+import shlex
 from contextlib import contextmanager
 from tarfile import TarInfo
 from typing import Any, Generator
 
+import gbpcli
 from django.test.client import Client
+from gbpcli.config import Config
+from gbpcli.types import Console
 
 from gbp_fl.types import Build, BuildLike, Package
 
@@ -62,3 +67,16 @@ def cd(path: str) -> Generator[None, None, None]:
     os.chdir(path)
     yield
     os.chdir(cwd)
+
+
+def parse_args(cmdline: str) -> argparse.Namespace:
+    """Return cmdline as parsed arguments"""
+    args = shlex.split(cmdline)
+    parser = gbpcli.build_parser(Config(url="http://gbp.invalid/"))
+
+    return parser.parse_args(args[1:])
+
+
+def print_command(cmdline: str, console: Console) -> None:
+    """Pretty print the cmdline to console"""
+    console.out.print(f"[green]$ [/green]{cmdline}")
