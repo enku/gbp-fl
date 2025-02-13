@@ -14,7 +14,7 @@ from unittest_fixtures import Fixtures as F
 from unittest_fixtures import TestCase, requires
 
 from gbp_fl import gateway as gw
-from gbp_fl.types import Build, Package
+from gbp_fl.types import Build, MissingPackageIdentifier, Package
 
 TESTDIR = Path(__file__).parent
 
@@ -111,9 +111,8 @@ class GetPackageContentsTests(TestCase):
         with mock.patch.object(
             gbp, "get_full_package_path", return_value=TESTDIR / "assets/empty.tar"
         ):
-            result = list(gbp.get_package_contents(build, package))
-
-        self.assertEqual(len(result), 0)
+            with self.assertRaises(MissingPackageIdentifier):
+                list(gbp.get_package_contents(build, package))
 
 
 class ReceiveSignalTests(TestCase):

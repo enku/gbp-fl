@@ -89,3 +89,7 @@ class ContentFileInfo:
 
     size: int
     """file size in bytes"""
+
+
+class MissingPackageIdentifier(LookupError):
+    """Raised when tar archive is missing GLEP-78 package identifier"""

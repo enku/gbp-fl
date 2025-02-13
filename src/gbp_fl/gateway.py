@@ -21,6 +21,7 @@ from typing import Any, Callable, Iterator, ParamSpec, cast
 
 from pydispatch import Dispatcher  # type: ignore
 
+from gbp_fl import utils
 from gbp_fl.types import Build, BuildLike, Package
 
 P = ParamSpec("P")
@@ -124,8 +125,10 @@ class GBPGateway:
         package_path = self.get_full_package_path(build, package)
 
         with TarFile.open(package_path, "r") as tarfile:
-            # We're not sure of the exact filename of the inner tarfile because of available
-            # compression options, but we know what the name starts with.
+            utils.ensure_package_identifier(package, tarfile)
+
+            # We're not sure of the exact filename of the inner tarfile because of
+            # available compression options, but we know what the name starts with.
             # https://www.gentoo.org/glep/glep-0078.html#the-container-format
             pv = package.cpv.partition("/")[2]
             prefix = f"{pv}-{package.build_id}/image.tar"

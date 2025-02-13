@@ -2,6 +2,9 @@
 
 import re
 from dataclasses import dataclass
+from tarfile import TarFile
+
+from gbp_fl.types import MissingPackageIdentifier, Package
 
 # lighthouse/32284/www-client/firefox-135.0-1
 PKGSPEC_RE_STR = r"""
@@ -38,3 +41,15 @@ def parse_pkgspec(pkgspec: str) -> Parsed | None:
         parsed.b = int(parsed.b)
         return parsed
     return None
+
+
+def ensure_package_identifier(package: Package, tarfile: TarFile) -> None:
+    """Raise LookupError if tarfile is missing the required identifier"""
+    pv = package.cpv.partition("/")[2]
+    package_identifier = f"{pv}-{package.build_id}/gpkg-1"
+
+    if package_identifier in tarfile.getnames():
+        return
+
+    msg = f"Expected {package_identifier} in the archive, but it was not found."
+    raise MissingPackageIdentifier(msg)
