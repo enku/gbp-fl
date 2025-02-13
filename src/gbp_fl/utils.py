@@ -6,12 +6,11 @@ from tarfile import TarFile
 
 from gbp_fl.types import MissingPackageIdentifier, Package
 
-# lighthouse/32284/www-client/firefox-135.0-1
+# firefox-135.0-1
 PKGSPEC_RE_STR = r"""
-(?P<machine>[a-z]\w*)/
-(?P<build_id>[0-9]+)/
-(?P<c>[a-z0-9]+-[a-z0-9]+)/
-(?P<p>[a-z].*)-(?P<v>[0-9].*)-(?P<b>[0-9]*)
+(?P<p>[a-z].*)-
+(?P<v>[0-9].*)-
+(?P<b>[0-9]*)
 """
 
 PKGSPEC_RE = re.compile(PKGSPEC_RE_STR, re.I | re.X)
@@ -36,9 +35,16 @@ class Parsed:
 
 def parse_pkgspec(pkgspec: str) -> Parsed | None:
     """Parse the given spec"""
-    if match := PKGSPEC_RE.match(pkgspec):
-        parsed = Parsed(**match.groupdict())  # type: ignore
-        parsed.b = int(parsed.b)
+    parts = pkgspec.split("/")
+
+    if len(parts) != 4:
+        return None
+
+    machine, build_id, c, pvb = parts
+
+    if match := PKGSPEC_RE.match(pvb):
+        p, v, b = match.groups()
+        parsed = Parsed(machine=machine, build_id=build_id, c=c, p=p, v=v, b=int(b))
         return parsed
     return None
 
