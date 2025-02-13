@@ -93,7 +93,6 @@ def bulk_content_files(
         except IndexError:
             timestamp = fixtures.now
 
-
         bld = Build(machine=machine, build_id=build_id)
         pkg = BinPkg(build=bld, cpvb=cpvb, build_time=fixtures.now, repo=repo_)
         content_files.append(
