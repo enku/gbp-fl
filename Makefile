@@ -1,6 +1,6 @@
 .SHELL := /bin/bash
 
-ame := $(shell pdm show --name)
+name := $(shell pdm show --name)
 version := $(shell pdm show --version)
 sdist := dist/$(name)-$(version).tar.gz
 wheel := dist/$(subst -,_,$(name))-$(version)-py3-none-any.whl
