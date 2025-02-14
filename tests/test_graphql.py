@@ -15,7 +15,7 @@ from unittest_fixtures import (
     requires,
 )
 
-from gbp_fl import graphql as gql
+import gbp_fl.graphql.binpkg
 from gbp_fl.records import Repo
 from gbp_fl.types import BinPkg, Build
 
@@ -26,7 +26,7 @@ from gbp_fl.types import BinPkg, Build
 def repo_fixture(_options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
     repo: Repo = Repo.from_settings(fixtures.settings)
 
-    with patch("gbp_fl.graphql.Repo.from_settings", return_value=repo):
+    with patch("gbp_fl.graphql.queries.Repo.from_settings", return_value=repo):
         yield repo
 
 
@@ -138,7 +138,7 @@ class ResolveBinPkgBuildTests(TestCase):
             build_time=self.fixtures.now,
         )
         publisher.repo.build_records.save(build_record)
-        result = gql.resolve_binpkg_build(binpkg, Mock())
+        result = gbp_fl.graphql.binpkg.build(binpkg, Mock())
 
         self.assertEqual(result, build_record)
 
