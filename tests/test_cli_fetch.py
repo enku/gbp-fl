@@ -12,12 +12,14 @@ from gbp_fl.cli import fetch
 from .utils import cd
 
 
-@requires("tmpdir", "gbp_client", "repo", "console")
+@requires("console", "tmpdir", gbp="gbp_client")
 @patch("gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):
+    options = {"records_backend": "memory"}
+
     def test(self, requests: MagicMock) -> None:
         args = argparse.Namespace(pkgspec="lighthouse/34/app-shells/bash-5.2_p37-1")
-        gbp = self.fixtures.gbp_client
+        gbp = self.fixtures.gbp
         console = self.fixtures.console
         pkg = "bash-5.2_p37-1"
 
@@ -75,7 +77,7 @@ class HandlerTests(TestCase):
             "/app-shells/bash/bash-5.2_p37-1"
         )
         mock_response = get_mock_response(404, b"Not Found", url=url)
-        gbp = self.fixtures.gbp_client
+        gbp = self.fixtures.gbp
         console = self.fixtures.console
         requests.get.return_value = mock_response
 

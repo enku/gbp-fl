@@ -17,6 +17,8 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 @patch("gbp_fl.graphql.binpkg.GBPGateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
+    options = {"records_backend": "memory"}
+
     def test(self, gpbgateway: Mock) -> None:
         cfs = self.fixtures.bulk_content_files
         repo = self.fixtures.repo

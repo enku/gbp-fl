@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest import mock
 
 import unittest_fixtures as uf
+from django.test import TestCase as DjangoTestCase
 
 from gbp_fl import package_utils
 from gbp_fl.records import files_backend
@@ -61,13 +62,15 @@ class IndexPackagesTests(uf.TestCase):
         self.assertEqual(repo.files.count(None, None, None), 0)
 
 
-@uf.requires("build_record", "gbp_package")
-class MakeContentFileTests(uf.TestCase):
+@uf.requires("gbp_package", "record")
+class MakeContentFileTests(uf.TestCase, DjangoTestCase):
+    options = {"records_backend": "django"}
+
     def test(self) -> None:
         f = self.fixtures
         info = ContentFileInfo(name="/bin/bash", mtime=1738258812, size=8829)
 
-        result = package_utils.make_content_file(f.build_record, f.gbp_package, info)
+        result = package_utils.make_content_file(f.record, f.gbp_package, info)
 
         self.assertEqual(result.path, Path("/bin/bash"))
         self.assertEqual(result.size, 8829)

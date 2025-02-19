@@ -6,7 +6,7 @@ from gentoo_build_publisher import utils
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "agentlemannevertells"
+SECRET_KEY = "eCFZlf0F3B8bah0nDTxEtc4qwFWfzK17PUu_BGVKcC0="
 
 USE_TZ = True
 

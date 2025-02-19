@@ -1,37 +1,23 @@
 """Tests for the GraphQL interface for gbp-fl"""
 
 from dataclasses import replace
-from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
-from django.test.client import Client
+from django.test import TestCase as DjangoTestCase
+from gbp_testkit.helpers import graphql
 from gentoo_build_publisher.records import BuildRecord
-from unittest_fixtures import (
-    FixtureContext,
-    FixtureOptions,
-    Fixtures,
-    TestCase,
-    depends,
-    requires,
-)
+from unittest_fixtures import TestCase, requires
 
 import gbp_fl.graphql.binpkg
-from gbp_fl.records import Repo
 from gbp_fl.types import BinPkg, Build
 
 # pylint: disable=missing-docstring
 
 
-@depends("settings")
-def repo_fixture(_options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
-    repo: Repo = Repo.from_settings(fixtures.settings)
-
-    with patch("gbp_fl.graphql.queries.Repo.from_settings", return_value=repo):
-        yield repo
-
-
-@requires(repo_fixture, "bulk_content_files")
+@requires("repo", "bulk_content_files", "client")
 class FileListSearchTests(TestCase):
+    options = {"records_backend": "memory"}
+
     def test_search_without_machine(self) -> None:
         f = self.fixtures
         repo = f.repo
@@ -42,7 +28,7 @@ class FileListSearchTests(TestCase):
             flSearch(key: "ba*") { path binpkg { cpvb } }
           }
         """
-        result = graphql(query)
+        result = graphql(self.fixtures.client, query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(len(result["data"]["flSearch"]), 4)
@@ -50,7 +36,7 @@ class FileListSearchTests(TestCase):
     def test_search_without_machine_no_match(self) -> None:
         query = 'query { flSearch(key: "python") { path binpkg { cpvb } } }'
 
-        result = graphql(query)
+        result = graphql(self.fixtures.client, query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(len(result["data"]["flSearch"]), 0)
@@ -66,14 +52,15 @@ class FileListSearchTests(TestCase):
             }
           }
         """
-        result = graphql(query)
+        result = graphql(self.fixtures.client, query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(len(result["data"]["flSearch"]), 3)
 
 
-@requires(repo_fixture, "bulk_content_files")
+@requires("repo", "bulk_content_files", "client")
 class ResolveQueryCountTests(TestCase):
+    options = {"records_backend": "memory"}
     query = "query totalFileCount { flCount }"
 
     query_with_machine = """
@@ -92,13 +79,13 @@ class ResolveQueryCountTests(TestCase):
         repo = f.repo
 
         repo.files.bulk_save(f.bulk_content_files)
-        result = graphql(self.query)
+        result = graphql(self.fixtures.client, self.query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(result["data"]["flCount"], 6)
 
     def test_with_no_content_files(self) -> None:
-        result = graphql(self.query)
+        result = graphql(self.fixtures.client, self.query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(result["data"]["flCount"], 0)
@@ -108,7 +95,9 @@ class ResolveQueryCountTests(TestCase):
         repo = f.repo
 
         repo.files.bulk_save(f.bulk_content_files)
-        result = graphql(self.query_with_machine, machine="lighthouse")
+        result = graphql(
+            self.fixtures.client, self.query_with_machine, {"machine": "lighthouse"}
+        )
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(result["data"]["flCount"], 2)
@@ -118,18 +107,26 @@ class ResolveQueryCountTests(TestCase):
         repo = f.repo
 
         repo.files.bulk_save(f.bulk_content_files)
-        result = graphql(self.query_with_build, machine="polaris", buildId="26")
+        result = graphql(
+            self.fixtures.client,
+            self.query_with_build,
+            {"machine": "polaris", "buildId": "26"},
+        )
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(result["data"]["flCount"], 3)
 
 
-@requires(repo_fixture, "publisher", "build_record", "bulk_content_files")
-class ResolveBinPkgBuildTests(TestCase):
+@requires("publisher", "record", "now")
+class ResolveBinPkgBuildTests(TestCase, DjangoTestCase):
+    # Any test that uses "record" depends on Django, because "records" depends on
+    # Django.  This needs to be fixed
+    options = {"records_backend": "django"}
+
     def test(self) -> None:
         f = self.fixtures
         publisher = f.publisher
-        build_record: BuildRecord = replace(f.build_record, submitted=f.now)
+        build_record: BuildRecord = replace(f.record, submitted=f.now)
         build = Build(machine=build_record.machine, build_id=build_record.build_id)
         binpkg = BinPkg(
             build=build,
@@ -143,8 +140,10 @@ class ResolveBinPkgBuildTests(TestCase):
         self.assertEqual(result, build_record)
 
 
-@requires(repo_fixture, "bulk_content_files")
+@requires("repo", "bulk_content_files", "client")
 class FileListListTests(TestCase):
+    options = {"records_backend": "memory"}
+
     def test(self) -> None:
         f = self.fixtures
         repo = f.repo
@@ -157,7 +156,7 @@ class FileListListTests(TestCase):
             }
           }
         """
-        result = graphql(query)
+        result = graphql(self.fixtures.client, query)
 
         self.assertTrue("errors" not in result, result.get("errors"))
         expected = [
@@ -173,15 +172,3 @@ class FileListListTests(TestCase):
             },
         ]
         self.assertEqual(expected, result["data"]["flList"])
-
-
-def graphql(query: str, **variables: Any) -> Any:
-    """Execute GraphQL query on the Django test client
-
-    Return parse JSON response
-    """
-    post_data = {"query": query, "variables": variables or None}
-    client = Client(raise_request_exception=True)
-    response = client.post("/graphql", post_data, content_type="application/json")
-
-    return response.json()

@@ -1,42 +1,55 @@
-"""unittest fixtures"""
-
 # pylint: disable=missing-docstring
-
 import datetime as dt
-import io
 import os
-import tempfile
-from contextlib import ExitStack
 from pathlib import PurePath as Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 from unittest import mock
 
-import rich.console
-from django.test.client import Client
+from gbp_testkit import fixtures as testkit
+from gbp_testkit import helpers
 from gbpcli.gbp import GBP
-from gbpcli.theme import get_theme_from_string
-from gbpcli.types import Console
-from gentoo_build_publisher import publisher as publisher_obj
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
-from gentoo_build_publisher.build_publisher import BuildPublisher
-from gentoo_build_publisher.records import BuildRecord
-from gentoo_build_publisher.settings import Settings as GBPSettings
-from requests import PreparedRequest, Response
-from requests.adapters import BaseAdapter
-from requests.structures import CaseInsensitiveDict
 from unittest_fixtures import FixtureContext, FixtureOptions, Fixtures, depends
 
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, Package
 
-COUNTER = 0
+client = testkit.client
+console = testkit.console
+publisher = testkit.publisher
+record = testkit.record
+server_settings = testkit.settings
+tmpdir = testkit.tmpdir
 
 
-################
-# gbp-fl stuff #
-################
+@depends()
+def gbp_client(options: FixtureOptions, _fixtures: Fixtures) -> GBP:
+    url: str = options.get("gbp_client", {}).get("url", "http://gbp.invalid/")
+
+    return helpers.test_gbp(url)
+
+
+@depends("tmpdir")
+def environ(
+    options: FixtureOptions, fixtures: Fixtures
+) -> FixtureContext[dict[str, str]]:
+    mock_environ = {
+        **next(testkit.environ(options, fixtures), {}),
+        "BUILD_PUBLISHER_API_KEY_ENABLE": "no",
+        "BUILD_PUBLISHER_JENKINS_BASE_URL": "https://jenkins.invalid/",
+        "BUILD_PUBLISHER_RECORDS_BACKEND": "memory",
+        "BUILD_PUBLISHER_STORAGE_PATH": str(fixtures.tmpdir / "gbp"),
+        "BUILD_PUBLISHER_WORKER_BACKEND": "sync",
+        "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
+        "GBP_FL_RECORDS_BACKEND": "memory",
+        **options.get("environ", {}),
+    }
+    with mock.patch.dict(os.environ, mock_environ):
+        yield mock_environ
+
+
 @depends("tmpdir", "environ")
 def settings(_options: FixtureOptions, _fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
@@ -49,6 +62,33 @@ def repo(options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
 
     with mock.patch(f"{where}.from_settings", return_value=repo_):
         yield repo_
+
+
+@depends()
+def now(options: FixtureOptions, _fixtures: Fixtures) -> dt.datetime:
+    time: dt.datetime = options.get(
+        "now", dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
+    )
+    return time
+
+
+@depends()
+def build(options: FixtureOptions, _fixtures: Fixtures) -> Build:
+    args = get_options(options.get("build", {}), machine="lighthouse", build_id="34")
+
+    return Build(**args)
+
+
+@depends("build", "now")
+def binpkg(options: FixtureOptions, fixtures: Fixtures) -> BinPkg:
+    args = get_options(
+        options.get("package", {}),
+        build=fixtures.build,
+        cpvb="app-shells/bash-5.2_p37-3",
+        build_time=fixtures.now,
+        repo=options.get("repo", "gentoo"),
+    )
+    return BinPkg(**args)
 
 
 @depends("binpkg", "now")
@@ -89,7 +129,7 @@ def bulk_content_files(
             size = 850648
 
         try:
-            timestamp = dt.datetime.fromisoformat(parts[6])
+            timestamp = dt.datetime.fromisoformat(parts[6]).astimezone(dt.UTC)
         except IndexError:
             timestamp = fixtures.now
 
@@ -102,6 +142,16 @@ def bulk_content_files(
         )
 
     return content_files
+
+
+DEFAULT_CONTENTS = """
+    lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
+    lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
+    polaris    26 app-arch/tar-1.35-1       /bin/gtar
+    polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
+    polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
+    polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
+"""
 
 
 @depends("now")
@@ -143,122 +193,7 @@ def bulk_packages(options: FixtureOptions, fixtures: Fixtures) -> list[Package]:
     return packages
 
 
-@depends("build", "now")
-def binpkg(options: FixtureOptions, fixtures: Fixtures) -> BinPkg:
-    args = get_options(
-        options.get("package", {}),
-        build=fixtures.build,
-        cpvb="app-shells/bash-5.2_p37-3",
-        build_time=fixtures.now,
-        repo=options.get("repo", "gentoo"),
-    )
-    return BinPkg(**args)
-
-
-@depends()
-def build(options: FixtureOptions, _fixtures: Fixtures) -> Build:
-    args = get_options(options.get("build", {}), machine="lighthouse", build_id="34")
-
-    return Build(**args)
-
-
-@depends()
-def tmpdir(_options: FixtureOptions, _fixtures: Fixtures) -> FixtureContext[Path]:
-    with tempfile.TemporaryDirectory() as tempdir:
-        yield Path(tempdir)
-
-
-@depends("tmpdir")
-def environ(
-    options: FixtureOptions, fixtures: Fixtures
-) -> FixtureContext[dict[str, str]]:
-    mock_environ = {
-        "BUILD_PUBLISHER_API_KEY_ENABLE": "no",
-        "BUILD_PUBLISHER_JENKINS_BASE_URL": "https://jenkins.invalid/",
-        "BUILD_PUBLISHER_RECORDS_BACKEND": "memory",
-        "BUILD_PUBLISHER_STORAGE_PATH": str(fixtures.tmpdir / "gbp"),
-        "BUILD_PUBLISHER_WORKER_BACKEND": "sync",
-        "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
-        "GBP_FL_RECORDS_BACKEND": "memory",
-        **options.get("environ", {}),
-    }
-    with mock.patch.dict(os.environ, mock_environ):
-        yield mock_environ
-
-
-@depends()
-def now(options: FixtureOptions, _fixtures: Fixtures) -> dt.datetime:
-    time: dt.datetime = options.get(
-        "now", dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
-    )
-    return time
-
-
-@depends()
-def console(_options: FixtureOptions, _fixtures: Fixtures) -> FixtureContext[Console]:
-    """StringIO Console"""
-    outfile = io.StringIO()
-    errfile = io.StringIO()
-    theme = get_theme_from_string(os.getenv("GBPCLI_COLORS", ""))
-    out = rich.console.Console(
-        file=outfile, width=88, theme=theme, highlight=False, record=True
-    )
-    err = rich.console.Console(file=errfile, record=True)
-    c = Console(out=out, err=err)
-
-    yield c
-
-    if "SAVE_VIRTUAL_CONSOLE" in os.environ:
-        global COUNTER  # pylint: disable=global-statement
-
-        COUNTER += 1
-        filename = f"{COUNTER}.svg"
-        c.out.save_svg(filename, title="gbp-fl")
-
-
-################################
-# gentoo-build-publisher stuff #
-################################
-@depends("gbp_settings")
-def publisher(
-    _options: FixtureOptions, fixtures: Fixtures
-) -> FixtureContext[BuildPublisher]:
-    bp: BuildPublisher = BuildPublisher.from_settings(fixtures.gbp_settings)
-    names = ["storage", "jenkins", "repo"]
-    contexts = (
-        mock.patch.object(publisher_obj, name, getattr(bp, name)) for name in names
-    )
-
-    with ExitStack() as stack:
-        for cm in contexts:
-            stack.enter_context(cm)
-
-        yield bp
-
-
-@depends("gbp_settings")
-def worker(
-    _options: FixtureOptions, fixtures: Fixtures
-) -> FixtureContext[gbp_worker.WorkerInterface]:
-    sync_worker = gbp_worker.Worker(fixtures.gbp_settings)
-    with mock.patch("gentoo_build_publisher.worker", sync_worker):
-        yield sync_worker
-
-
-@depends("environ")
-def gbp_settings(_options: FixtureOptions, _fixtures: Fixtures) -> GBPSettings:
-    return GBPSettings.from_environ()
-
-
-@depends()
-def build_record(options: FixtureOptions, _fixtures: Fixtures) -> BuildRecord:
-    record = get_options(
-        options.get("build_record", {}), build_id="1502", machine="babette", note=None
-    )
-    return BuildRecord(**record)
-
-
-@depends("build_record", "now")
+@depends("record", "now")
 def gbp_package(options: FixtureOptions, fixtures: Fixtures) -> gbp.Package:
     pkg_options = get_options(
         options.get("gbp_package", {}),
@@ -272,28 +207,17 @@ def gbp_package(options: FixtureOptions, fixtures: Fixtures) -> gbp.Package:
     return gbp.Package(**pkg_options)
 
 
-def gbp_client(options: FixtureOptions, _fixtures: Fixtures) -> GBP:
-    url = options.get("gbp", {}).get("url", "http://gbp.invalid/")
-    gbp_ = GBP(url)
-    gbp_.query._session.mount(  # pylint: disable=protected-access
-        url, DjangoToRequestsAdapter()
-    )
-
-    return gbp_
+@depends(settings="server_settings")
+def worker(
+    _options: FixtureOptions, fixtures: Fixtures
+) -> FixtureContext[gbp_worker.WorkerInterface]:
+    sync_worker = gbp_worker.Worker(fixtures.settings)
+    with mock.patch("gentoo_build_publisher.worker", sync_worker):
+        yield sync_worker
 
 
 def get_options(options: FixtureOptions, **defaults: Any) -> FixtureOptions:
     return {item: options.get(item, default) for item, default in defaults.items()}
-
-
-DEFAULT_CONTENTS = """
-    lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
-    lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
-    polaris    26 app-arch/tar-1.35-1       /bin/gtar
-    polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
-    polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
-    polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
-"""
 
 
 def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
@@ -302,36 +226,3 @@ def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
         return seq[index]
     except IndexError:
         return default
-
-
-class DjangoToRequestsAdapter(BaseAdapter):  # pylint: disable=abstract-method
-    """Requests Adapter to call Django views"""
-
-    def send(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-        self,
-        request: PreparedRequest,
-        stream: bool = False,
-        timeout: None | float | tuple[float, float] | tuple[float, None] = None,
-        verify: bool | str = True,
-        cert: None | bytes | str | tuple[bytes | str, bytes | str] = None,
-        proxies: Mapping[str, str] | None = None,
-    ) -> Response:
-        assert request.method is not None
-        django_response = Client().generic(
-            request.method,
-            request.path_url,
-            data=request.body,
-            content_type=request.headers["Content-Type"],
-            **request.headers,
-        )
-
-        requests_response = Response()
-        requests_response.raw = io.BytesIO(django_response.content)
-        requests_response.raw.seek(0)
-        requests_response.status_code = django_response.status_code
-        requests_response.headers = CaseInsensitiveDict(django_response.headers)
-        requests_response.encoding = django_response.get("Content-Type", None)
-        requests_response.url = str(request.url)
-        requests_response.request = request
-
-        return requests_response

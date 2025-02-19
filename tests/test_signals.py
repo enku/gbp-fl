@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest import mock
 
 import unittest_fixtures as uf
+from django.test import TestCase
 
 from gbp_fl import gateway
 from gbp_fl.records import Repo
@@ -16,11 +17,11 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 
 
 @uf.requires("publisher")
-class GBPTestCase(uf.TestCase):
-    pass
+class GBPTestCase(uf.TestCase, TestCase):
+    options = {"records_backend": "django"}
 
 
-@uf.depends("gbp_package", "build_record")
+@uf.depends("gbp_package", build_record="record")
 def binpkg(_o: uf.FixtureOptions, f: uf.Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
@@ -116,7 +117,7 @@ class PostDeleteTests(GBPTestCase):
         self.assertEqual(repo.files.count(None, None, None), 3)
 
 
-@uf.requires("build_record", "gbp_package", binpkg)
+@uf.requires("gbp_package", binpkg, build_record="record")
 class GetPackageContentsTests(GBPTestCase):
     def test(self) -> None:
         f = self.fixtures

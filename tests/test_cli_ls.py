@@ -28,7 +28,8 @@ polaris    26 app-arch/tar-1.35-1       /bin/gtar
 polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
 polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
 polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
-    """
+    """,
+        "records_backend": "memory",
     }
 
     def test_short_format(self) -> None:
