@@ -78,4 +78,6 @@ dev = [
     "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher.git@master",
     "gbp-testkit @ git+https://github.com/enku/gbp-testkit.git@master",
     "gbp-ps>=1.4.0",
+    "mypy>=1.15.0",
+    "isort>=6.0.0",
 ]
