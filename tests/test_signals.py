@@ -22,7 +22,7 @@ class GBPTestCase(uf.TestCase, TestCase):
 
 
 @uf.depends("gbp_package", build_record="record")
-def binpkg(_o: uf.FixtureOptions, f: uf.Fixtures) -> Path:
+def binpkg(_o: None, f: uf.Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
     path.parent.mkdir(parents=True)
@@ -34,6 +34,9 @@ def binpkg(_o: uf.FixtureOptions, f: uf.Fixtures) -> Path:
     return path
 
 
+# Any test that uses "record" depends on Django, because "records" depends on Django.
+# This needs to be fixed
+@uf.options(records_db={"records_backend": "django"})
 @uf.requires("worker", "gbp_package", "settings", binpkg)
 class PostPulledTests(GBPTestCase):
     def test(self) -> None:
@@ -117,6 +120,9 @@ class PostDeleteTests(GBPTestCase):
         self.assertEqual(repo.files.count(None, None, None), 3)
 
 
+# Any test that uses "record" depends on Django, because "records" depends on Django.
+# This needs to be fixed
+@uf.options(records_db={"records_backend": "django"})
 @uf.requires("gbp_package", binpkg, build_record="record")
 class GetPackageContentsTests(GBPTestCase):
     def test(self) -> None:

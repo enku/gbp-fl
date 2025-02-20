@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher.records import BuildRecord
-from unittest_fixtures import TestCase, requires
+from unittest_fixtures import TestCase, options, requires
 
 import gbp_fl.graphql.binpkg
 from gbp_fl.types import BinPkg, Build
@@ -117,11 +117,11 @@ class ResolveQueryCountTests(TestCase):
         self.assertEqual(result["data"]["flCount"], 3)
 
 
+# Any test that uses "record" depends on Django, because "records" depends on Django.
+# This needs to be fixed
+@options(records_db={"records_backend": "django"})
 @requires("publisher", "record", "now")
 class ResolveBinPkgBuildTests(TestCase, DjangoTestCase):
-    # Any test that uses "record" depends on Django, because "records" depends on
-    # Django.  This needs to be fixed
-    options = {"records_backend": "django"}
 
     def test(self) -> None:
         f = self.fixtures

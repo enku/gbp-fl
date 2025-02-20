@@ -5,11 +5,7 @@ from gbp_fl.cli import ls
 
 from .utils import parse_args, print_command
 
-
-@uf.requires("bulk_content_files", "console", "gbp_client", "repo")
-class LsTests(uf.TestCase):
-    options = {
-        "bulk_content_files": """
+BULK_CONTENT_FILES = """
 lighthouse 34 app-arch/tar-1.35-1 /usr/share/info/tar.info-2        gentoo  317618 2025-02-08T07:34:00
 lighthouse 34 app-arch/tar-1.35-1 /usr/share/info/tar.info-3        gentoo   49627 2025-02-08T07:34:00
 lighthouse 34 app-arch/tar-1.35-1 /usr/share/man/man1/gtar.1        gentoo   42162 2025-02-08T07:34:00
@@ -28,9 +24,14 @@ polaris    26 app-arch/tar-1.35-1       /bin/gtar
 polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
 polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
 polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
-    """,
-        "records_backend": "memory",
-    }
+"""
+
+
+@uf.options(
+    records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES
+)
+@uf.requires("bulk_content_files", "console", "gbp_client", "repo")
+class LsTests(uf.TestCase):
 
     def test_short_format(self) -> None:
         cfs = self.fixtures.bulk_content_files

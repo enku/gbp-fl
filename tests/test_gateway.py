@@ -9,7 +9,6 @@ from unittest import mock
 import gentoo_build_publisher
 from gentoo_build_publisher import types as gtype
 from unittest_fixtures import FixtureContext
-from unittest_fixtures import FixtureOptions as O
 from unittest_fixtures import Fixtures as F
 from unittest_fixtures import TestCase, requires
 
@@ -19,7 +18,7 @@ from gbp_fl.types import Build, MissingPackageIdentifier, Package
 TESTDIR = Path(__file__).parent
 
 
-def mock_publisher(_o: O, _f: F) -> FixtureContext[dict[str, mock.Mock]]:
+def mock_publisher(_o: None, _f: F) -> FixtureContext[dict[str, mock.Mock]]:
     mocks = {"storage": mock.Mock(), "jenkins": mock.Mock(), "repo": mock.Mock()}
     contexts = (
         mock.patch.object(gentoo_build_publisher.publisher, name, value)

@@ -18,17 +18,16 @@ MOCK_PREFIX = "gbp_fl.package_utils."
 
 
 @uf.requires("bulk_packages")
+@uf.options(
+    bulk_packages="""
+    app-crypt/rhash-1.4.5
+    dev-libs/libgcrypt-1.11.0-r2
+    dev-libs/openssl-3.3.2-r2
+    dev-libs/wayland-protocols-1.39
+    net-dns/c-ares-1.34.4
+"""
+)
 class IndexPackagesTests(uf.TestCase):
-    options = {
-        "bulk_packages": """
-            app-crypt/rhash-1.4.5
-            dev-libs/libgcrypt-1.11.0-r2
-            dev-libs/openssl-3.3.2-r2
-            dev-libs/wayland-protocols-1.39
-            net-dns/c-ares-1.34.4
-        """
-    }
-
     def test(self) -> None:
         mock_gw = MockGBPGateway()
         build = Build(machine="babette", build_id="1505")
@@ -62,10 +61,11 @@ class IndexPackagesTests(uf.TestCase):
         self.assertEqual(repo.files.count(None, None, None), 0)
 
 
+# Any test that uses "record" depends on Django, because "records" depends on Django.
+# This needs to be fixed
+@uf.options(records_db={"records_backend": "django"})
 @uf.requires("gbp_package", "record")
 class MakeContentFileTests(uf.TestCase, DjangoTestCase):
-    options = {"records_backend": "django"}
-
     def test(self) -> None:
         f = self.fixtures
         info = ContentFileInfo(name="/bin/bash", mtime=1738258812, size=8829)

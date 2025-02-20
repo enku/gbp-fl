@@ -10,7 +10,7 @@ from gbp_testkit import helpers
 from gbpcli.gbp import GBP
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
-from unittest_fixtures import FixtureContext, FixtureOptions, Fixtures, depends
+from unittest_fixtures import FixtureContext, Fixtures, depends
 
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
@@ -25,18 +25,20 @@ tmpdir = testkit.tmpdir
 
 
 @depends()
-def gbp_client(options: FixtureOptions, _fixtures: Fixtures) -> GBP:
-    url: str = options.get("gbp_client", {}).get("url", "http://gbp.invalid/")
+def gbp_client(options: dict[str, Any] | None, _fixtures: Fixtures) -> GBP:
+    options = options or {}
+    url: str = options.get("url", "http://gbp.invalid/")
 
     return helpers.test_gbp(url)
 
 
 @depends("tmpdir")
 def environ(
-    options: FixtureOptions, fixtures: Fixtures
+    options: dict[str, str] | None, fixtures: Fixtures
 ) -> FixtureContext[dict[str, str]]:
+    options = options or {}
     mock_environ = {
-        **next(testkit.environ(options, fixtures), {}),
+        # **next(testkit.environ(options, fixtures), {}),
         "BUILD_PUBLISHER_API_KEY_ENABLE": "no",
         "BUILD_PUBLISHER_JENKINS_BASE_URL": "https://jenkins.invalid/",
         "BUILD_PUBLISHER_RECORDS_BACKEND": "memory",
@@ -44,20 +46,21 @@ def environ(
         "BUILD_PUBLISHER_WORKER_BACKEND": "sync",
         "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
         "GBP_FL_RECORDS_BACKEND": "memory",
-        **options.get("environ", {}),
+        **options,
     }
     with mock.patch.dict(os.environ, mock_environ):
         yield mock_environ
 
 
 @depends("tmpdir", "environ")
-def settings(_options: FixtureOptions, _fixtures: Fixtures) -> Settings:
+def settings(_options: None, _fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
 
 
 @depends("settings")
-def repo(options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
-    where: str = options.get("repo", {}).get("where", "gbp_fl.records.Repo")
+def repo(options: dict[str, Any] | None, fixtures: Fixtures) -> FixtureContext[Repo]:
+    options = options or {}
+    where: str = options.get("where", "gbp_fl.records.Repo")
     repo_: Repo = Repo.from_settings(fixtures.settings)
 
     with mock.patch(f"{where}.from_settings", return_value=repo_):
@@ -65,36 +68,34 @@ def repo(options: FixtureOptions, fixtures: Fixtures) -> FixtureContext[Repo]:
 
 
 @depends()
-def now(options: FixtureOptions, _fixtures: Fixtures) -> dt.datetime:
-    time: dt.datetime = options.get(
-        "now", dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
-    )
-    return time
+def now(options: dt.datetime | None, _fixtures: Fixtures) -> dt.datetime:
+    return options or dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
 
 
 @depends()
-def build(options: FixtureOptions, _fixtures: Fixtures) -> Build:
-    args = get_options(options.get("build", {}), machine="lighthouse", build_id="34")
+def build(options: dict[str, Any] | None, _fixtures: Fixtures) -> Build:
+    options = options or {}
+    args = get_options(options, machine="lighthouse", build_id="34")
 
     return Build(**args)
 
 
 @depends("build", "now")
-def binpkg(options: FixtureOptions, fixtures: Fixtures) -> BinPkg:
+def binpkg(options: dict[str, Any] | None, fixtures: Fixtures) -> BinPkg:
     args = get_options(
-        options.get("package", {}),
+        options,
         build=fixtures.build,
         cpvb="app-shells/bash-5.2_p37-3",
         build_time=fixtures.now,
-        repo=options.get("repo", "gentoo"),
+        repo="gentoo",
     )
     return BinPkg(**args)
 
 
 @depends("binpkg", "now")
-def content_file(options: FixtureOptions, fixtures: Fixtures) -> ContentFile:
+def content_file(options: dict[str, Any] | None, fixtures: Fixtures) -> ContentFile:
     args = get_options(
-        options.get("content_file", {}),
+        options,
         binpkg=fixtures.binpkg,
         path=Path("/bin/bash"),
         timestamp=fixtures.now,
@@ -104,11 +105,9 @@ def content_file(options: FixtureOptions, fixtures: Fixtures) -> ContentFile:
 
 
 @depends("now")
-def bulk_content_files(
-    options: FixtureOptions, fixtures: Fixtures
-) -> list[ContentFile]:
+def bulk_content_files(options: str | None, fixtures: Fixtures) -> list[ContentFile]:
     content_files: list[ContentFile] = []
-    cf_defs: str = options.get("bulk_content_files", DEFAULT_CONTENTS).strip()
+    cf_defs: str = (options or DEFAULT_CONTENTS).strip()
     for cf_def in cf_defs.split("\n"):
         cf_def = cf_def.strip()
 
@@ -155,10 +154,10 @@ DEFAULT_CONTENTS = """
 
 
 @depends("now")
-def bulk_packages(options: FixtureOptions, fixtures: Fixtures) -> list[Package]:
+def bulk_packages(options: str | None, fixtures: Fixtures) -> list[Package]:
     packages: list[Package] = []
 
-    for p_def in options.get("bulk_packages", "").strip().split("\n"):
+    for p_def in (options or "").strip().split("\n"):
         p_def = p_def.strip()
 
         if not p_def:
@@ -194,9 +193,9 @@ def bulk_packages(options: FixtureOptions, fixtures: Fixtures) -> list[Package]:
 
 
 @depends("record", "now")
-def gbp_package(options: FixtureOptions, fixtures: Fixtures) -> gbp.Package:
+def gbp_package(options: dict[str, Any] | None, fixtures: Fixtures) -> gbp.Package:
     pkg_options = get_options(
-        options.get("gbp_package", {}),
+        options,
         build_id=1,
         build_time=fixtures.now.timestamp(),
         cpv="sys-libs/mtdev-1.1.7",
@@ -209,14 +208,15 @@ def gbp_package(options: FixtureOptions, fixtures: Fixtures) -> gbp.Package:
 
 @depends(settings="server_settings")
 def worker(
-    _options: FixtureOptions, fixtures: Fixtures
+    _options: None, fixtures: Fixtures
 ) -> FixtureContext[gbp_worker.WorkerInterface]:
     sync_worker = gbp_worker.Worker(fixtures.settings)
     with mock.patch("gentoo_build_publisher.worker", sync_worker):
         yield sync_worker
 
 
-def get_options(options: FixtureOptions, **defaults: Any) -> FixtureOptions:
+def get_options(options: dict[str, Any] | None, **defaults: Any) -> dict[str, Any]:
+    options = options or {}
     return {item: options.get(item, default) for item, default in defaults.items()}
 
 
