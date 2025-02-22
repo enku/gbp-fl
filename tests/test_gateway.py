@@ -1,16 +1,14 @@
 """Tests for the gateway interface"""
 
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 
 from contextlib import ExitStack
 from pathlib import PurePath as Path
-from unittest import mock
+from unittest import TestCase, mock
 
 import gentoo_build_publisher
 from gentoo_build_publisher import types as gtype
-from unittest_fixtures import FixtureContext
-from unittest_fixtures import Fixtures as F
-from unittest_fixtures import TestCase, requires
+from unittest_fixtures import FixtureContext, Fixtures, given
 
 from gbp_fl import gateway as gw
 from gbp_fl.types import Build, MissingPackageIdentifier, Package
@@ -18,7 +16,7 @@ from gbp_fl.types import Build, MissingPackageIdentifier, Package
 TESTDIR = Path(__file__).parent
 
 
-def mock_publisher(_o: None, _f: F) -> FixtureContext[dict[str, mock.Mock]]:
+def mock_publisher(_o: None, _f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
     mocks = {"storage": mock.Mock(), "jenkins": mock.Mock(), "repo": mock.Mock()}
     contexts = (
         mock.patch.object(gentoo_build_publisher.publisher, name, value)
@@ -42,10 +40,10 @@ package = Package(
 )
 
 
-@requires(mock_publisher)
+@given(mock_publisher)
 class GetFullPackagePathTests(TestCase):
-    def test(self) -> None:
-        mocks = self.fixtures.mock_publisher
+    def test(self, fixtures: Fixtures) -> None:
+        mocks = fixtures.mock_publisher
         storage = mocks["storage"]
 
         storage.get_path.return_value = Path("/binpkgs/babette.1442")
@@ -59,10 +57,10 @@ class GetFullPackagePathTests(TestCase):
         )
 
 
-@requires(mock_publisher)
+@given(mock_publisher)
 class GetPackagesTests(TestCase):
-    def test(self) -> None:
-        mocks = self.fixtures.mock_publisher
+    def test(self, fixtures: Fixtures) -> None:
+        mocks = fixtures.mock_publisher
         storage = mocks["storage"]
 
         gbp_packages = [
@@ -92,10 +90,10 @@ class GetPackagesTests(TestCase):
         self.assertEqual(packages, expected)
 
 
-@requires(mock_publisher)
+@given(mock_publisher)
 class GetPackageContentsTests(TestCase):
-    def test(self) -> None:
-        mocks = self.fixtures.mock_publisher
+    def test(self, fixtures: Fixtures) -> None:
+        mocks = fixtures.mock_publisher
         storage = mocks["storage"]
         storage.get_path.return_value = TESTDIR / "assets"
 
@@ -104,7 +102,7 @@ class GetPackageContentsTests(TestCase):
 
         self.assertEqual(len(result), 19)
 
-    def test_when_empty_tarfile(self) -> None:
+    def test_when_empty_tarfile(self, fixtures: Fixtures) -> None:
         gbp = gw.GBPGateway()
 
         with mock.patch.object(

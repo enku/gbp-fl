@@ -1,18 +1,18 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 import argparse
-from unittest import mock
+from unittest import TestCase, mock
 
-from unittest_fixtures import TestCase, requires
+from unittest_fixtures import Fixtures, given
 
 from gbp_fl import cli
 
 
-@requires("console")
+@given("console")
 class HandlerTests(TestCase):
-    def test(self) -> None:
+    def test(self, fixtures: Fixtures) -> None:
         args = argparse.Namespace()
         gbp = mock.Mock()
-        console = self.fixtures.console
+        console = fixtures.console
 
         status = cli.handler(args, gbp, console)
 

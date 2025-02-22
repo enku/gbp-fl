@@ -1,15 +1,16 @@
 """Tests for gbp_fl.types"""
 
 # pylint: disable=missing-docstring
-from unittest_fixtures import TestCase, requires
+from unittest import TestCase
+
+from unittest_fixtures import Fixtures, given
 
 from gbp_fl.types import BinPkg, Build
 
 
-@requires("now")
+@given("now")
 class BinPkgTests(TestCase):
-    def test_cpv(self) -> None:
-        fixtures = self.fixtures
+    def test_cpv(self, fixtures: Fixtures) -> None:
         build = Build(machine="lighthouse", build_id="32267")
         binpkg = BinPkg(
             build=build,
@@ -19,8 +20,7 @@ class BinPkgTests(TestCase):
         )
         self.assertEqual(binpkg.cpv, "x11-apps/xhost-1.0.10")
 
-    def test_build_id(self) -> None:
-        fixtures = self.fixtures
+    def test_build_id(self, fixtures: Fixtures) -> None:
         build = Build(machine="lighthouse", build_id="32267")
         binpkg = BinPkg(
             build=build,

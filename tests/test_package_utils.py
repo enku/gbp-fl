@@ -1,10 +1,10 @@
 """Tests for the package_utils module"""
 
 from pathlib import Path
-from unittest import mock
+from unittest import TestCase, mock
 
-import unittest_fixtures as uf
 from django.test import TestCase as DjangoTestCase
+from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl import package_utils
 from gbp_fl.records import files_backend
@@ -12,13 +12,13 @@ from gbp_fl.types import Build, ContentFileInfo
 
 from .utils import MockGBPGateway
 
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@uf.requires("bulk_packages")
-@uf.options(
+@given("bulk_packages")
+@where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
     dev-libs/libgcrypt-1.11.0-r2
@@ -27,11 +27,11 @@ MOCK_PREFIX = "gbp_fl.package_utils."
     net-dns/c-ares-1.34.4
 """
 )
-class IndexPackagesTests(uf.TestCase):
-    def test(self) -> None:
+class IndexPackagesTests(TestCase):
+    def test(self, fixtures: Fixtures) -> None:
         mock_gw = MockGBPGateway()
         build = Build(machine="babette", build_id="1505")
-        package = self.fixtures.bulk_packages[0]
+        package = fixtures.bulk_packages[0]
         mock_gw.packages[build] = [package]
         mock_tarinfo = mock.Mock(mtime=0, size=22)
         mock_tarinfo.isdir.return_value = False
@@ -49,7 +49,7 @@ class IndexPackagesTests(uf.TestCase):
         self.assertEqual(content_file.path, Path("/bin/bash"))
         self.assertEqual(content_file.size, 22)
 
-    def test_when_no_package(self) -> None:
+    def test_when_no_package(self, fixtures: Fixtures) -> None:
         mock_gw = MockGBPGateway()
         build = Build(machine="babette", build_id="1505")
         repo = mock.Mock(files=files_backend("memory"))
@@ -63,11 +63,11 @@ class IndexPackagesTests(uf.TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@uf.options(records_db={"records_backend": "django"})
-@uf.requires("gbp_package", "record")
-class MakeContentFileTests(uf.TestCase, DjangoTestCase):
-    def test(self) -> None:
-        f = self.fixtures
+@where(records_db={"records_backend": "django"})
+@given("gbp_package", "record")
+class MakeContentFileTests(DjangoTestCase):
+    def test(self, fixtures: Fixtures) -> None:
+        f = fixtures
         info = ContentFileInfo(name="/bin/bash", mtime=1738258812, size=8829)
 
         result = package_utils.make_content_file(f.record, f.gbp_package, info)

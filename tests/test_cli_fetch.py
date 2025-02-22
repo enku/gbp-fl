@@ -1,26 +1,26 @@
 """Tests for the `gbp fl fetch` sub-sub-command"""
 
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 import argparse
 from typing import Any
+from unittest import TestCase
 from unittest.mock import ANY, MagicMock, patch
 
-from unittest_fixtures import TestCase, requires
+from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import fetch
 
 from .utils import cd
 
 
-@requires("console", "tmpdir", gbp="gbp_client")
+@given("console", "tmpdir", gbp="gbp_client")
+@where(records_backend="memory")
 @patch("gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):
-    options = {"records_backend": "memory"}
-
-    def test(self, requests: MagicMock) -> None:
+    def test(self, requests: MagicMock, fixtures: Fixtures) -> None:
         args = argparse.Namespace(pkgspec="lighthouse/34/app-shells/bash-5.2_p37-1")
-        gbp = self.fixtures.gbp
-        console = self.fixtures.console
+        gbp = fixtures.gbp
+        console = fixtures.console
         pkg = "bash-5.2_p37-1"
 
         # This is a redirect that we let requests handle for us, so the requested URL
@@ -38,7 +38,7 @@ class HandlerTests(TestCase):
         requests.get.return_value = mock_response
 
         console.out.print(f"$ gbp fl fetch {args.pkgspec}")
-        with cd(self.fixtures.tmpdir):
+        with cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(0, status)
@@ -48,19 +48,19 @@ class HandlerTests(TestCase):
             console.out.file.getvalue(),
         )
 
-        with open(self.fixtures.tmpdir / f"{pkg}.gpkg.tar", "rb") as fp:
+        with open(fixtures.tmpdir / f"{pkg}.gpkg.tar", "rb") as fp:
             content = fp.read()
         self.assertEqual(content, b"no matter")
 
         requests.get.assert_called_once_with(request_url, stream=True, timeout=ANY)
 
-    def test_invalid_spec(self, requests: MagicMock) -> None:
+    def test_invalid_spec(self, requests: MagicMock, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         args = argparse.Namespace(pkgspec=pkgspec)
         gbp = MagicMock()
-        console = self.fixtures.console
+        console = fixtures.console
 
-        with cd(self.fixtures.tmpdir):
+        with cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(status, 1)
@@ -69,7 +69,9 @@ class HandlerTests(TestCase):
 
         requests.get.assert_not_called()
 
-    def test_when_server_returns_404(self, requests: MagicMock) -> None:
+    def test_when_server_returns_404(
+        self, requests: MagicMock, fixtures: Fixtures
+    ) -> None:
         pkgspec = "lighthouse/34/app-shells/bash-5.2_p37-1"
         args = argparse.Namespace(pkgspec=pkgspec)
         url = (
@@ -77,11 +79,11 @@ class HandlerTests(TestCase):
             "/app-shells/bash/bash-5.2_p37-1"
         )
         mock_response = get_mock_response(404, b"Not Found", url=url)
-        gbp = self.fixtures.gbp
-        console = self.fixtures.console
+        gbp = fixtures.gbp
+        console = fixtures.console
         requests.get.return_value = mock_response
 
-        with cd(self.fixtures.tmpdir):
+        with cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(2, status)

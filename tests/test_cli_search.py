@@ -1,10 +1,11 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 import datetime as dt
 from argparse import ArgumentParser, Namespace
 from dataclasses import replace
+from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from unittest_fixtures import TestCase, requires
+from unittest_fixtures import Fixtures, given
 
 from gbp_fl.cli import search
 
@@ -13,16 +14,16 @@ from .utils import LOCAL_TIMEZONE
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@requires("gbp_client", "repo", "bulk_content_files", "console")
+@given("gbp_client", "repo", "bulk_content_files", "console")
 @patch("gbp_fl.graphql.binpkg.GBPGateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
     options = {"records_backend": "memory"}
 
-    def test(self, gpbgateway: Mock) -> None:
-        cfs = self.fixtures.bulk_content_files
-        repo = self.fixtures.repo
-        now = self.fixtures.now
+    def test(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
+        now = fixtures.now
 
         for cf in cfs:
             cf = replace(cf, timestamp=now)
@@ -40,8 +41,8 @@ class SearchTests(TestCase):
             for i in bash_file_indexes
         )
         args = Namespace(key="bash", machine=None)
-        gbp = self.fixtures.gbp_client
-        console = self.fixtures.console
+        gbp = fixtures.gbp_client
+        console = fixtures.console
 
         console.out.print("$ gbp fl search bash")
         status = search.handler(args, gbp, console)
@@ -53,12 +54,12 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
-    def test_with_missing_metadata(self, gpbgateway: Mock) -> None:
+    def test_with_missing_metadata(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
         # When a package is being deleted, e.g. during a purge run, the binpkg metadata
         # may be gone. This results in an error in the graphql call and the binpkg field
         # being set to null. We want to (silently) ignore those
-        cfs = self.fixtures.bulk_content_files
-        repo = self.fixtures.repo
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
         repo.files.bulk_save(cfs)
 
         bash_file_indexes = [0, 3, 4, 5]
@@ -75,8 +76,8 @@ class SearchTests(TestCase):
         gpbgateway.return_value.get_build_record.side_effect = tuple(build_records)
 
         args = Namespace(key="bash", machine=None)
-        gbp = self.fixtures.gbp_client
-        console = self.fixtures.console
+        gbp = fixtures.gbp_client
+        console = fixtures.console
 
         console.out.print("$ gbp fl search bash")
         status = search.handler(args, gbp, console)

@@ -1,5 +1,7 @@
-# pylint: disable=missing-docstring
-import unittest_fixtures as uf
+# pylint: disable=missing-docstring,unused-argument
+from unittest import TestCase
+
+from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import ls
 
@@ -27,22 +29,20 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 
 
-@uf.options(
-    records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES
-)
-@uf.requires("bulk_content_files", "console", "gbp_client", "repo")
-class LsTests(uf.TestCase):
+@given("bulk_content_files", "console", "gbp_client", "repo")
+@where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
+class LsTests(TestCase):
 
-    def test_short_format(self) -> None:
-        cfs = self.fixtures.bulk_content_files
-        repo = self.fixtures.repo
+    def test_short_format(self, fixtures: Fixtures) -> None:
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
         repo.files.bulk_save(cfs)
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls {pkgspec}"
         args = parse_args(cmd)
-        console = self.fixtures.console
-        gbp = self.fixtures.gbp_client
+        console = fixtures.console
+        gbp = fixtures.gbp_client
 
         print_command(cmd, console)
         status = ls.handler(args, gbp, console)
@@ -50,16 +50,16 @@ class LsTests(uf.TestCase):
         self.assertEqual(0, status)
         self.assertEqual(LS_OUTPUT, console.out.file.getvalue())
 
-    def test_long_format(self) -> None:
-        cfs = self.fixtures.bulk_content_files
-        repo = self.fixtures.repo
+    def test_long_format(self, fixtures: Fixtures) -> None:
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
         repo.files.bulk_save(cfs)
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
         args = parse_args(cmd)
-        console = self.fixtures.console
-        gbp = self.fixtures.gbp_client
+        console = fixtures.console
+        gbp = fixtures.gbp_client
 
         print_command(cmd, console)
         status = ls.handler(args, gbp, console)
@@ -67,12 +67,12 @@ class LsTests(uf.TestCase):
         self.assertEqual(0, status)
         self.assertEqual(LS_LONG_OUTPUT, console.out.file.getvalue())
 
-    def test_invalid_spec(self) -> None:
+    def test_invalid_spec(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         cmd = f"gbp fl ls {pkgspec}"
         args = parse_args(cmd)
-        gbp = self.fixtures.gbp_client
-        console = self.fixtures.console
+        gbp = fixtures.gbp_client
+        console = fixtures.console
 
         status = ls.handler(args, gbp, console)
 
@@ -80,12 +80,12 @@ class LsTests(uf.TestCase):
         self.assertEqual(f"Invalid specifier: {pkgspec}\n", console.err.file.getvalue())
         self.assertEqual("", console.out.file.getvalue())
 
-    def test_package_doesnt_exist(self) -> None:
+    def test_package_doesnt_exist(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/sys-apps/bogus-0.0-1"
         cmd = f"gbp fl ls {pkgspec}"
         args = parse_args(cmd)
-        gbp = self.fixtures.gbp_client
-        console = self.fixtures.console
+        gbp = fixtures.gbp_client
+        console = fixtures.console
 
         status = ls.handler(args, gbp, console)
 

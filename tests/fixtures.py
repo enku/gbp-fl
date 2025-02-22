@@ -10,21 +10,23 @@ from gbp_testkit import helpers
 from gbpcli.gbp import GBP
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
-from unittest_fixtures import FixtureContext, Fixtures, depends
+from unittest_fixtures import FixtureContext, Fixtures, fixture
 
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, Package
 
+build_model = testkit.build_model
 client = testkit.client
 console = testkit.console
 publisher = testkit.publisher
 record = testkit.record
+records_db = testkit.records_db
 server_settings = testkit.settings
 tmpdir = testkit.tmpdir
 
 
-@depends()
+@fixture()
 def gbp_client(options: dict[str, Any] | None, _fixtures: Fixtures) -> GBP:
     options = options or {}
     url: str = options.get("url", "http://gbp.invalid/")
@@ -32,7 +34,7 @@ def gbp_client(options: dict[str, Any] | None, _fixtures: Fixtures) -> GBP:
     return helpers.test_gbp(url)
 
 
-@depends("tmpdir")
+@fixture("tmpdir")
 def environ(
     options: dict[str, str] | None, fixtures: Fixtures
 ) -> FixtureContext[dict[str, str]]:
@@ -52,12 +54,12 @@ def environ(
         yield mock_environ
 
 
-@depends("tmpdir", "environ")
+@fixture("tmpdir", "environ")
 def settings(_options: None, _fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
 
 
-@depends("settings")
+@fixture("settings")
 def repo(options: dict[str, Any] | None, fixtures: Fixtures) -> FixtureContext[Repo]:
     options = options or {}
     where: str = options.get("where", "gbp_fl.records.Repo")
@@ -67,12 +69,12 @@ def repo(options: dict[str, Any] | None, fixtures: Fixtures) -> FixtureContext[R
         yield repo_
 
 
-@depends()
+@fixture()
 def now(options: dt.datetime | None, _fixtures: Fixtures) -> dt.datetime:
     return options or dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
 
 
-@depends()
+@fixture()
 def build(options: dict[str, Any] | None, _fixtures: Fixtures) -> Build:
     options = options or {}
     args = get_options(options, machine="lighthouse", build_id="34")
@@ -80,7 +82,7 @@ def build(options: dict[str, Any] | None, _fixtures: Fixtures) -> Build:
     return Build(**args)
 
 
-@depends("build", "now")
+@fixture("build", "now")
 def binpkg(options: dict[str, Any] | None, fixtures: Fixtures) -> BinPkg:
     args = get_options(
         options,
@@ -92,7 +94,7 @@ def binpkg(options: dict[str, Any] | None, fixtures: Fixtures) -> BinPkg:
     return BinPkg(**args)
 
 
-@depends("binpkg", "now")
+@fixture("binpkg", "now")
 def content_file(options: dict[str, Any] | None, fixtures: Fixtures) -> ContentFile:
     args = get_options(
         options,
@@ -104,7 +106,7 @@ def content_file(options: dict[str, Any] | None, fixtures: Fixtures) -> ContentF
     return ContentFile(**args)
 
 
-@depends("now")
+@fixture("now")
 def bulk_content_files(options: str | None, fixtures: Fixtures) -> list[ContentFile]:
     content_files: list[ContentFile] = []
     cf_defs: str = (options or DEFAULT_CONTENTS).strip()
@@ -153,7 +155,7 @@ DEFAULT_CONTENTS = """
 """
 
 
-@depends("now")
+@fixture("now")
 def bulk_packages(options: str | None, fixtures: Fixtures) -> list[Package]:
     packages: list[Package] = []
 
@@ -192,7 +194,7 @@ def bulk_packages(options: str | None, fixtures: Fixtures) -> list[Package]:
     return packages
 
 
-@depends("record", "now")
+@fixture("record", "now")
 def gbp_package(options: dict[str, Any] | None, fixtures: Fixtures) -> gbp.Package:
     pkg_options = get_options(
         options,
@@ -206,7 +208,7 @@ def gbp_package(options: dict[str, Any] | None, fixtures: Fixtures) -> gbp.Packa
     return gbp.Package(**pkg_options)
 
 
-@depends(settings="server_settings")
+@fixture(settings="server_settings")
 def worker(
     _options: None, fixtures: Fixtures
 ) -> FixtureContext[gbp_worker.WorkerInterface]:

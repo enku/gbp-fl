@@ -38,7 +38,7 @@ build-backend = "pdm.backend"
 skip-magic-trailing-comma = true
 
 [tool.django-stubs]
-django_settings_module = "settings"
+django_settings_module = "gbp_testkit.settings"
 
 [tool.mypy]
 plugins =["mypy_django_plugin.main"]
@@ -49,7 +49,7 @@ strict = true
 
 [tool.pylint.master]
 load-plugins = "pylint_django,pylint.extensions.bad_builtin"
-django-settings-module = "settings"
+django-settings-module = "gbp_testkit.settings"
 init-hook = "import sys; sys.path.insert(0, 'tests')"
 bad-functions = ["print"]
 ignore = ["/migrations/"]

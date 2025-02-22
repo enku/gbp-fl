@@ -1,11 +1,11 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,unused-argument
 import logging
 import shutil
 from pathlib import Path
 from unittest import mock
 
-import unittest_fixtures as uf
 from django.test import TestCase
+from unittest_fixtures import Fixtures, fixture, given, where
 
 from gbp_fl import gateway
 from gbp_fl.records import Repo
@@ -16,13 +16,13 @@ TESTDIR = Path(__file__).parent
 logging.basicConfig(handlers=[logging.NullHandler()])
 
 
-@uf.requires("publisher")
-class GBPTestCase(uf.TestCase, TestCase):
+@given("publisher")
+class GBPTestCase(TestCase):
     options = {"records_backend": "django"}
 
 
-@uf.depends("gbp_package", build_record="record")
-def binpkg(_o: None, f: uf.Fixtures) -> Path:
+@fixture("gbp_package", build_record="record")
+def binpkg(_o: None, f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
     path.parent.mkdir(parents=True)
@@ -36,11 +36,11 @@ def binpkg(_o: None, f: uf.Fixtures) -> Path:
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@uf.options(records_db={"records_backend": "django"})
-@uf.requires("worker", "gbp_package", "settings", binpkg)
+@given("worker", "gbp_package", "settings", binpkg)
+@where(records_db={"records_backend": "django"})
 class PostPulledTests(GBPTestCase):
-    def test(self) -> None:
-        f = self.fixtures
+    def test(self, fixtures: Fixtures) -> None:
+        f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
         gbp = gateway.GBPGateway()
         _ = None
@@ -59,8 +59,8 @@ class PostPulledTests(GBPTestCase):
         )
         self.assertEqual(len(content_files), 10)
 
-    def test_with_empty_tar(self) -> None:
-        f = self.fixtures
+    def test_with_empty_tar(self, fixtures: Fixtures) -> None:
+        f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
         gbp = gateway.GBPGateway()
         _ = None
@@ -79,8 +79,8 @@ class PostPulledTests(GBPTestCase):
         )
         self.assertEqual(len(content_files), 0)
 
-    def test_pull_with_no_package_manifest(self) -> None:
-        f = self.fixtures
+    def test_pull_with_no_package_manifest(self, fixtures: Fixtures) -> None:
+        f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
         gbp = gateway.GBPGateway()
         _ = None
@@ -103,10 +103,10 @@ class PostPulledTests(GBPTestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@uf.requires("worker", "settings", "bulk_content_files")
+@given("worker", "settings", "bulk_content_files")
 class PostDeleteTests(GBPTestCase):
-    def test(self) -> None:
-        f = self.fixtures
+    def test(self, fixtures: Fixtures) -> None:
+        f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
         repo.files.bulk_save(f.bulk_content_files)
         gbp = gateway.GBPGateway()
@@ -122,11 +122,11 @@ class PostDeleteTests(GBPTestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@uf.options(records_db={"records_backend": "django"})
-@uf.requires("gbp_package", binpkg, build_record="record")
+@given("gbp_package", binpkg, build_record="record")
+@where(records_db={"records_backend": "django"})
 class GetPackageContentsTests(GBPTestCase):
-    def test(self) -> None:
-        f = self.fixtures
+    def test(self, fixtures: Fixtures) -> None:
+        f = fixtures
         gbp = gateway.GBPGateway()
 
         contents = gbp.get_package_contents(f.build_record, f.gbp_package)
