@@ -16,7 +16,7 @@ from gbp_fl.types import Build, MissingPackageIdentifier, Package
 TESTDIR = Path(__file__).parent
 
 
-def mock_publisher(_o: None, _f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
+def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
     mocks = {"storage": mock.Mock(), "jenkins": mock.Mock(), "repo": mock.Mock()}
     contexts = (
         mock.patch.object(gentoo_build_publisher.publisher, name, value)

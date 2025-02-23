@@ -119,7 +119,7 @@ class ResolveQueryCountTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@where(records_db={"records_backend": "django"})
+@where(records_db__backend="django")
 @given("publisher", "record", "now")
 class ResolveBinPkgBuildTests(DjangoTestCase):
 

@@ -22,7 +22,7 @@ class GBPTestCase(TestCase):
 
 
 @fixture("gbp_package", build_record="record")
-def binpkg(_o: None, f: Fixtures) -> Path:
+def binpkg(f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
     path.parent.mkdir(parents=True)
@@ -37,7 +37,7 @@ def binpkg(_o: None, f: Fixtures) -> Path:
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
 @given("worker", "gbp_package", "settings", binpkg)
-@where(records_db={"records_backend": "django"})
+@where(records_db__backend="django")
 class PostPulledTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -123,7 +123,7 @@ class PostDeleteTests(GBPTestCase):
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
 @given("gbp_package", binpkg, build_record="record")
-@where(records_db={"records_backend": "django"})
+@where(records_db__backend="django")
 class GetPackageContentsTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures

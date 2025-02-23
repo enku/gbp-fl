@@ -63,7 +63,7 @@ class IndexPackagesTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@where(records_db={"records_backend": "django"})
+@where(records_db__backend="django")
 @given("gbp_package", "record")
 class MakeContentFileTests(DjangoTestCase):
     def test(self, fixtures: Fixtures) -> None:

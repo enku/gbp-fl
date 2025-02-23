@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,redefined-outer-name
 import datetime as dt
 import os
 from pathlib import PurePath as Path
@@ -26,21 +26,27 @@ server_settings = testkit.settings
 tmpdir = testkit.tmpdir
 
 
-@fixture()
-def gbp_client(options: dict[str, Any] | None, _fixtures: Fixtures) -> GBP:
-    options = options or {}
-    url: str = options.get("url", "http://gbp.invalid/")
+DEFAULT_CONTENTS = """
+    lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
+    lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
+    polaris    26 app-arch/tar-1.35-1       /bin/gtar
+    polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
+    polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
+    polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
+"""
 
+
+@fixture()
+def gbp_client(_fixtures: Fixtures, url: str = "http://gbp.invalid/") -> GBP:
     return helpers.test_gbp(url)
 
 
 @fixture("tmpdir")
 def environ(
-    options: dict[str, str] | None, fixtures: Fixtures
+    fixtures: Fixtures, environ: dict[str, str] | None = None
 ) -> FixtureContext[dict[str, str]]:
-    options = options or {}
     mock_environ = {
-        # **next(testkit.environ(options, fixtures), {}),
+        **next(testkit.environ(fixtures), {}),
         "BUILD_PUBLISHER_API_KEY_ENABLE": "no",
         "BUILD_PUBLISHER_JENKINS_BASE_URL": "https://jenkins.invalid/",
         "BUILD_PUBLISHER_RECORDS_BACKEND": "memory",
@@ -48,21 +54,21 @@ def environ(
         "BUILD_PUBLISHER_WORKER_BACKEND": "sync",
         "BUILD_PUBLISHER_WORKER_THREAD_WAIT": "yes",
         "GBP_FL_RECORDS_BACKEND": "memory",
-        **options,
+        **(environ or {}),
     }
     with mock.patch.dict(os.environ, mock_environ):
         yield mock_environ
 
 
 @fixture("tmpdir", "environ")
-def settings(_options: None, _fixtures: Fixtures) -> Settings:
+def settings(_fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
 
 
 @fixture("settings")
-def repo(options: dict[str, Any] | None, fixtures: Fixtures) -> FixtureContext[Repo]:
-    options = options or {}
-    where: str = options.get("where", "gbp_fl.records.Repo")
+def repo(
+    fixtures: Fixtures, where: str = "gbp_fl.records.Repo"
+) -> FixtureContext[Repo]:
     repo_: Repo = Repo.from_settings(fixtures.settings)
 
     with mock.patch(f"{where}.from_settings", return_value=repo_):
@@ -70,46 +76,58 @@ def repo(options: dict[str, Any] | None, fixtures: Fixtures) -> FixtureContext[R
 
 
 @fixture()
-def now(options: dt.datetime | None, _fixtures: Fixtures) -> dt.datetime:
-    return options or dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC)
+def now(
+    _fixtures: Fixtures,
+    now: dt.datetime = dt.datetime(2025, 1, 26, 12, 57, 37, tzinfo=dt.UTC),
+) -> dt.datetime:
+    return now
 
 
 @fixture()
-def build(options: dict[str, Any] | None, _fixtures: Fixtures) -> Build:
-    options = options or {}
-    args = get_options(options, machine="lighthouse", build_id="34")
-
-    return Build(**args)
+def build(
+    _fixtures: Fixtures, machine: str = "lighthouse", build_id: str = "34"
+) -> Build:
+    return Build(machine=machine, build_id=build_id)
 
 
 @fixture("build", "now")
-def binpkg(options: dict[str, Any] | None, fixtures: Fixtures) -> BinPkg:
-    args = get_options(
-        options,
-        build=fixtures.build,
-        cpvb="app-shells/bash-5.2_p37-3",
-        build_time=fixtures.now,
-        repo="gentoo",
+def binpkg(  # pylint: disable=too-many-arguments
+    fixtures: Fixtures,
+    build: Build | None = None,
+    cpvb: str = "app-shells/bash-5.2_p37-3",
+    build_time: dt.datetime | None = None,
+    repo: str = "gentoo",
+) -> BinPkg:
+    return BinPkg(
+        build=build or fixtures.build,
+        cpvb=cpvb,
+        build_time=build_time or fixtures.now,
+        repo=repo,
     )
-    return BinPkg(**args)
 
 
 @fixture("binpkg", "now")
-def content_file(options: dict[str, Any] | None, fixtures: Fixtures) -> ContentFile:
-    args = get_options(
-        options,
-        binpkg=fixtures.binpkg,
-        path=Path("/bin/bash"),
-        timestamp=fixtures.now,
-        size=870400,
+def content_file(
+    fixtures: Fixtures,
+    binpkg: BinPkg | None = None,
+    path: Path = Path("/bin/bash"),
+    timestamp: dt.datetime | None = None,
+    size: int = 870400,
+) -> ContentFile:
+    return ContentFile(
+        binpkg=binpkg or fixtures.binpkg,
+        path=path,
+        timestamp=timestamp or fixtures.now,
+        size=size,
     )
-    return ContentFile(**args)
 
 
 @fixture("now")
-def bulk_content_files(options: str | None, fixtures: Fixtures) -> list[ContentFile]:
+def bulk_content_files(
+    fixtures: Fixtures, bulk_content_files: str = DEFAULT_CONTENTS
+) -> list[ContentFile]:
     content_files: list[ContentFile] = []
-    cf_defs: str = (options or DEFAULT_CONTENTS).strip()
+    cf_defs: str = bulk_content_files.strip()
     for cf_def in cf_defs.split("\n"):
         cf_def = cf_def.strip()
 
@@ -145,21 +163,11 @@ def bulk_content_files(options: str | None, fixtures: Fixtures) -> list[ContentF
     return content_files
 
 
-DEFAULT_CONTENTS = """
-    lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
-    lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
-    polaris    26 app-arch/tar-1.35-1       /bin/gtar
-    polaris    26 app-shells/bash-5.2_p37-1 /bin/bash
-    polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
-    polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
-"""
-
-
 @fixture("now")
-def bulk_packages(options: str | None, fixtures: Fixtures) -> list[Package]:
+def bulk_packages(fixtures: Fixtures, bulk_packages: str = "") -> list[Package]:
     packages: list[Package] = []
 
-    for p_def in (options or "").strip().split("\n"):
+    for p_def in (bulk_packages or "").strip().split("\n"):
         p_def = p_def.strip()
 
         if not p_def:
@@ -195,23 +203,29 @@ def bulk_packages(options: str | None, fixtures: Fixtures) -> list[Package]:
 
 
 @fixture("record", "now")
-def gbp_package(options: dict[str, Any] | None, fixtures: Fixtures) -> gbp.Package:
-    pkg_options = get_options(
-        options,
-        build_id=1,
-        build_time=fixtures.now.timestamp(),
-        cpv="sys-libs/mtdev-1.1.7",
-        path="sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
-        repo="gentoo",
-        size=40960,
+def gbp_package(  # pylint: disable=too-many-arguments
+    fixtures: Fixtures,
+    *,
+    build_id: int = 1,
+    build_time: int | None = None,
+    cpv: str = "sys-libs/mtdev-1.1.7",
+    path: str = "sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+    repo: str = "gentoo",
+    size: int = 40960,
+) -> gbp.Package:
+    build_time = build_time or fixtures.now.timestamp()
+    return gbp.Package(
+        build_id=build_id,
+        build_time=build_time,
+        cpv=cpv,
+        path=path,
+        repo=repo,
+        size=size,
     )
-    return gbp.Package(**pkg_options)
 
 
 @fixture(settings="server_settings")
-def worker(
-    _options: None, fixtures: Fixtures
-) -> FixtureContext[gbp_worker.WorkerInterface]:
+def worker(fixtures: Fixtures) -> FixtureContext[gbp_worker.WorkerInterface]:
     sync_worker = gbp_worker.Worker(fixtures.settings)
     with mock.patch("gentoo_build_publisher.worker", sync_worker):
         yield sync_worker
