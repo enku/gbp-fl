@@ -14,14 +14,11 @@ dependencies = ["gbpcli>=2.4.1", "yarl>=1.18.3", "requests>=2.32.3", "rich>=13.9
 memory = "gbp_fl.records.memory"
 django = "gbp_fl.records.django_orm"
 
-[project.entry-points."gentoo_build_publisher.graphql_schema"]
-gbp_fl = "gbp_fl.graphql"
-
 [project.entry-points."gbpcli.subcommands"]
 fl = "gbp_fl.cli"
 
-[project.entry-points."gentoo_build_publisher.apps"]
-gbp_fl = "gbp_fl:APP"
+[project.entry-points."gentoo_build_publisher.plugins"]
+gbp_fl = "gbp_fl:plugin"
 
 
 [project.optional-dependencies]
@@ -77,7 +74,7 @@ dev = [
     "pylint-django>=2.6.1",
     "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher.git@master",
     "gbp-testkit @ git+https://github.com/enku/gbp-testkit.git@master",
-    "gbp-ps>=1.4.0",
+    "gbp-ps>=1.5.0rc1",
     "mypy>=1.15.0",
     "isort>=6.0.0",
     "django-stubs>=5.1.3",

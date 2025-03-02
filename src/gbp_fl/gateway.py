@@ -14,7 +14,6 @@ However there are wrapper types in gbp_fl.types so that receivers can at least o
 access gbp-local attributes or else type checkers will hollar.
 """
 
-import importlib.metadata
 from pathlib import PurePath as Path
 from tarfile import TarFile, TarInfo
 from typing import Any, Callable, Iterator, ParamSpec, cast
@@ -164,7 +163,7 @@ class GBPGateway:
 
         Return True if the process was set, otherwise return False.
         """
-        if self.has_plugin("gbp_ps"):
+        if self.has_plugin("gbp-ps"):
             self._really_set_process(build, phase)
             return True
         return False
@@ -172,10 +171,9 @@ class GBPGateway:
     @staticmethod
     def has_plugin(name: str) -> bool:
         """Return true if gbp has the given plugin"""
-        group = "gentoo_build_publisher.apps"
-        entry_points = importlib.metadata.entry_points
+        from gentoo_build_publisher import plugins
 
-        return any(ep.name == name for ep in entry_points().select(group=group))
+        return any(plugin.name == name for plugin in plugins.get_plugins())
 
     @property
     def _dispatcher(self) -> Dispatcher:

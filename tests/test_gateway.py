@@ -213,7 +213,7 @@ class SetProcessTests(TestCase):
 
 class HasPluginTests(TestCase):
     def test_true(self) -> None:
-        self.assertTrue(gw.GBPGateway.has_plugin("gbp_fl"))
+        self.assertTrue(gw.GBPGateway.has_plugin("gbp-fl"))
 
     def test_false(self) -> None:
         self.assertFalse(gw.GBPGateway.has_plugin("bogus"))

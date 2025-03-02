@@ -5,7 +5,7 @@
 groups = ["default", "dev", "server"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:be9e376fc22cc5ba8b9b8b189534454bd8c2538464501b07871f57e58a7283e7"
+content_hash = "sha256:dfd373145fc3f05a27699c98b15a2cbfe7fcc62ebffd64a7f4ce2e336e267fc7"
 
 [[metadata.targets]]
 requires_python = ">=3.11"
@@ -620,7 +620,7 @@ files = [
 
 [[package]]
 name = "gbp-ps"
-version = "1.4.0"
+version = "1.5.0rc1"
 requires_python = ">=3.11"
 summary = "Store and report GBP build status"
 groups = ["dev"]
@@ -629,8 +629,8 @@ dependencies = [
     "rich>=13.6.0",
 ]
 files = [
-    {file = "gbp_ps-1.4.0-py3-none-any.whl", hash = "sha256:b868c11db9afb399d1fbec020a421b9e1f0405561342d9655dbb2dde673f0226"},
-    {file = "gbp_ps-1.4.0.tar.gz", hash = "sha256:a415c3085f5bc31dceb7a2529d8a3963b3e0fb7d2f82a5aec94f9957f0a8f792"},
+    {file = "gbp_ps-1.5.0rc1-py3-none-any.whl", hash = "sha256:586c945c37d2a818b7970636fa071964e7ff59f0e2ee29f5e79de1200549ff14"},
+    {file = "gbp_ps-1.5.0rc1.tar.gz", hash = "sha256:783cc4ed8e2e9b6ba92e0bc8b2dbf2091d96e0a105fabeb682a2252006c496f0"},
 ]
 
 [[package]]
