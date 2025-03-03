@@ -1,6 +1,6 @@
 """Tests for gbp_fl.utils"""
 
-from unittest_fixtures import TestCase
+from unittest import TestCase
 
 from gbp_fl.utils import Parsed, parse_pkgspec
 

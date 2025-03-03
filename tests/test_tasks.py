@@ -3,9 +3,7 @@
 # The tasks, by design, do basically nothing. We just have to assert the call the
 # appropriate functions with the appropriate args
 
-from unittest import mock
-
-import unittest_fixtures as uf
+from unittest import TestCase, mock
 
 from gbp_fl.types import Build
 from gbp_fl.worker import tasks
@@ -13,7 +11,7 @@ from gbp_fl.worker import tasks
 # pylint: disable=missing-docstring
 
 
-class IndexBuildTests(uf.TestCase):
+class IndexBuildTests(TestCase):
     @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.package_utils")
     def test(self, package_utils: mock.Mock, set_process: mock.Mock) -> None:
@@ -26,7 +24,7 @@ class IndexBuildTests(uf.TestCase):
         set_process.assert_has_calls(expected)
 
 
-class DeindexBuildTests(uf.TestCase):
+class DeindexBuildTests(TestCase):
     @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.records.Repo.from_settings")
     def test(self, repo_from_settings: mock.Mock, set_process: mock.Mock) -> None:
