@@ -13,7 +13,7 @@ def gbp_build_pulled(*, build: BuildLike, **kwargs: Any) -> None:
     """Save the pulled build's package files to the database"""
     gbp = GBPGateway()
 
-    gbp.run_task(tasks.index_packages, build.machine, build.build_id)
+    gbp.run_task(tasks.index_build, build.machine, build.build_id)
 
 
 def gbp_build_deleted(*, build: BuildLike) -> None:
@@ -23,7 +23,7 @@ def gbp_build_deleted(*, build: BuildLike) -> None:
     """
     gbp = GBPGateway()
 
-    gbp.run_task(tasks.delete_from_build, build.machine, build.build_id)
+    gbp.run_task(tasks.deindex_build, build.machine, build.build_id)
 
 
 def init() -> None:

@@ -3,7 +3,7 @@
 # pylint: disable=import-outside-toplevel
 
 
-def index_packages(machine: str, build_id: str) -> None:
+def index_build(machine: str, build_id: str) -> None:
     """Index packages for the given build"""
     import logging
 
@@ -17,11 +17,11 @@ def index_packages(machine: str, build_id: str) -> None:
 
     logger.info("Saving packages for %s.%s", machine, build_id)
     gbp.set_process(build, "index")
-    package_utils.index_packages(build)
+    package_utils.index_build(build)
     gbp.set_process(build, "clean")
 
 
-def delete_from_build(machine: str, build_id: str) -> None:
+def deindex_build(machine: str, build_id: str) -> None:
     """Delete all the files from the given build"""
     from gbp_fl.gateway import GBPGateway
     from gbp_fl.records import Repo
@@ -34,5 +34,5 @@ def delete_from_build(machine: str, build_id: str) -> None:
     gbp = GBPGateway()
 
     gbp.set_process(build, "deindex")
-    files.delete_from_build(machine, build_id)
+    files.deindex_build(machine, build_id)
     gbp.set_process(build, "clean")

@@ -39,7 +39,7 @@ class ContentFiles(Protocol):  # pragma: no cover
         Raise RecordNotFound if it doesn't exist in the database.
         """
 
-    def delete_from_build(self, machine: str, build_id: str) -> None:
+    def deindex_build(self, machine: str, build_id: str) -> None:
         """Delete all content files for the given build"""
 
     def exists(self, machine: str, build_id: str, cpvb: str, path: str | Path) -> bool:

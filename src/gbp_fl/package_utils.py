@@ -10,7 +10,7 @@ from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, ContentFileInfo, Package
 
 
-def index_packages(build: Build) -> None:
+def index_build(build: Build) -> None:
     """Save the given Build's packages to the database"""
     gbp = GBPGateway()
     executor = ThreadPoolExecutor()

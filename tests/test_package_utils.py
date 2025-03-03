@@ -27,7 +27,7 @@ MOCK_PREFIX = "gbp_fl.package_utils."
     net-dns/c-ares-1.34.4
 """
 )
-class IndexPackagesTests(TestCase):
+class IndexBuildTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mock_gw = MockGBPGateway()
         build = Build(machine="babette", build_id="1505")
@@ -41,7 +41,7 @@ class IndexPackagesTests(TestCase):
 
         with mock.patch(f"{MOCK_PREFIX}GBPGateway", return_value=mock_gw):
             with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
-                package_utils.index_packages(build)
+                package_utils.index_build(build)
 
         self.assertEqual(repo.files.count(None, None, None), 1)
 
@@ -56,7 +56,7 @@ class IndexPackagesTests(TestCase):
 
         with mock.patch(f"{MOCK_PREFIX}GBPGateway", return_value=mock_gw):
             with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
-                package_utils.index_packages(build)
+                package_utils.index_build(build)
 
         self.assertEqual(repo.files.count(None, None, None), 0)
 

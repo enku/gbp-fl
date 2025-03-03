@@ -117,11 +117,11 @@ class ContentFilesTests(TestCase):
             files.delete(content_file)
 
     @parametrized(BACKENDS)
-    def test_delete_from_build(self, backend_type: str, fixtures: Fixtures) -> None:
+    def test_deindex_build(self, backend_type: str, fixtures: Fixtures) -> None:
         files = files_backend(backend_type)
         files.bulk_save(fixtures.bulk_content_files)
 
-        files.delete_from_build(machine="polaris", build_id="26")
+        files.deindex_build(machine="polaris", build_id="26")
 
         self.assertEqual(files.count("polaris", "26", None), 0)
         self.assertEqual(files.count(None, None, None), 3)

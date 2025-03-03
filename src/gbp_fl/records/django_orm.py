@@ -73,7 +73,7 @@ class ContentFiles:
         )
         model.delete()
 
-    def delete_from_build(self, machine: str, build_id: str) -> None:
+    def deindex_build(self, machine: str, build_id: str) -> None:
         """Delete all content files for the given build"""
         manager = models.ContentFile.objects
 

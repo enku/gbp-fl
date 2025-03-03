@@ -71,7 +71,7 @@ class ContentFiles:
         except KeyError:
             raise RecordNotFound() from None
 
-    def delete_from_build(self, machine: str, build_id: str) -> None:
+    def deindex_build(self, machine: str, build_id: str) -> None:
         """Delete all content files for the given build"""
         match = (machine, build_id)
         files = self.files
