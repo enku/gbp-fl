@@ -34,6 +34,7 @@ DEFAULT_CONTENTS = """
     polaris    26 app-shells/bash-5.2_p37-2 /bin/bash
     polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
+LOCAL_TIMEZONE = dt.timezone(dt.timedelta(days=-1, seconds=61200), "PDT")
 
 
 @fixture()
@@ -242,3 +243,11 @@ def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
         return seq[index]
     except IndexError:
         return default
+
+
+@fixture()
+def local_timezone(
+    _: Fixtures, local_timezone: dt.timezone = LOCAL_TIMEZONE
+) -> FixtureContext[dt.timezone]:
+    with mock.patch("gbpcli.render.LOCAL_TIMEZONE", new=local_timezone):
+        yield local_timezone

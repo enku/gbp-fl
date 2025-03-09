@@ -29,7 +29,7 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 
 
-@given("bulk_content_files", "console", "gbp_client", "repo")
+@given("local_timezone", "bulk_content_files", "console", "gbp_client", "repo")
 @where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
 class LsTests(TestCase):
 
@@ -113,19 +113,19 @@ LS_LONG_OUTPUT = """$ gbp fl ls -l lighthouse/34/app-arch/tar-1.35-1
 ╭────────┬───────────────────┬───────────────────────────────────╮
 │   Size │ Timestamp         │ Path                              │
 ├────────┼───────────────────┼───────────────────────────────────┤
-│ 411312 │ 02/08/25 07:34:01 │ /bin/gtar                         │
-│    601 │ 02/08/25 07:34:00 │ /usr/share/doc/tar-1.35/AUTHORS   │
-│ 579457 │ 02/08/25 07:34:00 │ /usr/share/doc/tar-1.35/ChangeLog │
-│  67627 │ 02/08/25 07:34:01 │ /usr/share/doc/tar-1.35/NEWS      │
-│   9756 │ 02/08/25 07:34:00 │ /usr/share/doc/tar-1.35/README    │
-│  20500 │ 02/08/25 07:34:01 │ /usr/share/doc/tar-1.35/THANKS    │
-│   2151 │ 02/08/25 07:34:01 │ /usr/share/doc/tar-1.35/TODO      │
-│  13479 │ 02/08/25 07:34:00 │ /usr/share/info/tar.info          │
-│ 304308 │ 02/08/25 07:34:00 │ /usr/share/info/tar.info-1        │
-│ 317618 │ 02/08/25 07:34:00 │ /usr/share/info/tar.info-2        │
-│  49627 │ 02/08/25 07:34:00 │ /usr/share/info/tar.info-3        │
-│  42162 │ 02/08/25 07:34:00 │ /usr/share/man/man1/gtar.1        │
-│   5361 │ 02/08/25 07:34:00 │ /usr/share/man/man8/grmt.8        │
-│      0 │ 02/08/25 07:34:01 │ /usr/share/man/man8/rmt.8         │
+│ 411312 │ 02/08/25 06:34:01 │ /bin/gtar                         │
+│    601 │ 02/08/25 06:34:00 │ /usr/share/doc/tar-1.35/AUTHORS   │
+│ 579457 │ 02/08/25 06:34:00 │ /usr/share/doc/tar-1.35/ChangeLog │
+│  67627 │ 02/08/25 06:34:01 │ /usr/share/doc/tar-1.35/NEWS      │
+│   9756 │ 02/08/25 06:34:00 │ /usr/share/doc/tar-1.35/README    │
+│  20500 │ 02/08/25 06:34:01 │ /usr/share/doc/tar-1.35/THANKS    │
+│   2151 │ 02/08/25 06:34:01 │ /usr/share/doc/tar-1.35/TODO      │
+│  13479 │ 02/08/25 06:34:00 │ /usr/share/info/tar.info          │
+│ 304308 │ 02/08/25 06:34:00 │ /usr/share/info/tar.info-1        │
+│ 317618 │ 02/08/25 06:34:00 │ /usr/share/info/tar.info-2        │
+│  49627 │ 02/08/25 06:34:00 │ /usr/share/info/tar.info-3        │
+│  42162 │ 02/08/25 06:34:00 │ /usr/share/man/man1/gtar.1        │
+│   5361 │ 02/08/25 06:34:00 │ /usr/share/man/man8/grmt.8        │
+│      0 │ 02/08/25 06:34:01 │ /usr/share/man/man8/rmt.8         │
 ╰────────┴───────────────────┴───────────────────────────────────╯
 """
