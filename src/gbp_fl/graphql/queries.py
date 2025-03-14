@@ -16,7 +16,7 @@ Query = ObjectType("Query")
 
 
 @Query.field("flSearch")
-def search(
+def _(
     _obj: Any, _info: Info, *, key: str, machine: str | None = None
 ) -> list[ContentFile]:
     files = get_repo().files
@@ -26,7 +26,7 @@ def search(
 
 @Query.field("flCount")
 @convert_kwargs_to_snake_case
-def count(
+def _(
     _obj: Any, _info: Info, *, machine: str | None = None, build_id: str | None = None
 ) -> int:
     files = get_repo().files
@@ -36,7 +36,7 @@ def count(
 
 @Query.field("flList")
 @convert_kwargs_to_snake_case
-def list_(
+def _(
     _obj: Any, _info: Info, *, machine: str, build_id: str, cpvb: str
 ) -> list[ContentFile]:
     files = get_repo().files

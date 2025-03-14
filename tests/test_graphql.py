@@ -6,10 +6,10 @@ from unittest.mock import Mock
 
 from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
+from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from unittest_fixtures import Fixtures, given, where
 
-import gbp_fl.graphql.binpkg
 from gbp_fl.types import BinPkg, Build
 
 # pylint: disable=missing-docstring
@@ -119,8 +119,8 @@ class ResolveQueryCountTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@where(records_db__backend="django")
 @given("publisher", "record", "now")
+@where(records_db__backend="django")
 class ResolveBinPkgBuildTests(DjangoTestCase):
 
     def test(self, fixtures: Fixtures) -> None:
@@ -135,7 +135,7 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
             build_time=fixtures.now,
         )
         publisher.repo.build_records.save(build_record)
-        result = gbp_fl.graphql.binpkg.build(binpkg, Mock())
+        result = schema.type_map["flBinPkg"].fields["build"].resolve(binpkg, Mock())
 
         self.assertEqual(result, build_record)
 

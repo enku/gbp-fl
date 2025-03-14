@@ -10,7 +10,7 @@ from graphql import GraphQLResolveInfo
 from gbp_fl.gateway import GBPGateway
 from gbp_fl.types import BinPkg, Build, BuildLike
 
-BinPkgType = ObjectType("flBinPkg")
+flBinPkg = ObjectType("flBinPkg")
 Info: TypeAlias = GraphQLResolveInfo
 
 
@@ -20,16 +20,16 @@ V_RE = re.compile("-[0-9]")
 # pylint: disable=missing-docstring
 
 
-@BinPkgType.field("build")
-def build(pkg: BinPkg, _info: Info) -> BuildLike:
-    _build = pkg.build
+@flBinPkg.field("build")
+def _(pkg: BinPkg, _info: Info) -> BuildLike:
+    build = pkg.build
     gbp = GBPGateway()
 
-    return gbp.get_build_record(Build(machine=_build.machine, build_id=_build.build_id))
+    return gbp.get_build_record(Build(machine=build.machine, build_id=build.build_id))
 
 
-@BinPkgType.field("url")
-def url(pkg: BinPkg, info: Info) -> str:
+@flBinPkg.field("url")
+def _(pkg: BinPkg, info: Info) -> str:
     cpv = pkg.cpv
     c, pv = cpv.split("/", 1)
 
@@ -37,9 +37,9 @@ def url(pkg: BinPkg, info: Info) -> str:
     assert v_match is not None
     p = pv[: v_match.start()]
     request: HttpRequest = info.context["request"]
-    _build = pkg.build
+    build = pkg.build
 
     return request.build_absolute_uri(
-        f"/machines/{_build.machine}/builds/{_build.build_id}/packages/{c}/{p}"
+        f"/machines/{build.machine}/builds/{build.build_id}/packages/{c}/{p}"
         f"/{pv}-{pkg.build_id}"
     )

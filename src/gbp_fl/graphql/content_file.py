@@ -2,4 +2,4 @@
 
 from ariadne import ObjectType
 
-ContentFileType = ObjectType("flContentFile")
+flContentFile = ObjectType("flContentFile")
