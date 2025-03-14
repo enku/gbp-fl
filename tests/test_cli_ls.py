@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring,unused-argument
 from unittest import TestCase
 
+from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import ls
@@ -29,7 +30,9 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 
 
-@given("local_timezone", "bulk_content_files", "console", "gbp_client", "repo")
+@given(
+    "local_timezone", "bulk_content_files", "console", "gbp_client", "repo", "publisher"
+)
 @where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
 class LsTests(TestCase):
 
@@ -66,6 +69,26 @@ class LsTests(TestCase):
 
         self.assertEqual(0, status)
         self.assertEqual(LS_LONG_OUTPUT, console.out.file.getvalue())
+
+    def test_with_tag(self, fixtures: Fixtures) -> None:
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
+        repo.files.bulk_save(cfs)
+
+        publisher = fixtures.publisher
+        publisher.publish(GBPBuild(machine="lighthouse", build_id="34"))
+        pkgspec = "lighthouse/@/app-arch/tar-1.35-1"
+        cmd = f"gbp fl ls -l {pkgspec}"
+        args = parse_args(cmd)
+        console = fixtures.console
+        gbp = fixtures.gbp_client
+
+        print_command(cmd, console)
+        status = ls.handler(args, gbp, console)
+
+        self.assertEqual(0, status)
+        expected = LS_LONG_OUTPUT.replace("lighthouse/34/", "lighthouse/@/")
+        self.assertEqual(expected, console.out.file.getvalue())
 
     def test_invalid_spec(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"

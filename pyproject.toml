@@ -23,7 +23,7 @@ gbp_fl = "gbp_fl:plugin"
 
 [project.optional-dependencies]
 server = [
-    "gentoo-build-publisher>=2.4.0rc1",
+    "gentoo-build-publisher>=2.4.1.dev13",
     "ariadne>=0.26.0",
 ]
 [build-system]

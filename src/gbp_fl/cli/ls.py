@@ -29,8 +29,14 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         console.err.print(f"[red]Invalid specifier: {args.pkgspec}[/red]")
         return 1
 
+    if spec.build_id.startswith("@"):
+        build = gbp.resolve_tag(spec.machine, spec.build_id[1:])
+        build_id = str(build.number) if build else ""
+    else:
+        build_id = spec.build_id
+
     response, _ = gbp.query.gbp_fl.list(  # type: ignore
-        machine=spec.machine, buildId=spec.build_id, cpvb=spec.cpvb, extended=args.long
+        machine=spec.machine, buildId=build_id, cpvb=spec.cpvb, extended=args.long
     )
     fl_list: list[ContentFileDict] = response["flList"]
     fl_list.sort(key=lambda item: item["path"])
