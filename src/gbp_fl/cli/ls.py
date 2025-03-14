@@ -12,6 +12,8 @@ from rich.table import Table
 
 from gbp_fl import utils
 
+from . import resolve_build_id
+
 HELP = "List files in a package"
 
 
@@ -29,12 +31,7 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         console.err.print(f"[red]Invalid specifier: {args.pkgspec}[/red]")
         return 1
 
-    if spec.build_id.startswith("@"):
-        build = gbp.resolve_tag(spec.machine, spec.build_id[1:])
-        build_id = str(build.number) if build else ""
-    else:
-        build_id = spec.build_id
-
+    build_id = resolve_build_id(spec.machine, spec.build_id, gbp) or ""
     response, _ = gbp.query.gbp_fl.list(  # type: ignore
         machine=spec.machine, buildId=build_id, cpvb=spec.cpvb, extended=args.long
     )
