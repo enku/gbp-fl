@@ -26,11 +26,7 @@ class ContentFiles:
         new = replace(content_file, **fields)
         model = content_file_to_model(new)
 
-        try:
-            self.delete(content_file)
-        except RecordNotFound:
-            pass
-
+        self.maybe_delete(content_file)
         model.save()
 
         return new
@@ -183,6 +179,18 @@ class ContentFiles:
         query = models.ContentFile.objects.filter(**query_dict)
 
         yield from (model_to_content_file(model) for model in query)
+
+    def maybe_delete(self, content_file: ContentFile) -> bool:
+        """Delete the object given ContentFile from the database
+
+        If the associated record was deleted, return True.
+        If the record did not exist in the database, return False.
+        """
+        try:
+            self.delete(content_file)
+        except RecordNotFound:
+            return False
+        return True
 
 
 def get_model(
