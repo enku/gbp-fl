@@ -5,6 +5,7 @@ from typing import TypeAlias
 
 from ariadne import ObjectType
 from django.http import HttpRequest
+from django.urls import reverse
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import GBPGateway
@@ -29,17 +30,19 @@ def _(pkg: BinPkg, _info: Info) -> BuildLike:
 
 
 @flBinPkg.field("url")
-def _(pkg: BinPkg, info: Info) -> str:
-    cpv = pkg.cpv
-    c, pv = cpv.split("/", 1)
+def _(pkg: BinPkg, info: Info) -> str | None:
+    request: HttpRequest = info.context["request"]
+    c, pv = pkg.cpv.split("/", 1)
 
     v_match = V_RE.search(pv)
-    assert v_match is not None
-    p = pv[: v_match.start()]
-    request: HttpRequest = info.context["request"]
+    assert v_match
     build = pkg.build
-
-    return request.build_absolute_uri(
-        f"/machines/{build.machine}/builds/{build.build_id}/packages/{c}/{p}"
-        f"/{pv}-{pkg.build_id}"
-    )
+    view_args = {
+        "machine": build.machine,
+        "build_id": build.build_id,
+        "c": c,
+        "p": pv[: v_match.start()],
+        "pv": pv,
+        "b": pkg.build_id,
+    }
+    return request.build_absolute_uri(reverse("gbp-binpkg", kwargs=view_args))

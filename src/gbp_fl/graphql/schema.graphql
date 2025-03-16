@@ -2,7 +2,7 @@ type flBinPkg {
   build: Build
   cpvb: String!
   repo: String!
-  url: String!
+  url: String
 }
 
 type flContentFile {
