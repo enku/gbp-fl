@@ -56,6 +56,17 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
+    def test_no_match(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
+        cmdline = "gbp fl search bash"
+        args = parse_args(cmdline)
+        gbp = fixtures.gbp_client
+        console = fixtures.console
+
+        status = search.handler(args, gbp, console)
+
+        self.assertEqual(status, 0)
+        self.assertEqual("", console.out.file.getvalue())
+
     def test_with_missing_metadata(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
         # When a package is being deleted, e.g. during a purge run, the binpkg metadata
         # may be gone. This results in an error in the graphql call and the binpkg field
