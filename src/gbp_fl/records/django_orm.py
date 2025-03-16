@@ -14,6 +14,8 @@ from gbp_fl.types import BinPkg, Build, ContentFile
 
 BULK_BATCH_SIZE = 100
 
+session = models.ContentFile.objects
+
 
 class ContentFiles:
     """Django ORM-backed repository for Package files"""
@@ -35,16 +37,15 @@ class ContentFiles:
     def bulk_save(self, content_files: Iterable[ContentFile]) -> None:
         """Bulk save a list of ContentFiles"""
         get_basename = os.path.basename
-        manager = models.ContentFile.objects
         settings = Settings.from_environ()
         batch_size = settings.RECORDS_BACKEND_DJANGO_BULK_BATCH_SIZE
 
-        items = manager.bulk_create(
+        items = session.bulk_create(
             (content_file_to_model(cf) for cf in content_files), batch_size=batch_size
         )
         for item in items:
             item.basename = get_basename(item.path)
-        manager.bulk_update(items, ["basename"], batch_size=batch_size)
+        session.bulk_update(items, ["basename"], batch_size=batch_size)
 
     def get(
         self, machine: str, build_id: str, cpvb: str, path: str | Path
@@ -71,14 +72,11 @@ class ContentFiles:
 
     def deindex_build(self, machine: str, build_id: str) -> None:
         """Delete all content files for the given build"""
-        manager = models.ContentFile.objects
-
-        manager.filter(machine=machine, build_id=build_id).delete()
+        session.filter(machine=machine, build_id=build_id).delete()
 
     def exists(self, machine: str, build_id: str, cpvb: str, path: str | Path) -> bool:
         """Return true if a package file with matching criteria exists in the db"""
-        manager = models.ContentFile.objects
-        query = manager.filter(
+        query = session.filter(
             machine=machine, build_id=build_id, cpvb=cpvb, path=str(path)
         )
         return query.exists()
@@ -107,26 +105,24 @@ class ContentFiles:
                 query_dict[field] = value
             previous = field
 
-        return models.ContentFile.objects.filter(**query_dict).count()
+        return session.filter(**query_dict).count()
 
     def for_package(
         self, machine: str, build_id: str, cpvb: str
     ) -> Iterable[ContentFile]:
         """Return all ContentFiles for the given build and cpvb"""
-        query = models.ContentFile.objects.filter(
-            machine=machine, build_id=build_id, cpvb=cpvb
-        )
+        query = session.filter(machine=machine, build_id=build_id, cpvb=cpvb)
         yield from (model_to_content_file(model) for model in query)
 
     def for_build(self, machine: str, build_id: str) -> Iterable[ContentFile]:
         """Return all ContentFiles for the given build"""
-        query = models.ContentFile.objects.filter(machine=machine, build_id=build_id)
+        query = session.filter(machine=machine, build_id=build_id)
 
         yield from (model_to_content_file(model) for model in query)
 
     def for_machine(self, machine: str) -> Iterable[ContentFile]:
         """Return all ContentFiles for the given machine"""
-        query = models.ContentFile.objects.filter(machine=machine)
+        query = session.filter(machine=machine)
 
         yield from (model_to_content_file(model) for model in query)
 
@@ -176,7 +172,7 @@ class ContentFiles:
         else:
             query_dict["basename"] = key
 
-        query = models.ContentFile.objects.filter(**query_dict)
+        query = session.filter(**query_dict)
 
         yield from (model_to_content_file(model) for model in query)
 
@@ -201,7 +197,7 @@ def get_model(
     If no model exists, raise RecordNotFound.
     """
     try:
-        return models.ContentFile.objects.get(
+        return session.get(
             machine=machine, build_id=build_id, cpvb=cpvb, path=str(path)
         )
     except models.ContentFile.DoesNotExist:
