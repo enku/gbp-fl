@@ -1,10 +1,11 @@
 # pylint: disable=missing-docstring,unused-argument
 import datetime as dt
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from dataclasses import replace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
+from gbp_testkit.helpers import parse_args, print_command
 from unittest_fixtures import Fixtures, given
 
 from gbp_fl.cli import search
@@ -40,11 +41,12 @@ class SearchTests(TestCase):
             )
             for i in bash_file_indexes
         )
-        args = Namespace(key="bash", machine=None)
+        cmdline = "gbp fl search bash"
+        args = parse_args(cmdline)
         gbp = fixtures.gbp_client
         console = fixtures.console
 
-        console.out.print("$ gbp fl search bash")
+        print_command(cmdline, console)
         status = search.handler(args, gbp, console)
 
         self.assertEqual(status, 0)
@@ -75,11 +77,12 @@ class SearchTests(TestCase):
         build_records[1] = None  # type: ignore
         gpbgateway.return_value.get_build_record.side_effect = tuple(build_records)
 
-        args = Namespace(key="bash", machine=None)
+        cmdline = "gbp fl search bash"
+        args = parse_args(cmdline)
         gbp = fixtures.gbp_client
         console = fixtures.console
 
-        console.out.print("$ gbp fl search bash")
+        print_command(cmdline, console)
         status = search.handler(args, gbp, console)
 
         self.assertEqual(status, 0)
