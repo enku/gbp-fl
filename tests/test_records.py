@@ -290,6 +290,16 @@ class ContentFilesTests(TestCase):
 
         self.assertIs(exists, True)
 
+    @parametrized(BACKENDS)
+    def test_save_with_override(self, backend_type: str, fixtures: Fixtures) -> None:
+        files = files_backend(backend_type)
+        content_file = fixtures.content_file
+
+        files.save(content_file)
+        content_file = files.save(content_file, path="/dev/null")
+
+        self.assertEqual("/dev/null", content_file.path)
+
 
 class ContentFilesBackendTests(TestCase):
     def test_gets_given_backend(self) -> None:
