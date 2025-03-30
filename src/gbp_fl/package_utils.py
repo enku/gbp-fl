@@ -45,14 +45,19 @@ def make_content_file(
     build: Build, gbp_package: Package, metadata: ContentFileInfo
 ) -> ContentFile:
     """Return a ContentFile given the parameters"""
-    timestamp = dt.datetime.fromtimestamp(metadata.mtime, tz=dt.UTC)
-    path = Path(metadata.name.removeprefix("image"))
-    binpkg = BinPkg(
+    return ContentFile(
+        path=Path(metadata.name.removeprefix("image")),
+        binpkg=make_binpkg(build, gbp_package),
+        size=metadata.size,
+        timestamp=dt.datetime.fromtimestamp(metadata.mtime, tz=dt.UTC),
+    )
+
+
+def make_binpkg(build: Build, gbp_package: Package) -> BinPkg:
+    """Create a BinPkg given the build and Package"""
+    return BinPkg(
         build=Build(machine=build.machine, build_id=build.build_id),
         cpvb=f"{gbp_package.cpv}-{gbp_package.build_id}",
         repo=gbp_package.repo,
         build_time=dt.datetime.fromtimestamp(gbp_package.build_time, dt.UTC),
-    )
-    return ContentFile(
-        path=path, binpkg=binpkg, size=metadata.size, timestamp=timestamp
     )
