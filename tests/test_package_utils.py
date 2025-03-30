@@ -39,7 +39,7 @@ class IndexBuildTests(TestCase):
         mock_gw.contents[build, package] = [mock_tarinfo]
         repo = mock.Mock(files=files_backend("memory"))
 
-        with mock.patch(f"{MOCK_PREFIX}GBPGateway", return_value=mock_gw):
+        with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
             with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
                 package_utils.index_build(build)
 
@@ -54,7 +54,7 @@ class IndexBuildTests(TestCase):
         build = Build(machine="babette", build_id="1505")
         repo = mock.Mock(files=files_backend("memory"))
 
-        with mock.patch(f"{MOCK_PREFIX}GBPGateway", return_value=mock_gw):
+        with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
             with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
                 package_utils.index_build(build)
 

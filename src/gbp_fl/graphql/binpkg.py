@@ -8,7 +8,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 from graphql import GraphQLResolveInfo
 
-from gbp_fl.gateway import GBPGateway
+from gbp_fl.gateway import gateway
 from gbp_fl.types import BinPkg, Build, BuildLike
 
 flBinPkg = ObjectType("flBinPkg")
@@ -24,9 +24,10 @@ V_RE = re.compile("-[0-9]")
 @flBinPkg.field("build")
 def _(pkg: BinPkg, _info: Info) -> BuildLike:
     build = pkg.build
-    gbp = GBPGateway()
 
-    return gbp.get_build_record(Build(machine=build.machine, build_id=build.build_id))
+    return gateway.get_build_record(
+        Build(machine=build.machine, build_id=build.build_id)
+    )
 
 
 @flBinPkg.field("url")

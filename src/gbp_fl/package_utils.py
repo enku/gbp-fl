@@ -4,7 +4,7 @@ import datetime as dt
 from concurrent.futures import ThreadPoolExecutor, wait
 from pathlib import PurePath as Path
 
-from gbp_fl.gateway import GBPGateway
+from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, ContentFileInfo, Package
@@ -12,11 +12,10 @@ from gbp_fl.types import BinPkg, Build, ContentFile, ContentFileInfo, Package
 
 def index_build(build: Build) -> None:
     """Save the given Build's packages to the database"""
-    gbp = GBPGateway()
     executor = ThreadPoolExecutor()
 
     try:
-        packages = gbp.get_packages(build) or []
+        packages = gateway.get_packages(build) or []
     except LookupError:
         return
 
@@ -25,8 +24,7 @@ def index_build(build: Build) -> None:
 
 def index_package(package: Package, build: Build) -> None:
     """Save the files from the given build/package"""
-    gbp = GBPGateway()
-    package_contents = gbp.get_package_contents
+    package_contents = gateway.get_package_contents
     repo = Repo.from_settings(Settings.from_environ())
 
     content_files = (

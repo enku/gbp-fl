@@ -184,3 +184,6 @@ class GBPGateway:
         from gentoo_build_publisher import signals
 
         return signals.dispatcher
+
+
+gateway = GBPGateway()

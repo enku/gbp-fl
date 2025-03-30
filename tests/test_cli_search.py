@@ -16,12 +16,12 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
 @given("gbp_client", "repo", "bulk_content_files", "console")
-@patch("gbp_fl.graphql.binpkg.GBPGateway")
+@patch("gbp_fl.graphql.binpkg.gateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
     options = {"records_backend": "memory"}
 
-    def test(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
+    def test(self, gateway: Mock, fixtures: Fixtures) -> None:
         cfs = fixtures.bulk_content_files
         repo = fixtures.repo
         now = fixtures.now
@@ -33,7 +33,7 @@ class SearchTests(TestCase):
 
         bash_file_indexes = [0, 3, 4, 5]
 
-        gpbgateway.return_value.get_build_record.side_effect = tuple(
+        gateway.get_build_record.side_effect = tuple(
             Mock(
                 machine=cfs[i].binpkg.build.machine,
                 build_id=cfs[i].binpkg.build.build_id,
@@ -56,7 +56,7 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
-    def test_no_match(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
+    def test_no_match(self, gateway: Mock, fixtures: Fixtures) -> None:
         cmdline = "gbp fl search bash"
         args = parse_args(cmdline)
         gbp = fixtures.gbp_client
@@ -67,7 +67,7 @@ class SearchTests(TestCase):
         self.assertEqual(status, 0)
         self.assertEqual("", console.out.file.getvalue())
 
-    def test_with_missing_metadata(self, gpbgateway: Mock, fixtures: Fixtures) -> None:
+    def test_with_missing_metadata(self, gateway: Mock, fixtures: Fixtures) -> None:
         # When a package is being deleted, e.g. during a purge run, the binpkg metadata
         # may be gone. This results in an error in the graphql call and the binpkg field
         # being set to null. We want to (silently) ignore those
@@ -86,7 +86,7 @@ class SearchTests(TestCase):
         ]
         # make the second one return None
         build_records[1] = None  # type: ignore
-        gpbgateway.return_value.get_build_record.side_effect = tuple(build_records)
+        gateway.get_build_record.side_effect = tuple(build_records)
 
         cmdline = "gbp fl search bash"
         args = parse_args(cmdline)
