@@ -7,7 +7,7 @@ from typing import Any, Iterable
 
 from django.db import transaction
 
-from gbp_fl import models
+from gbp_fl.django.gbp_fl import models
 from gbp_fl.records import RecordNotFound
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile
