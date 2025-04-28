@@ -23,11 +23,9 @@ def index_build(machine: str, build_id: str) -> None:
 def deindex_build(machine: str, build_id: str) -> None:
     """Delete all the files from the given build"""
     from gbp_fl.gateway import gateway
-    from gbp_fl.records import Repo
-    from gbp_fl.settings import Settings
+    from gbp_fl.records import repo
     from gbp_fl.types import Build
 
-    repo = Repo.from_settings(Settings.from_environ())
     files = repo.files
     build = Build(machine=machine, build_id=build_id)
 

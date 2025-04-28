@@ -45,7 +45,7 @@ class PostPulledTests(GBPTestCase):
         gbp = gateway.GBPGateway()
         _ = None
 
-        with mock.patch("gbp_fl.package_utils.Repo.from_settings", return_value=repo):
+        with mock.patch("gbp_fl.package_utils.repo", new=repo):
             gbp.emit_signal(
                 "postpull", build=f.build_record, packages=_, gbp_metadata=_
             )
@@ -67,7 +67,7 @@ class PostPulledTests(GBPTestCase):
 
         shutil.copy(TESTDIR / "assets/empty.tar", f.binpkg)
 
-        with mock.patch("gbp_fl.package_utils.Repo.from_settings", return_value=repo):
+        with mock.patch("gbp_fl.package_utils.repo", new=repo):
             gbp.emit_signal(
                 "postpull", build=f.build_record, packages=_, gbp_metadata=_
             )
@@ -88,7 +88,7 @@ class PostPulledTests(GBPTestCase):
         package_manifest: Path = f.binpkg.parents[2] / "Packages"
         package_manifest.unlink()
 
-        with mock.patch("gbp_fl.package_utils.Repo.from_settings", return_value=repo):
+        with mock.patch("gbp_fl.package_utils.repo", new=repo):
             gbp.emit_signal(
                 "postpull", build=f.build_record, packages=_, gbp_metadata=_
             )
@@ -113,7 +113,7 @@ class PostDeleteTests(GBPTestCase):
 
         self.assertEqual(repo.files.count(None, None, None), 6)
 
-        with mock.patch("gbp_fl.package_utils.Repo.from_settings", return_value=repo):
+        with mock.patch("gbp_fl.records.repo", new=repo):
             build = Build(machine="polaris", build_id="26")
             gbp.emit_signal("postdelete", build=build)
 

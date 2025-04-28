@@ -16,7 +16,7 @@ from gbp_fl.types import BinPkg, Build
 
 
 @given("repo", "bulk_content_files", "client")
-@where(records_backend="memory")
+@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListSearchTests(TestCase):
     def test_search_without_machine(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -59,7 +59,7 @@ class FileListSearchTests(TestCase):
 
 
 @given("repo", "bulk_content_files", "client")
-@where(records_backend="memory")
+@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class ResolveQueryCountTests(TestCase):
     query = "query totalFileCount { flCount }"
 
@@ -141,7 +141,7 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
 
 
 @given("repo", "bulk_content_files", "client")
-@where(records_backend="memory")
+@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListListTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures

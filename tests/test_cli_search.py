@@ -6,7 +6,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from gbp_testkit.helpers import parse_args, print_command
-from unittest_fixtures import Fixtures, given
+from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import search
 
@@ -16,6 +16,7 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
 @given("gbp_client", "repo", "bulk_content_files", "console")
+@where(repo="gbp_fl.graphql.queries.repo")
 @patch("gbp_fl.graphql.binpkg.gateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):

@@ -33,7 +33,11 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 @given(
     "local_timezone", "bulk_content_files", "console", "gbp_client", "repo", "publisher"
 )
-@where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
+@where(
+    records_db={"records_backend": "memory"},
+    bulk_content_files=BULK_CONTENT_FILES,
+    repo="gbp_fl.graphql.queries.repo",
+)
 class LsTests(TestCase):
 
     def test_short_format(self, fixtures: Fixtures) -> None:

@@ -120,3 +120,13 @@ class Repo:
     def from_settings(cls: type[Self], settings: Settings) -> Self:
         """Return instance of the Repo class given in settings"""
         return cls(files=files_backend(settings.RECORDS_BACKEND))
+
+
+repo: Repo
+
+
+def __getattr__(name: str) -> Any:
+    if name == "repo":
+        return Repo.from_settings(Settings.from_environ())
+
+    raise AttributeError(name)

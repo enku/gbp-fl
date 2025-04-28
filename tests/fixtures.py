@@ -67,12 +67,10 @@ def settings(_fixtures: Fixtures) -> Settings:
 
 
 @fixture("settings")
-def repo(
-    fixtures: Fixtures, where: str = "gbp_fl.records.Repo"
-) -> FixtureContext[Repo]:
+def repo(fixtures: Fixtures, repo: str = "gbp_fl.records.repo") -> FixtureContext[Repo]:
     repo_: Repo = Repo.from_settings(fixtures.settings)
 
-    with mock.patch(f"{where}.from_settings", return_value=repo_):
+    with mock.patch(repo, new=repo_):
         yield repo_
 
 

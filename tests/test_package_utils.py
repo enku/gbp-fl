@@ -40,7 +40,7 @@ class IndexBuildTests(TestCase):
         repo = mock.Mock(files=files_backend("memory"))
 
         with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
-            with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
+            with mock.patch(f"{MOCK_PREFIX}repo", new=repo):
                 package_utils.index_build(build)
 
         self.assertEqual(repo.files.count(None, None, None), 1)
@@ -55,7 +55,7 @@ class IndexBuildTests(TestCase):
         repo = mock.Mock(files=files_backend("memory"))
 
         with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
-            with mock.patch(f"{MOCK_PREFIX}Repo.from_settings", return_value=repo):
+            with mock.patch(f"{MOCK_PREFIX}repo", new=repo):
                 package_utils.index_build(build)
 
         self.assertEqual(repo.files.count(None, None, None), 0)
