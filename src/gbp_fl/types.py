@@ -20,6 +20,11 @@ class Package:
     build_time: int
     path: str
 
+    @property
+    def cpvb(self) -> str:
+        """The cpv-b string for the Package"""
+        return f"{self.cpv}-{self.build_id}"
+
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class Build:
