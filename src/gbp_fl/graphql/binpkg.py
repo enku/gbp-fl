@@ -9,7 +9,9 @@ from django.urls import reverse
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import gateway
-from gbp_fl.types import BinPkg, Build, BuildLike
+from gbp_fl.records import Repo
+from gbp_fl.settings import Settings
+from gbp_fl.types import BinPkg, Build, BuildLike, ContentFile
 
 flBinPkg = ObjectType("flBinPkg")
 Info: TypeAlias = GraphQLResolveInfo
@@ -47,3 +49,9 @@ def _(pkg: BinPkg, info: Info) -> str | None:
         "b": pkg.build_id,
     }
     return request.build_absolute_uri(reverse("gbp-binpkg", kwargs=view_args))
+
+
+@flBinPkg.field("files")
+def _(pkg: BinPkg, _info: Info) -> list[ContentFile]:
+    repo = Repo.from_settings(Settings.from_environ())
+    return list(repo.files.for_package(pkg.build.machine, pkg.build.build_id, pkg.cpvb))

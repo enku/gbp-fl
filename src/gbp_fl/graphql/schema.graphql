@@ -3,6 +3,7 @@ type flBinPkg {
   cpvb: String!
   repo: String!
   url: String
+  files: [flContentFile!]!
 }
 
 type flContentFile {
