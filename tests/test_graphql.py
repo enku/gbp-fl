@@ -8,6 +8,7 @@ from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
+from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.types import BinPkg, Build
@@ -171,3 +172,36 @@ class FileListListTests(TestCase):
             },
         ]
         self.assertEqual(expected, result["data"]["flList"])
+
+
+@given("repo", "client", "publisher")
+@where(records_backend="memory")
+class FlListPackages(TestCase):
+    def test(self, fixtures: Fixtures) -> None:
+        publisher = fixtures.publisher
+        build = GBPBuild(machine="lighthouse", build_id="34404")
+        publisher.publish(build)
+
+        query = """
+          query {
+            flListPackages(machine: "lighthouse", buildId: "34404") {
+              cpvb
+              files {
+                path timestamp size
+              }
+            }
+          }
+        """
+        result = graphql(fixtures.client, query)
+
+        self.assertTrue("errors" not in result, result.get("errors"))
+
+        # the files array will be empty since the artifact builder factory doesn't know
+        # how to create actual package files.
+        expected = [
+            {"cpvb": "acct-group/sgx-0-1", "files": []},
+            {"cpvb": "app-admin/perl-cleaner-2.30-1", "files": []},
+            {"cpvb": "app-arch/unzip-6.0_p26-1", "files": []},
+            {"cpvb": "app-crypt/gpgme-1.14.0-1", "files": []},
+        ]
+        self.assertEqual(expected, result["data"]["flListPackages"])

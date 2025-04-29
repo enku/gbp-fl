@@ -17,4 +17,5 @@ extend type Query {
   flSearch(key: String!, machine: String): [flContentFile!]!
   flCount(machine: String, buildId: String): Int!
   flList(machine: String!, buildId: String!, cpvb: String!): [flContentFile!]!
+  flListPackages(machine: String!, buildId: String!): [flBinPkg!]!
 }
