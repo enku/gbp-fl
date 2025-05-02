@@ -24,3 +24,6 @@ class ParsePkgspecTests(TestCase):
             ),
             parsed,
         )
+
+    def test_invalid_pvb(self) -> None:
+        self.assertIsNone(parse_pkgspec("jenkins-python/211/dev-python/?"))
