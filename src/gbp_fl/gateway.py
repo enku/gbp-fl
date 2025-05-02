@@ -132,7 +132,7 @@ class GBPGateway:
             pv = package.cpv.partition("/")[2]
             prefix = f"{pv}-{package.build_id}/image.tar"
 
-            for item in tarfile:
+            for item in tarfile:  # pragma: no branch
                 if item.name.startswith(prefix):
                     image_fp = tarfile.extractfile(item)
                     # this is also a tarfile
