@@ -319,3 +319,18 @@ class RepoFromSettingsTests(TestCase):
         repo = Repo.from_settings(settings)
 
         self.assertIsInstance(repo.files, django_orm.ContentFiles)
+
+
+class GetAttrTests(TestCase):
+    # pylint: disable=import-outside-toplevel
+    def test_repo_singleton(self) -> None:
+        from gbp_fl import records
+
+        self.assertIsInstance(records.repo, Repo)
+
+    def test_attribute_error(self) -> None:
+        from gbp_fl import records
+
+        with self.assertRaises(AttributeError):
+            # pylint: disable=pointless-statement
+            records.bogus
