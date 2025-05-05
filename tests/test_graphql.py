@@ -6,6 +6,7 @@ from unittest.mock import Mock
 
 from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
+from gentoo_build_publisher import publisher
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
@@ -126,7 +127,6 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
 
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
-        publisher = f.publisher
         build_record: BuildRecord = replace(f.record, submitted=f.now)
         build = Build(machine=build_record.machine, build_id=build_record.build_id)
         binpkg = BinPkg(
@@ -178,7 +178,6 @@ class FileListListTests(TestCase):
 @where(records_backend="memory")
 class FlListPackages(TestCase):
     def test(self, fixtures: Fixtures) -> None:
-        publisher = fixtures.publisher
         build = GBPBuild(machine="lighthouse", build_id="34404")
         publisher.publish(build)
 

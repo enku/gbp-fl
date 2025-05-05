@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring,unused-argument
 from unittest import TestCase
 
+from gentoo_build_publisher import publisher
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
@@ -79,7 +80,6 @@ class LsTests(TestCase):
         repo = fixtures.repo
         repo.files.bulk_save(cfs)
 
-        publisher = fixtures.publisher
         publisher.publish(GBPBuild(machine="lighthouse", build_id="34"))
         pkgspec = "lighthouse/@/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
