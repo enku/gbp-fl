@@ -157,22 +157,22 @@ class ContentFiles:
         if not key:
             return
 
-        query_dict = {"machine": machine} if machine is not None else {}
+        params = {"machine": machine} if machine is not None else {}
 
         if "/" in key:
             if key[0] != "/":
                 key = f"/{key}"
-            query_dict["path"] = key
+            params["path"] = key
         elif key.startswith("*") and key.endswith("*"):
-            query_dict["basename__contains"] = key.strip("*")
+            params["basename__contains"] = key.strip("*")
         elif key.startswith("*"):
-            query_dict["basename__endswith"] = key.lstrip("*")
+            params["basename__endswith"] = key.lstrip("*")
         elif key.endswith("*"):
-            query_dict["basename__startswith"] = key.rstrip("*")
+            params["basename__startswith"] = key.rstrip("*")
         else:
-            query_dict["basename"] = key
+            params["basename"] = key
 
-        query = session.filter(**query_dict)
+        query = session.filter(**params)
 
         yield from (model_to_content_file(model) for model in query)
 
