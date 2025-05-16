@@ -223,11 +223,9 @@ def content_file_to_model(content_file: ContentFile) -> models.ContentFile:
 
 def model_to_content_file(model: models.ContentFile) -> ContentFile:
     """Convert the given ContentFile Django model to the ContentFile dataclass"""
-    build = Build(machine=model.machine, build_id=model.build_id)
-    binpkg = BinPkg(
-        cpvb=model.cpvb, build=build, build_time=model.timestamp, repo=model.repo
-    )
-    content_file = ContentFile(
-        path=Path(model.path), binpkg=binpkg, timestamp=model.timestamp, size=model.size
-    )
-    return content_file
+    m = model
+    path = Path(m.path)
+    build = Build(machine=m.machine, build_id=m.build_id)
+    binpkg = BinPkg(cpvb=m.cpvb, build=build, build_time=m.timestamp, repo=m.repo)
+
+    return ContentFile(path=path, binpkg=binpkg, timestamp=m.timestamp, size=m.size)
