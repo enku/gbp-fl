@@ -11,7 +11,7 @@ parts of GBP it needs form *inside* the method itself. In addition methods are r
 to only accept gbp-fl-local types and only return gbp-fl-local times. One exception is
 the GBP signal receiver functions which will naturally receive gbp-internal types.
 However there are wrapper types in gbp_fl.types so that receivers can at least only
-access gbp-local attributes or else type checkers will hollar.
+access gbp-local attributes or else type checkers will holler.
 """
 
 from pathlib import PurePath as Path
