@@ -16,6 +16,8 @@ from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile, Package
 
+from .utils import MockGBPGateway
+
 build_model = testkit.build_model
 client = testkit.client
 console = testkit.console
@@ -241,6 +243,11 @@ def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
         return seq[index]
     except IndexError:
         return default
+
+
+@fixture()
+def gateway(_: Fixtures) -> MockGBPGateway:
+    return MockGBPGateway()
 
 
 @fixture()

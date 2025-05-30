@@ -10,14 +10,12 @@ from gbp_fl import package_utils
 from gbp_fl.records import files_backend
 from gbp_fl.types import Build, ContentFileInfo
 
-from .utils import MockGBPGateway
-
 # pylint: disable=missing-docstring,unused-argument
 
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@given("bulk_packages")
+@given("bulk_packages", "gateway")
 @where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
@@ -29,7 +27,7 @@ MOCK_PREFIX = "gbp_fl.package_utils."
 )
 class IndexBuildTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
-        mock_gw = MockGBPGateway()
+        mock_gw = fixtures.gateway
         build = Build(machine="babette", build_id="1505")
         package = fixtures.bulk_packages[0]
         mock_gw.packages[build] = [package]
@@ -50,7 +48,7 @@ class IndexBuildTests(TestCase):
         self.assertEqual(content_file.size, 22)
 
     def test_when_no_package(self, fixtures: Fixtures) -> None:
-        mock_gw = MockGBPGateway()
+        mock_gw = fixtures.gateway
         build = Build(machine="babette", build_id="1505")
         repo = mock.Mock(files=files_backend("memory"))
 
