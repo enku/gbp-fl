@@ -15,7 +15,7 @@ from gbp_fl.types import Build, ContentFileInfo
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@given("bulk_packages", "gateway")
+@given("bulk_packages", "gateway", "tarinfo")
 @where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
@@ -31,10 +31,7 @@ class IndexBuildTests(TestCase):
         build = Build(machine="babette", build_id="1505")
         package = fixtures.bulk_packages[0]
         mock_gw.packages[build] = [package]
-        mock_tarinfo = mock.Mock(mtime=0, size=22)
-        mock_tarinfo.isdir.return_value = False
-        mock_tarinfo.name = "image/bin/bash"
-        mock_gw.contents[build, package] = [mock_tarinfo]
+        mock_gw.contents[build, package] = [fixtures.tarinfo]
         repo = mock.Mock(files=files_backend("memory"))
 
         with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
