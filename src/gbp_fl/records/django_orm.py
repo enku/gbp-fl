@@ -62,11 +62,9 @@ class ContentFiles:
 
         Raise RecordNotFound if it doesn't exist in the database.
         """
+        cf = content_file
         model = get_model(
-            content_file.binpkg.build.machine,
-            content_file.binpkg.build.build_id,
-            content_file.binpkg.cpvb,
-            content_file.path,
+            cf.binpkg.build.machine, cf.binpkg.build.build_id, cf.binpkg.cpvb, cf.path
         )
         model.delete()
 
@@ -76,9 +74,8 @@ class ContentFiles:
 
     def exists(self, machine: str, build_id: str, cpvb: str, path: str | Path) -> bool:
         """Return true if a package file with matching criteria exists in the db"""
-        query = session.filter(
-            machine=machine, build_id=build_id, cpvb=cpvb, path=str(path)
-        )
+        path = str(path)
+        query = session.filter(machine=machine, build_id=build_id, cpvb=cpvb, path=path)
         return query.exists()
 
     def count(self, machine: str | None, build_id: str | None, cpvb: str | None) -> int:
@@ -196,10 +193,9 @@ def get_model(
 
     If no model exists, raise RecordNotFound.
     """
+    path = str(path)
     try:
-        return session.get(
-            machine=machine, build_id=build_id, cpvb=cpvb, path=str(path)
-        )
+        return session.get(machine=machine, build_id=build_id, cpvb=cpvb, path=path)
     except models.ContentFile.DoesNotExist:
         raise RecordNotFound from None
 
