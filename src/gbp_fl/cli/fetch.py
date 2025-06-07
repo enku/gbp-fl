@@ -1,6 +1,7 @@
 """Handler for `gbp fl fetch`"""
 
 import argparse
+from typing import Iterable
 
 import requests
 from gbpcli.gbp import GBP
@@ -35,12 +36,17 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
 
         output = URL(response.url).name
 
-        with open(output, "wb", buffering=BUFSIZE) as fp:
-            for chunk in response.iter_content(BUFSIZE):
-                fp.write(chunk)
+        save_chunks_to_file(response.iter_content(BUFSIZE), output)
         console.out.print(f"package saved as [package]{output}[/package]")
 
     return 0
+
+
+def save_chunks_to_file(chunks: Iterable[bytes], filename: str) -> None:
+    """Save the content to the given filename"""
+    with open(filename, "wb", buffering=BUFSIZE) as fp:
+        for chunk in chunks:
+            fp.write(chunk)
 
 
 def parse_args(parser: argparse.ArgumentParser) -> None:
