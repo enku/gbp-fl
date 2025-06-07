@@ -22,9 +22,6 @@ def handler(args: argparse.Namespace, _gbp: GBP, console: Console) -> int:
     return 1
 
 
-handler.__doc__ = HELP
-
-
 def parse_args(parser: argparse.ArgumentParser) -> None:
     """Create parsers for subcommands"""
     subparsers = parser.add_subparsers()

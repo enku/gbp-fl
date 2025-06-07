@@ -11,6 +11,8 @@ from gbpcli.types import Console
 from rich import box
 from rich.table import Table
 
+HELP = "Search for files in packages"
+
 
 def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
     """Search for files in packages"""
@@ -25,9 +27,6 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
                 row(*format_content_file(item, args))
         console.out.print(table)
     return 0
-
-
-HELP = handler.__doc__
 
 
 def parse_args(parser: argparse.ArgumentParser) -> None:

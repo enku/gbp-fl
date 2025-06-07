@@ -12,6 +12,7 @@ from gbp_fl import utils
 from . import resolve_build_id
 
 BUFSIZE = 1024
+HELP = "Get package files from Gentoo Build Publisher"
 
 
 def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
@@ -40,9 +41,6 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         console.out.print(f"package saved as [package]{output}[/package]")
 
     return 0
-
-
-HELP = handler.__doc__
 
 
 def parse_args(parser: argparse.ArgumentParser) -> None:
