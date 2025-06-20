@@ -2,6 +2,7 @@
 
 import datetime as dt
 from concurrent.futures import ThreadPoolExecutor, wait
+from functools import partial
 from pathlib import PurePath as Path
 
 from gbp_fl.gateway import gateway
@@ -23,18 +24,14 @@ def index_build(build: Build) -> None:
 
 def index_package(package: Package, build: Build) -> None:
     """Save the files from the given build/package"""
-    package_contents = gateway.get_package_contents
+    items = gateway.get_package_contents(build, package)
+    content_file = partial(make_content_file, build, package)
 
-    content_files = (
-        make_content_file(
-            build,
-            package,
-            ContentFileInfo(name=item.name, mtime=int(item.mtime), size=item.size),
-        )
-        for item in package_contents(build, package)
-        if not item.isdir() and item.name.startswith("image/")
+    repo.files.bulk_save(
+        content_file(ContentFileInfo(name=i.name, mtime=int(i.mtime), size=i.size))
+        for i in items
+        if not i.isdir() and i.name.startswith("image/")
     )
-    repo.files.bulk_save(content_files)
 
 
 def make_content_file(
