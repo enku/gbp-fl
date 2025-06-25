@@ -139,11 +139,13 @@ class ContentFiles:
             if key[0] == machine:
                 yield content_file
 
-    def search(self, key: str, machine: str | None = None) -> Iterable[ContentFile]:
+    def search(
+        self, key: str, machines: list[str] | None = None
+    ) -> Iterable[ContentFile]:
         """Search the database for package files
 
-        If machine is provided, restrict the search to files belonging to the given
-        machine.
+        If machines is provided, restrict the search to files belonging to the given
+        machines.
 
         The simple search key works like the following:
 
@@ -178,7 +180,7 @@ class ContentFiles:
             matcher = glob_checker
 
         for content_file in self.files.values():
-            if machine and content_file.binpkg.build.machine != machine:
+            if machines and content_file.binpkg.build.machine not in machines:
                 continue
             if matcher(content_file, key):
                 yield content_file

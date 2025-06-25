@@ -1,0 +1,14 @@
+query searchV2($key: String!, $machines: [String!]) {
+  flSearchV2(key: $key, machines: $machines) {
+    path
+    size
+    timestamp
+    binpkg {
+      cpvb
+      build {
+        machine
+        id
+      }
+    }
+  }
+}

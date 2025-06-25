@@ -16,8 +16,8 @@ from .utils import LOCAL_TIMEZONE
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@given("gbp_client", "repo", "bulk_content_files", "console")
-@where(repo="gbp_fl.graphql.queries.repo")
+@given("environ", "gbp_client", "repo", "bulk_content_files", "console")
+@where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @patch("gbp_fl.graphql.binpkg.gateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
@@ -77,6 +77,35 @@ class SearchTests(TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             TEST3_SEARCH_OUTPUT,
+            console.out.file.getvalue(),
+            "\n" + console.out.file.getvalue(),
+        )
+
+    def test_with_mine(self, gateway: Mock, fixtures: Fixtures) -> None:
+        cfs = fixtures.bulk_content_files
+        repo = fixtures.repo
+        now = fixtures.now
+
+        for cf in cfs:
+            cf = replace(cf, timestamp=now)
+            repo.files.save(cf)
+            now = now + DAY
+
+        bash_file_indexes = [0, 3, 4, 5]
+
+        make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
+
+        cmdline = "gbp fl search --mine bash"
+        args = parse_args(cmdline)
+        gbp = fixtures.gbp_client
+        console = fixtures.console
+
+        print_command(cmdline, console)
+        status = search.handler(args, gbp, console)
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            TEST4_SEARCH_OUTPUT,
             console.out.file.getvalue(),
             "\n" + console.out.file.getvalue(),
         )
@@ -167,6 +196,13 @@ TEST2_SEARCH_OUTPUT = """$ gbp fl search bash
 ╰────────┴───────────────────┴─────────────────────────────────────────┴───────────╯
 """
 TEST3_SEARCH_OUTPUT = """$ gbp fl search -m lighthouse bash
+╭────────┬───────────────────┬─────────────────────────────────────────┬───────────╮
+│   Size │ Timestamp         │ Package                                 │ Path      │
+├────────┼───────────────────┼─────────────────────────────────────────┼───────────┤
+│ 850648 │ 01/26/25 05:57:37 │ lighthouse/34/app-shells/bash-5.2_p37-1 │ /bin/bash │
+╰────────┴───────────────────┴─────────────────────────────────────────┴───────────╯
+"""
+TEST4_SEARCH_OUTPUT = """$ gbp fl search --mine bash
 ╭────────┬───────────────────┬─────────────────────────────────────────┬───────────╮
 │   Size │ Timestamp         │ Package                                 │ Path      │
 ├────────┼───────────────────┼─────────────────────────────────────────┼───────────┤

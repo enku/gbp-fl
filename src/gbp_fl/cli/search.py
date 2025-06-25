@@ -5,7 +5,7 @@ import datetime as dt
 from types import SimpleNamespace
 from typing import Any
 
-from gbpcli import render
+from gbpcli import render, utils
 from gbpcli.gbp import GBP
 from gbpcli.types import Console
 from rich import box
@@ -16,9 +16,18 @@ HELP = "Search for files in packages"
 
 def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
     """Search for files in packages"""
-    data, _ = gbp.query.gbp_fl.search(key=args.key, machine=args.machine)  # type: ignore
+    machines: list[str] | None
 
-    if content_files := data["flSearch"]:
+    if args.machine:
+        machines = [args.machine]
+    elif args.mine:
+        machines = utils.get_my_machines_from_args(args)
+    else:
+        machines = None
+
+    data, _ = gbp.query.gbp_fl.searchv2(key=args.key, machines=machines)  # type: ignore
+
+    if content_files := data["flSearchV2"]:
         table = create_table()
         row = table.add_row
 
@@ -34,6 +43,7 @@ def parse_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--machine", "-m", default=None, help="Restrict search to the given machine"
     )
+    parser.add_argument("--mine", action="store_true", default=False)
     parser.add_argument("key")
 
 

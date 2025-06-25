@@ -21,7 +21,14 @@ Query = ObjectType("Query")
 def _(
     _obj: Any, _info: Info, *, key: str, machine: str | None = None
 ) -> list[ContentFile]:
-    return list(repo.files.search(key, machine))
+    return list(repo.files.search(key, [machine] if machine else None))
+
+
+@Query.field("flSearchV2")
+def _(
+    _obj: Any, _info: Info, *, key: str, machines: list[str] | None = None
+) -> list[ContentFile]:
+    return list(repo.files.search(key, machines))
 
 
 @Query.field("flCount")

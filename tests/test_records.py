@@ -262,11 +262,11 @@ class ContentFilesTests(TestCase):
         self.assertEqual(len(pkg_files), 0)
 
     @parametrized(BACKENDS)
-    def test_search_machine(self, backend_type: str, fixtures: Fixtures) -> None:
+    def test_search_machines(self, backend_type: str, fixtures: Fixtures) -> None:
         files = files_backend(backend_type)
         files.bulk_save(fixtures.bulk_content_files)
 
-        pkg_files = list(files.search("bash", machine="polaris"))
+        pkg_files = list(files.search("bash", machines=["polaris"]))
         self.assertEqual(len(pkg_files), 3)
 
     @parametrized(BACKENDS)

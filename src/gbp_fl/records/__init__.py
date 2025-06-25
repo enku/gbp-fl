@@ -70,11 +70,13 @@ class ContentFiles(Protocol):  # pragma: no cover
     def for_machine(self, machine: str) -> Iterable[ContentFile]:
         """Return all ContentFiles for the given machine"""
 
-    def search(self, key: str, machine: str | None = None) -> Iterable[ContentFile]:
+    def search(
+        self, key: str, machines: list[str] | None = None
+    ) -> Iterable[ContentFile]:
         """Search the database for package files
 
-        If machine is provided, restrict the search to files belonging to the given
-        machine.
+        If machines is provided, restrict the search to files belonging to the given
+        machines.
 
         The simple search key works like the following:
 

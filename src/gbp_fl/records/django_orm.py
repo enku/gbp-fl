@@ -123,11 +123,13 @@ class ContentFiles:
 
         yield from (model_to_content_file(model) for model in query)
 
-    def search(self, key: str, machine: str | None = None) -> Iterable[ContentFile]:
+    def search(
+        self, key: str, machines: list[str] | None = None
+    ) -> Iterable[ContentFile]:
         """Search the database for package files
 
-        If machine is provided, restrict the search to files belonging to the given
-        machine.
+        If machines is provided, restrict the search to files belonging to the given
+        machines.
 
         The simple search key works like the following:
 
@@ -154,7 +156,9 @@ class ContentFiles:
         if not key:
             return
 
-        params = {"machine": machine} if machine is not None else {}
+        params: dict[str, Any] = (
+            {"machine__in": machines} if machines is not None else {}
+        )
 
         if "/" in key:
             if key[0] != "/":
