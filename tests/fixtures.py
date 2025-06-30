@@ -232,11 +232,6 @@ def worker(fixtures: Fixtures) -> FixtureContext[gbp_worker.WorkerInterface]:
         yield sync_worker
 
 
-def get_options(options: dict[str, Any] | None, **defaults: Any) -> dict[str, Any]:
-    options = options or {}
-    return {item: options.get(item, default) for item, default in defaults.items()}
-
-
 def seq_get(seq: Sequence[Any], index: int, default: Any = None) -> Any:
     """Like dict.get, but for sequences"""
     try:
