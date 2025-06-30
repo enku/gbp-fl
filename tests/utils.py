@@ -6,10 +6,9 @@ import os
 import shlex
 from contextlib import contextmanager
 from tarfile import TarInfo
-from typing import Any, Generator
+from typing import Generator
 
 import gbpcli
-from django.test.client import Client
 from gbpcli.config import Config
 from gbpcli.types import Console
 
@@ -43,21 +42,6 @@ class MockGBPGateway:
 
     def list_machine_names(self) -> list[str]:
         return self.machines
-
-
-def graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
-    """Execute GraphQL query on the Django test client.
-
-    Return the parsed JSON response
-    """
-    client = Client()
-    response = client.post(
-        "/graphql",
-        {"query": query, "variables": variables},
-        content_type="application/json",
-    )
-
-    return response.json()
 
 
 @contextmanager
