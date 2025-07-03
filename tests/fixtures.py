@@ -18,16 +18,6 @@ from gbp_fl.types import BinPkg, Build, ContentFile, Package
 
 from .utils import MockGBPGateway
 
-build_model = testkit.build_model
-client = testkit.client
-console = testkit.console
-publisher = testkit.publisher
-record = testkit.record
-records_db = testkit.records_db
-server_settings = testkit.settings
-tmpdir = testkit.tmpdir
-
-
 DEFAULT_CONTENTS = """
     lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
     lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
@@ -44,7 +34,7 @@ def gbp_client(_fixtures: Fixtures, url: str = "http://gbp.invalid/") -> GBP:
     return helpers.test_gbp(url)
 
 
-@fixture("tmpdir")
+@fixture(testkit.tmpdir)
 def environ(
     fixtures: Fixtures, environ: dict[str, str] | None = None
 ) -> FixtureContext[dict[str, str]]:
@@ -63,12 +53,12 @@ def environ(
         yield mock_environ
 
 
-@fixture("tmpdir", "environ")
+@fixture(testkit.tmpdir, environ)
 def settings(_fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
 
 
-@fixture("settings")
+@fixture(settings)
 def repo(fixtures: Fixtures, repo: str = "gbp_fl.records.repo") -> FixtureContext[Repo]:
     repo_: Repo = Repo.from_settings(fixtures.settings)
 
@@ -91,7 +81,7 @@ def build(
     return Build(machine=machine, build_id=build_id)
 
 
-@fixture("build", "now")
+@fixture(build, now)
 def binpkg(  # pylint: disable=too-many-arguments
     fixtures: Fixtures,
     build: Build | None = None,
@@ -107,7 +97,7 @@ def binpkg(  # pylint: disable=too-many-arguments
     )
 
 
-@fixture("binpkg", "now")
+@fixture(binpkg, now)
 def content_file(
     fixtures: Fixtures,
     binpkg: BinPkg | None = None,
@@ -123,7 +113,7 @@ def content_file(
     )
 
 
-@fixture("now")
+@fixture(now)
 def bulk_content_files(
     fixtures: Fixtures, bulk_content_files: str = DEFAULT_CONTENTS
 ) -> list[ContentFile]:
@@ -164,7 +154,7 @@ def bulk_content_files(
     return content_files
 
 
-@fixture("now")
+@fixture(now)
 def bulk_packages(fixtures: Fixtures, bulk_packages: str = "") -> list[Package]:
     packages: list[Package] = []
 
@@ -203,7 +193,7 @@ def bulk_packages(fixtures: Fixtures, bulk_packages: str = "") -> list[Package]:
     return packages
 
 
-@fixture("record", "now")
+@fixture(testkit.record, now)
 def gbp_package(  # pylint: disable=too-many-arguments
     fixtures: Fixtures,
     *,
@@ -225,7 +215,7 @@ def gbp_package(  # pylint: disable=too-many-arguments
     )
 
 
-@fixture(settings="server_settings")
+@fixture(testkit.settings)
 def worker(fixtures: Fixtures) -> FixtureContext[gbp_worker.WorkerInterface]:
     sync_worker = gbp_worker.Worker(fixtures.settings)
     with mock.patch("gentoo_build_publisher.worker", sync_worker):

@@ -4,6 +4,7 @@ from dataclasses import replace
 from unittest import TestCase
 from unittest.mock import Mock
 
+import gbp_testkit.fixtures as testkit
 from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
@@ -14,10 +15,12 @@ from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.types import BinPkg, Build
 
+from . import fixtures as tf
+
 # pylint: disable=missing-docstring
 
 
-@given("repo", "bulk_content_files", "client")
+@given(tf.repo, tf.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListSearchTests(TestCase):
     def test_search_without_machine(self, fixtures: Fixtures) -> None:
@@ -60,7 +63,7 @@ class FileListSearchTests(TestCase):
         self.assertEqual(len(result["data"]["flSearch"]), 3)
 
 
-@given("repo", "bulk_content_files", "client")
+@given(tf.repo, tf.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class ResolveQueryCountTests(TestCase):
     query = "query totalFileCount { flCount }"
@@ -121,7 +124,7 @@ class ResolveQueryCountTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given("publisher", "record", "now")
+@given(testkit.publisher, testkit.record, "now")
 @where(records_db__backend="django")
 class ResolveBinPkgBuildTests(DjangoTestCase):
 
@@ -141,7 +144,7 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
         self.assertEqual(result, build_record)
 
 
-@given("repo", "bulk_content_files", "client")
+@given(tf.repo, tf.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListListTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
@@ -174,7 +177,7 @@ class FileListListTests(TestCase):
         self.assertEqual(expected, result["data"]["flList"])
 
 
-@given("repo", "client", "publisher")
+@given(tf.repo, testkit.client, testkit.publisher)
 @where(records_backend="memory")
 class FlListPackages(TestCase):
     def test(self, fixtures: Fixtures) -> None:

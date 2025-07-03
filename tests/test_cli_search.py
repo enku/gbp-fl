@@ -5,18 +5,20 @@ from dataclasses import replace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
+import gbp_testkit.fixtures as testkit
 from gbp_testkit.helpers import parse_args, print_command
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import search
 from gbp_fl.types import ContentFile
 
+from . import fixtures as tf
 from .utils import LOCAL_TIMEZONE
 
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@given("environ", "gbp_client", "repo", "bulk_content_files", "console")
+@given(tf.environ, tf.gbp_client, tf.repo, tf.bulk_content_files, testkit.console)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @patch("gbp_fl.graphql.binpkg.gateway")
 @patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)

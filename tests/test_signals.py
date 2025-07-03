@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from unittest import mock
 
+import gbp_testkit.fixtures as testkit
 from django.test import TestCase
 from unittest_fixtures import Fixtures, fixture, given, where
 
@@ -11,17 +12,19 @@ from gbp_fl import gateway
 from gbp_fl.records import Repo
 from gbp_fl.types import Build
 
+from . import fixtures as tf
+
 TESTDIR = Path(__file__).parent
 
 logging.basicConfig(handlers=[logging.NullHandler()])
 
 
-@given("publisher")
+@given(testkit.publisher)
 class GBPTestCase(TestCase):
     options = {"records_backend": "django"}
 
 
-@fixture("gbp_package", build_record="record")
+@fixture(tf.gbp_package, build_record=testkit.record)
 def binpkg(f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
@@ -36,7 +39,7 @@ def binpkg(f: Fixtures) -> Path:
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given("worker", "gbp_package", "settings", binpkg)
+@given(tf.worker, tf.gbp_package, tf.settings, binpkg)
 @where(records_db__backend="django")
 class PostPulledTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
@@ -103,7 +106,7 @@ class PostPulledTests(GBPTestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@given("worker", "settings", "bulk_content_files")
+@given(tf.worker, tf.settings, tf.bulk_content_files)
 class PostDeleteTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -122,7 +125,7 @@ class PostDeleteTests(GBPTestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given("gbp_package", binpkg, build_record="record")
+@given(tf.gbp_package, binpkg, build_record=testkit.record)
 @where(records_db__backend="django")
 class GetPackageContentsTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:

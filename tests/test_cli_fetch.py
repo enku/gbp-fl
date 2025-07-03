@@ -6,14 +6,16 @@ from typing import Any
 from unittest import TestCase
 from unittest.mock import ANY, MagicMock, patch
 
+import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import fetch
 
+from . import fixtures as tf
 from .utils import cd
 
 
-@given("console", "tmpdir", gbp="gbp_client")
+@given(testkit.console, testkit.tmpdir, gbp=tf.gbp_client)
 @where(records_backend="memory")
 @patch("gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):

@@ -3,6 +3,7 @@
 from pathlib import Path
 from unittest import TestCase, mock
 
+import gbp_testkit.fixtures as testkit
 from django.test import TestCase as DjangoTestCase
 from unittest_fixtures import Fixtures, given, where
 
@@ -10,12 +11,14 @@ from gbp_fl import package_utils
 from gbp_fl.records import files_backend
 from gbp_fl.types import Build, ContentFileInfo
 
+from . import fixtures as tf
+
 # pylint: disable=missing-docstring,unused-argument
 
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@given("bulk_packages", "gateway", "tarinfo")
+@given(tf.bulk_packages, tf.gateway, tf.tarinfo)
 @where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
@@ -59,7 +62,7 @@ class IndexBuildTests(TestCase):
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
 @where(records_db__backend="django")
-@given("gbp_package", "record")
+@given(tf.gbp_package, testkit.record)
 class MakeContentFileTests(DjangoTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures

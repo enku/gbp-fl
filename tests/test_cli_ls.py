@@ -1,12 +1,14 @@
 # pylint: disable=missing-docstring,unused-argument
 from unittest import TestCase
 
+import gbp_testkit.fixtures as testkit
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import ls
 
+from . import fixtures as tf
 from .utils import parse_args, print_command
 
 BULK_CONTENT_FILES = """
@@ -32,7 +34,12 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 
 
 @given(
-    "local_timezone", "bulk_content_files", "console", "gbp_client", "repo", "publisher"
+    tf.local_timezone,
+    tf.bulk_content_files,
+    testkit.console,
+    tf.gbp_client,
+    tf.repo,
+    testkit.publisher,
 )
 @where(
     records_db={"records_backend": "memory"},
