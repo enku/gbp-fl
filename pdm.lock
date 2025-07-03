@@ -663,11 +663,11 @@ files = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.6.1.dev5+g4ea237e"
+version = "2.6.1.dev7+g6c0a616"
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "4ea237e66699e0c250192db861d818ae91cbe9a5"
+revision = "6c0a616cecbfced38428b1cc42579895c8a9ebcb"
 summary = "Gentoo Build Publisher"
 groups = ["dev", "server"]
 dependencies = [
@@ -686,12 +686,12 @@ dependencies = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.6.1.dev5"
+version = "2.6.1.dev7"
 extras = ["test"]
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "4ea237e66699e0c250192db861d818ae91cbe9a5"
+revision = "6c0a616cecbfced38428b1cc42579895c8a9ebcb"
 summary = "Gentoo Build Publisher"
 groups = ["dev"]
 dependencies = [
