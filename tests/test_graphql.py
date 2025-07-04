@@ -124,7 +124,7 @@ class ResolveQueryCountTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given(testkit.publisher, testkit.record, "now")
+@given(testkit.publisher, testkit.record, tf.now)
 @where(records_db__backend="django")
 class ResolveBinPkgBuildTests(DjangoTestCase):
 
