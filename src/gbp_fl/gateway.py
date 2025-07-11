@@ -14,6 +14,7 @@ However there are wrapper types in gbp_fl.types so that receivers can at least o
 access gbp-local attributes or else type checkers will holler.
 """
 
+from contextlib import contextmanager
 from pathlib import PurePath as Path
 from tarfile import TarFile, TarInfo
 from typing import Any, Callable, Iterator, ParamSpec, cast
@@ -156,17 +157,23 @@ class GBPGateway:
         gbp_build = types.Build(machine=build.machine, build_id=build.build_id)
         set_process(gbp_build, phase)
 
-    def set_process(self, build: Build, phase: str) -> bool:
+    @contextmanager
+    def set_process(self, build: Build, phase: str) -> Iterator[bool]:
         """Conditinally set the current process state for the given build
+
+        When entered, sets the process to the given phase, when exited, set's the
+        process phase to "clean".
 
         If the gbp-ps plugin is not installed, this is a noop.
 
-        Return True if the process was set, otherwise return False.
+        Yield True if the process was set, otherwise yield False.
         """
         if self.has_plugin("gbp-ps"):
             self._really_set_process(build, phase)
-            return True
-        return False
+            yield True
+            self._really_set_process(build, "clean")
+            return
+        yield False
 
     @staticmethod
     def has_plugin(name: str) -> bool:

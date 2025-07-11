@@ -193,11 +193,12 @@ class SetProcessTests(TestCase):
     def test(self, set_process: mock.Mock) -> None:
         gbp = gw.GBPGateway()
 
-        was_set = gbp.set_process(build, "index")
+        with gbp.set_process(build, "index") as was_set:
+            self.assertTrue(was_set)
 
-        self.assertTrue(was_set)
-        set_process.assert_called_once_with(
-            gtype.Build(machine="babette", build_id="1442"), "index"
+        gbuild = gtype.Build(machine="babette", build_id="1442")
+        set_process.assert_has_calls(
+            [mock.call(gbuild, "index"), mock.call(gbuild, "clean")]
         )
 
     @mock.patch("gbp_ps.signals.set_process")
@@ -205,9 +206,9 @@ class SetProcessTests(TestCase):
         gbp = gw.GBPGateway()
 
         with mock.patch.object(gbp, "has_plugin", return_value=False):
-            was_set = gbp.set_process(build, "index")
+            with gbp.set_process(build, "index") as was_set:
+                self.assertFalse(was_set)
 
-        self.assertFalse(was_set)
         set_process.assert_not_called()
 
 

@@ -20,8 +20,7 @@ class IndexBuildTests(TestCase):
 
         package_utils.index_build(build)
 
-        expected = [mock.call(build, "index"), mock.call(build, "clean")]
-        set_process.assert_has_calls(expected)
+        set_process.assert_called_once_with(build, "index")
 
 
 class DeindexBuildTests(TestCase):
@@ -34,5 +33,4 @@ class DeindexBuildTests(TestCase):
         repo = repo_from_settings.return_value
         repo.files.deindex_build.assert_called_once_with("babette", "1505")
 
-        expected = [mock.call(build, "deindex"), mock.call(build, "clean")]
-        set_process.assert_has_calls(expected)
+        set_process.assert_called_once_with(build, "deindex")

@@ -15,9 +15,8 @@ def index_build(machine: str, build_id: str) -> None:
     build = Build(machine=machine, build_id=build_id)
 
     logger.info("Saving packages for %s.%s", machine, build_id)
-    gateway.set_process(build, "index")
-    package_utils.index_build(build)
-    gateway.set_process(build, "clean")
+    with gateway.set_process(build, "index"):
+        package_utils.index_build(build)
 
 
 def deindex_build(machine: str, build_id: str) -> None:
@@ -29,6 +28,5 @@ def deindex_build(machine: str, build_id: str) -> None:
     files = repo.files
     build = Build(machine=machine, build_id=build_id)
 
-    gateway.set_process(build, "deindex")
-    files.deindex_build(machine, build_id)
-    gateway.set_process(build, "clean")
+    with gateway.set_process(build, "deindex"):
+        files.deindex_build(machine, build_id)
