@@ -172,8 +172,8 @@ class GBPGateway:
             self._really_set_process(build, phase)
             yield True
             self._really_set_process(build, "clean")
-            return
-        yield False
+        else:
+            yield False
 
     @staticmethod
     def has_plugin(name: str) -> bool:
