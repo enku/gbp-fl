@@ -7,10 +7,10 @@ from unittest_fixtures import Fixtures, given
 
 from gbp_fl.types import BinPkg, Build, Package
 
-from . import fixtures as tf
+from . import lib
 
 
-@given(tf.now)
+@given(lib.now)
 class BinPkgTests(TestCase):
     def test_cpv(self, fixtures: Fixtures) -> None:
         build = Build(machine="lighthouse", build_id="32267")

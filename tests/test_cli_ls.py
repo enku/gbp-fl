@@ -8,8 +8,7 @@ from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import ls
 
-from . import fixtures as tf
-from .utils import parse_args, print_command
+from . import lib
 
 BULK_CONTENT_FILES = """
 lighthouse 34 app-arch/tar-1.35-1 /usr/share/info/tar.info-2        gentoo  317618 2025-02-08T07:34:00
@@ -34,11 +33,11 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 
 
 @given(
-    tf.local_timezone,
-    tf.bulk_content_files,
+    lib.local_timezone,
+    lib.bulk_content_files,
     testkit.console,
-    tf.gbp_client,
-    tf.repo,
+    lib.gbp_client,
+    lib.repo,
     testkit.publisher,
 )
 @where(
@@ -55,11 +54,11 @@ class LsTests(TestCase):
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = parse_args(cmd)
+        args = lib.parse_args(cmd)
         console = fixtures.console
         gbp = fixtures.gbp_client
 
-        print_command(cmd, console)
+        lib.print_command(cmd, console)
         status = ls.handler(args, gbp, console)
 
         self.assertEqual(0, status)
@@ -72,11 +71,11 @@ class LsTests(TestCase):
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
-        args = parse_args(cmd)
+        args = lib.parse_args(cmd)
         console = fixtures.console
         gbp = fixtures.gbp_client
 
-        print_command(cmd, console)
+        lib.print_command(cmd, console)
         status = ls.handler(args, gbp, console)
 
         self.assertEqual(0, status)
@@ -90,11 +89,11 @@ class LsTests(TestCase):
         publisher.publish(GBPBuild(machine="lighthouse", build_id="34"))
         pkgspec = "lighthouse/@/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
-        args = parse_args(cmd)
+        args = lib.parse_args(cmd)
         console = fixtures.console
         gbp = fixtures.gbp_client
 
-        print_command(cmd, console)
+        lib.print_command(cmd, console)
         status = ls.handler(args, gbp, console)
 
         self.assertEqual(0, status)
@@ -104,7 +103,7 @@ class LsTests(TestCase):
     def test_invalid_spec(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = parse_args(cmd)
+        args = lib.parse_args(cmd)
         gbp = fixtures.gbp_client
         console = fixtures.console
 
@@ -117,7 +116,7 @@ class LsTests(TestCase):
     def test_package_doesnt_exist(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/sys-apps/bogus-0.0-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = parse_args(cmd)
+        args = lib.parse_args(cmd)
         gbp = fixtures.gbp_client
         console = fixtures.console
 

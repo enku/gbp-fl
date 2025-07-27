@@ -13,14 +13,14 @@ from gbp_fl.records import ContentFiles, RecordNotFound, Repo, django_orm, files
 from gbp_fl.settings import Settings
 from gbp_fl.types import ContentFile
 
-from . import fixtures as tf
+from . import lib
 
 now = partial(dt.datetime.now, tz=dt.UTC)
 
 BACKENDS = [["memory"], ["django"]]
 
 
-@given(tf.content_file, tf.bulk_content_files)
+@given(lib.content_file, lib.bulk_content_files)
 class ContentFilesTests(TestCase):
     # pylint: disable=too-many-public-methods
     @parametrized(BACKENDS)

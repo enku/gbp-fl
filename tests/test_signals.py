@@ -12,7 +12,7 @@ from gbp_fl import gateway
 from gbp_fl.records import Repo
 from gbp_fl.types import Build
 
-from . import fixtures as tf
+from . import lib
 
 TESTDIR = Path(__file__).parent
 
@@ -24,7 +24,7 @@ class GBPTestCase(TestCase):
     options = {"records_backend": "django"}
 
 
-@fixture(tf.gbp_package, build_record=testkit.record)
+@fixture(lib.gbp_package, build_record=testkit.record)
 def binpkg(f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
@@ -39,7 +39,7 @@ def binpkg(f: Fixtures) -> Path:
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given(tf.worker, tf.gbp_package, tf.settings, binpkg)
+@given(lib.worker, lib.gbp_package, lib.settings, binpkg)
 @where(records_db__backend="django")
 class PostPulledTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
@@ -106,7 +106,7 @@ class PostPulledTests(GBPTestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@given(tf.worker, tf.settings, tf.bulk_content_files)
+@given(lib.worker, lib.settings, lib.bulk_content_files)
 class PostDeleteTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -125,7 +125,7 @@ class PostDeleteTests(GBPTestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given(tf.gbp_package, binpkg, build_record=testkit.record)
+@given(lib.gbp_package, binpkg, build_record=testkit.record)
 @where(records_db__backend="django")
 class GetPackageContentsTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:

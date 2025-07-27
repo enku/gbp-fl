@@ -11,11 +11,10 @@ from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import fetch
 
-from . import fixtures as tf
-from .utils import cd
+from . import lib
 
 
-@given(testkit.console, testkit.tmpdir, gbp=tf.gbp_client)
+@given(testkit.console, testkit.tmpdir, gbp=lib.gbp_client)
 @where(records_backend="memory")
 @patch("gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):
@@ -40,7 +39,7 @@ class HandlerTests(TestCase):
         requests.get.return_value = mock_response
 
         console.out.print(f"$ gbp fl fetch {args.pkgspec}")
-        with cd(fixtures.tmpdir):
+        with lib.cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(0, status)
@@ -62,7 +61,7 @@ class HandlerTests(TestCase):
         gbp = MagicMock()
         console = fixtures.console
 
-        with cd(fixtures.tmpdir):
+        with lib.cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(status, 1)
@@ -85,7 +84,7 @@ class HandlerTests(TestCase):
         console = fixtures.console
         requests.get.return_value = mock_response
 
-        with cd(fixtures.tmpdir):
+        with lib.cd(fixtures.tmpdir):
             status = fetch.handler(args, gbp, console)
 
         self.assertEqual(2, status)

@@ -15,12 +15,12 @@ from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.types import BinPkg, Build
 
-from . import fixtures as tf
+from . import lib
 
 # pylint: disable=missing-docstring
 
 
-@given(tf.repo, tf.bulk_content_files, testkit.client)
+@given(lib.repo, lib.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListSearchTests(TestCase):
     def test_search_without_machine(self, fixtures: Fixtures) -> None:
@@ -63,7 +63,7 @@ class FileListSearchTests(TestCase):
         self.assertEqual(len(result["data"]["flSearch"]), 3)
 
 
-@given(tf.repo, tf.bulk_content_files, testkit.client)
+@given(lib.repo, lib.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class ResolveQueryCountTests(TestCase):
     query = "query totalFileCount { flCount }"
@@ -124,7 +124,7 @@ class ResolveQueryCountTests(TestCase):
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given(testkit.publisher, testkit.record, tf.now)
+@given(testkit.publisher, testkit.record, lib.now)
 @where(records_db__backend="django")
 class ResolveBinPkgBuildTests(DjangoTestCase):
 
@@ -144,7 +144,7 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
         self.assertEqual(result, build_record)
 
 
-@given(tf.repo, tf.bulk_content_files, testkit.client)
+@given(lib.repo, lib.bulk_content_files, testkit.client)
 @where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
 class FileListListTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
@@ -177,7 +177,7 @@ class FileListListTests(TestCase):
         self.assertEqual(expected, result["data"]["flList"])
 
 
-@given(tf.repo, testkit.client, testkit.publisher)
+@given(lib.repo, testkit.client, testkit.publisher)
 @where(records_backend="memory")
 class FlListPackages(TestCase):
     def test(self, fixtures: Fixtures) -> None:

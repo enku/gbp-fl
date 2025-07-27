@@ -11,14 +11,14 @@ from gbp_fl import package_utils
 from gbp_fl.records import files_backend
 from gbp_fl.types import Build, ContentFileInfo
 
-from . import fixtures as tf
+from . import lib
 
 # pylint: disable=missing-docstring,unused-argument
 
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@given(tf.bulk_packages, tf.gateway, tf.tarinfo)
+@given(lib.bulk_packages, lib.gateway, lib.tarinfo)
 @where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
@@ -62,7 +62,7 @@ class IndexBuildTests(TestCase):
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
 @where(records_db__backend="django")
-@given(tf.gbp_package, testkit.record)
+@given(lib.gbp_package, testkit.record)
 class MakeContentFileTests(DjangoTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
