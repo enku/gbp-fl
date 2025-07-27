@@ -13,15 +13,20 @@ from gbp_fl.cli import search
 from gbp_fl.types import ContentFile
 
 from . import fixtures as tf
-from .utils import LOCAL_TIMEZONE
 
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@given(tf.environ, tf.gbp_client, tf.repo, tf.bulk_content_files, testkit.console)
+@given(
+    tf.environ,
+    tf.gbp_client,
+    tf.repo,
+    tf.bulk_content_files,
+    testkit.console,
+    tf.local_timezone,
+)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @patch("gbp_fl.graphql.binpkg.gateway")
-@patch("gbpcli.render.LOCAL_TIMEZONE", new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
     options = {"records_backend": "memory"}
 
