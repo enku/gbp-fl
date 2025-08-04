@@ -26,6 +26,11 @@ server = [
     "gentoo-build-publisher>=2.4.1.dev24",
     "ariadne>=0.26.0",
 ]
+
+[project.urls]
+homepage = "https://github.com/enku/gbp-fl"
+repository = "https://github.com/enku/gbp-fl"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
