@@ -17,14 +17,8 @@ from . import lib
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@given(
-    lib.environ,
-    lib.gbp_client,
-    lib.repo,
-    lib.bulk_content_files,
-    testkit.console,
-    lib.local_timezone,
-)
+@given(lib.environ, lib.gbp_client, lib.repo, lib.bulk_content_files, testkit.console)
+@given(lib.local_timezone)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @patch("gbp_fl.graphql.binpkg.gateway")
 class SearchTests(TestCase):
