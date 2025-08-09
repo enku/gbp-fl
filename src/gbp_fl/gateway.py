@@ -65,7 +65,7 @@ class GBPGateway:
 
         repo = publisher.repo
 
-        yield from (
+        return (
             Build(machine=build.machine, build_id=build.build_id)
             for build in repo.build_records.for_machine(machine)
         )
