@@ -14,8 +14,6 @@ from gbp_fl.types import Build
 
 from . import lib
 
-TESTDIR = Path(__file__).parent
-
 logging.basicConfig(handlers=[logging.NullHandler()])
 
 
@@ -29,7 +27,7 @@ def binpkg(f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
     path.parent.mkdir(parents=True)
-    shutil.copy(TESTDIR / "assets/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar", path)
+    shutil.copy(lib.TESTDIR / "assets/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar", path)
 
     with open(path.parents[2] / "Packages", "w", encoding="utf8") as meta:
         meta.write(PACKAGES)
@@ -68,7 +66,7 @@ class PostPulledTests(GBPTestCase):
         gbp = gateway.GBPGateway()
         _ = None
 
-        shutil.copy(TESTDIR / "assets/empty.tar", f.binpkg)
+        shutil.copy(lib.TESTDIR / "assets/empty.tar", f.binpkg)
 
         with mock.patch("gbp_fl.package_utils.repo", new=repo):
             gbp.emit_signal(

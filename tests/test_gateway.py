@@ -13,7 +13,7 @@ from unittest_fixtures import FixtureContext, Fixtures, given
 from gbp_fl import gateway as gw
 from gbp_fl.types import Build, MissingPackageIdentifier, Package
 
-TESTDIR = Path(__file__).parent
+from .lib import TESTDIR
 
 
 def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:

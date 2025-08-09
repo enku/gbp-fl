@@ -35,6 +35,7 @@ DEFAULT_CONTENTS = """
     polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 LOCAL_TIMEZONE = dt.timezone(dt.timedelta(days=-1, seconds=61200), "PDT")
+TESTDIR = Path(__file__).parent
 
 
 class MockGBPGateway:
