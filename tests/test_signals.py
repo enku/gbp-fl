@@ -51,14 +51,13 @@ class PostPulledTests(GBPTestCase):
                 "postpull", build=f.build_record, packages=_, gbp_metadata=_
             )
 
-        content_files = list(
-            repo.files.for_package(
-                f.build_record.machine,
-                f.build_record.build_id,
-                f"{f.gbp_package.cpv}-{f.gbp_package.build_id}",
-            )
+        # pylint: disable=assignment-from-no-return
+        content_files = repo.files.for_package(
+            f.build_record.machine,
+            f.build_record.build_id,
+            f"{f.gbp_package.cpv}-{f.gbp_package.build_id}",
         )
-        self.assertEqual(len(content_files), 10)
+        self.assertEqual(len([*content_files]), 10)
 
     def test_with_empty_tar(self, fixtures: Fixtures) -> None:
         f = fixtures
