@@ -5,32 +5,41 @@
 
 from unittest import TestCase, mock
 
-from gbp_fl.types import Build
+from unittest_fixtures import Fixtures, given
+
 from gbp_fl.worker import tasks
+
+from . import lib
 
 # pylint: disable=missing-docstring
 
 
+@given(lib.build)
 class IndexBuildTests(TestCase):
     @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.package_utils")
-    def test(self, package_utils: mock.Mock, set_process: mock.Mock) -> None:
-        tasks.index_build("babette", "1505")
-        build = Build(machine="babette", build_id="1505")
+    def test(
+        self, package_utils: mock.Mock, set_process: mock.Mock, fixtures: Fixtures
+    ) -> None:
+        build = fixtures.build
+        tasks.index_build(build.machine, build.build_id)
 
         package_utils.index_build(build)
 
         set_process.assert_called_once_with(build, "index")
 
 
+@given(lib.build)
 class DeindexBuildTests(TestCase):
     @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
     @mock.patch("gbp_fl.records.Repo.from_settings")
-    def test(self, repo_from_settings: mock.Mock, set_process: mock.Mock) -> None:
-        tasks.deindex_build("babette", "1505")
-        build = Build(machine="babette", build_id="1505")
+    def test(
+        self, repo_from_settings: mock.Mock, set_process: mock.Mock, fixtures: Fixtures
+    ) -> None:
+        build = fixtures.build
+        tasks.deindex_build(build.machine, build.build_id)
 
         repo = repo_from_settings.return_value
-        repo.files.deindex_build.assert_called_once_with("babette", "1505")
+        repo.files.deindex_build.assert_called_once_with(build.machine, build.build_id)
 
         set_process.assert_called_once_with(build, "deindex")

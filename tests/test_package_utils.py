@@ -9,7 +9,7 @@ from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl import package_utils
 from gbp_fl.records import files_backend
-from gbp_fl.types import Build, ContentFileInfo
+from gbp_fl.types import ContentFileInfo
 
 from . import lib
 
@@ -18,7 +18,7 @@ from . import lib
 MOCK_PREFIX = "gbp_fl.package_utils."
 
 
-@given(lib.bulk_packages, lib.gateway, lib.tarinfo)
+@given(lib.bulk_packages, lib.gateway, lib.tarinfo, lib.build)
 @where(
     bulk_packages="""
     app-crypt/rhash-1.4.5
@@ -28,11 +28,12 @@ MOCK_PREFIX = "gbp_fl.package_utils."
     net-dns/c-ares-1.34.4
 """
 )
+@where(build__machine="babette", build__build_id="1505")
 class IndexBuildTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mock_gw = fixtures.gateway
-        build = Build(machine="babette", build_id="1505")
         package = fixtures.bulk_packages[0]
+        build = fixtures.build
         mock_gw.packages[build] = [package]
         mock_gw.contents[build, package] = [fixtures.tarinfo]
         repo = mock.Mock(files=files_backend("memory"))
@@ -49,12 +50,11 @@ class IndexBuildTests(TestCase):
 
     def test_when_no_package(self, fixtures: Fixtures) -> None:
         mock_gw = fixtures.gateway
-        build = Build(machine="babette", build_id="1505")
         repo = mock.Mock(files=files_backend("memory"))
 
         with mock.patch(f"{MOCK_PREFIX}gateway", new=mock_gw):
             with mock.patch(f"{MOCK_PREFIX}repo", new=repo):
-                package_utils.index_build(build)
+                package_utils.index_build(fixtures.build)
 
         self.assertEqual(repo.files.count(None, None, None), 0)
 

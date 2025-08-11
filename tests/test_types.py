@@ -5,17 +5,16 @@ from unittest import TestCase
 
 from unittest_fixtures import Fixtures, given
 
-from gbp_fl.types import BinPkg, Build, Package
+from gbp_fl.types import BinPkg, Package
 
 from . import lib
 
 
-@given(lib.now)
+@given(lib.now, lib.build)
 class BinPkgTests(TestCase):
     def test_cpv(self, fixtures: Fixtures) -> None:
-        build = Build(machine="lighthouse", build_id="32267")
         binpkg = BinPkg(
-            build=build,
+            build=fixtures.build,
             cpvb="x11-apps/xhost-1.0.10-3",
             repo="gentoo",
             build_time=fixtures.now,
@@ -23,9 +22,8 @@ class BinPkgTests(TestCase):
         self.assertEqual(binpkg.cpv, "x11-apps/xhost-1.0.10")
 
     def test_build_id(self, fixtures: Fixtures) -> None:
-        build = Build(machine="lighthouse", build_id="32267")
         binpkg = BinPkg(
-            build=build,
+            build=fixtures.build,
             cpvb="x11-apps/xhost-1.0.10-3",
             repo="gentoo",
             build_time=fixtures.now,

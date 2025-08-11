@@ -13,7 +13,7 @@ from unittest_fixtures import FixtureContext, Fixtures, given
 from gbp_fl import gateway as gw
 from gbp_fl.types import Build, MissingPackageIdentifier, Package
 
-from .lib import TESTDIR
+from . import lib
 
 
 def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
@@ -30,7 +30,6 @@ def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
         yield mocks
 
 
-build = Build(machine="babette", build_id="1442")
 package = Package(
     cpv="sys-libs/mtdev-1.1.7",
     repo="gentoo",
@@ -40,24 +39,26 @@ package = Package(
 )
 
 
-@given(mock_publisher)
+@given(mock_publisher, lib.build)
 class GetFullPackagePathTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
+        build = fixtures.build
         mocks = fixtures.mock_publisher
         storage = mocks["storage"]
+        build_str = f"{build.machine}.{build.build_id}"
 
-        storage.get_path.return_value = Path("/binpkgs/babette.1442")
+        storage.get_path.return_value = Path(f"/binpkgs/{build_str}")
         gbp = gw.GBPGateway()
 
         full_package_path = gbp.get_full_package_path(build, package)
 
         self.assertEqual(
             str(full_package_path),
-            "/binpkgs/babette.1442/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+            f"/binpkgs/{build_str}/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
         )
 
 
-@given(mock_publisher)
+@given(mock_publisher, lib.build)
 class GetPackagesTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mocks = fixtures.mock_publisher
@@ -76,7 +77,7 @@ class GetPackagesTests(TestCase):
         storage.get_packages.return_value = gbp_packages
         gbp = gw.GBPGateway()
 
-        packages = gbp.get_packages(build)
+        packages = gbp.get_packages(fixtures.build)
 
         expected = [
             Package(
@@ -90,15 +91,15 @@ class GetPackagesTests(TestCase):
         self.assertEqual(packages, expected)
 
 
-@given(mock_publisher)
+@given(mock_publisher, lib.build)
 class GetPackageContentsTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mocks = fixtures.mock_publisher
         storage = mocks["storage"]
-        storage.get_path.return_value = TESTDIR / "assets"
+        storage.get_path.return_value = lib.TESTDIR / "assets"
 
         gbp = gw.GBPGateway()
-        result = list(gbp.get_package_contents(build, package))
+        result = list(gbp.get_package_contents(fixtures.build, package))
 
         self.assertEqual(len(result), 19)
 
@@ -106,10 +107,10 @@ class GetPackageContentsTests(TestCase):
         gbp = gw.GBPGateway()
 
         with mock.patch.object(
-            gbp, "get_full_package_path", return_value=TESTDIR / "assets/empty.tar"
+            gbp, "get_full_package_path", return_value=lib.TESTDIR / "assets/empty.tar"
         ):
             with self.assertRaises(MissingPackageIdentifier):
-                list(gbp.get_package_contents(build, package))
+                list(gbp.get_package_contents(fixtures.build, package))
 
 
 class ReceiveSignalTests(TestCase):
@@ -174,10 +175,12 @@ class GetBuildsForMachineTests(TestCase):
         publisher.repo.build_records.for_machine.assert_called_once_with("babette")
 
 
+@given(lib.build)
 class GetBuildRecordTests(TestCase):
     @mock.patch("gentoo_build_publisher.publisher")
-    def test(self, publisher: mock.Mock) -> None:
-        bdict = {"machine": "babette", "build_id": "1507"}
+    def test(self, publisher: mock.Mock, fixtures: Fixtures) -> None:
+        build = fixtures.build
+        bdict = {"machine": build.machine, "build_id": build.build_id}
         build_record = mock.Mock(**bdict)
         publisher.repo.build_records.get.return_value = build_record
         gbp = gw.GBPGateway()
@@ -188,25 +191,29 @@ class GetBuildRecordTests(TestCase):
         publisher.repo.build_records.get.assert_called_once_with(gtype.Build(**bdict))
 
 
+@given(lib.build)
 class SetProcessTests(TestCase):
     @mock.patch("gbp_ps.signals.set_process")
-    def test(self, set_process: mock.Mock) -> None:
+    def test(self, set_process: mock.Mock, fixtures: Fixtures) -> None:
+        build = fixtures.build
         gbp = gw.GBPGateway()
 
         with gbp.set_process(build, "index") as was_set:
             self.assertTrue(was_set)
 
-        gbuild = gtype.Build(machine="babette", build_id="1442")
+        gbuild = gtype.Build(machine=build.machine, build_id=build.build_id)
         set_process.assert_has_calls(
             [mock.call(gbuild, "index"), mock.call(gbuild, "clean")]
         )
 
     @mock.patch("gbp_ps.signals.set_process")
-    def test_when_no_gbp_ps_plugin(self, set_process: mock.Mock) -> None:
+    def test_when_no_gbp_ps_plugin(
+        self, set_process: mock.Mock, fixtures: Fixtures
+    ) -> None:
         gbp = gw.GBPGateway()
 
         with mock.patch.object(gbp, "has_plugin", return_value=False):
-            with gbp.set_process(build, "index") as was_set:
+            with gbp.set_process(fixtures.build, "index") as was_set:
                 self.assertFalse(was_set)
 
         set_process.assert_not_called()

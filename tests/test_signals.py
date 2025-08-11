@@ -10,7 +10,6 @@ from unittest_fixtures import Fixtures, fixture, given, where
 
 from gbp_fl import gateway
 from gbp_fl.records import Repo
-from gbp_fl.types import Build
 
 from . import lib
 
@@ -103,7 +102,8 @@ class PostPulledTests(GBPTestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@given(lib.worker, lib.settings, lib.bulk_content_files)
+@given(lib.worker, lib.settings, lib.bulk_content_files, lib.build)
+@where(build__machine="polaris", build__build_id="26")
 class PostDeleteTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -114,8 +114,7 @@ class PostDeleteTests(GBPTestCase):
         self.assertEqual(repo.files.count(None, None, None), 6)
 
         with mock.patch("gbp_fl.records.repo", new=repo):
-            build = Build(machine="polaris", build_id="26")
-            gbp.emit_signal("postdelete", build=build)
+            gbp.emit_signal("postdelete", build=fixtures.build)
 
         self.assertEqual(repo.files.count(None, None, None), 3)
 
