@@ -28,7 +28,7 @@ MOCK_PREFIX = "gbp_fl.package_utils."
     net-dns/c-ares-1.34.4
 """
 )
-@where(build__machine="babette", build__build_id="1505")
+@where(build="babette.1505")
 class IndexBuildTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mock_gw = fixtures.gateway

@@ -131,9 +131,9 @@ def now(
 
 
 @fixture()
-def build(
-    _fixtures: Fixtures, machine: str = "lighthouse", build_id: str = "34"
-) -> Build:
+def build(_fixtures: Fixtures, build: str = "lighthouse.34") -> Build:
+    machine, build_id = build.split(".", 1)
+
     return Build(machine=machine, build_id=build_id)
 
 

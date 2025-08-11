@@ -103,7 +103,7 @@ class PostPulledTests(GBPTestCase):
 
 
 @given(lib.worker, lib.settings, lib.bulk_content_files, lib.build)
-@where(build__machine="polaris", build__build_id="26")
+@where(build="polaris.26")
 class PostDeleteTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
