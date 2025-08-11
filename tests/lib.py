@@ -306,3 +306,17 @@ def tarinfo(_: Fixtures, name: str = "image/bin/bash") -> mock.Mock:
     mock_tarinfo.name = name
 
     return mock_tarinfo
+
+
+@fixture()
+def package(
+    _: Fixtures,
+    cpv: str = "sys-libs/mtdev-1.1.7",
+    repo: str = "gentoo",
+    build_id: int = 1,
+    build_time: int = 0,
+    path: str = "sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+) -> Package:
+    return Package(
+        cpv=cpv, repo=repo, build_id=build_id, build_time=build_time, path=path
+    )

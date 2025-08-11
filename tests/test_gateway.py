@@ -11,7 +11,7 @@ from gentoo_build_publisher import types as gtype
 from unittest_fixtures import FixtureContext, Fixtures, given
 
 from gbp_fl import gateway as gw
-from gbp_fl.types import Build, MissingPackageIdentifier, Package
+from gbp_fl.types import Build, MissingPackageIdentifier
 
 from . import lib
 
@@ -30,16 +30,7 @@ def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
         yield mocks
 
 
-package = Package(
-    cpv="sys-libs/mtdev-1.1.7",
-    repo="gentoo",
-    build_id=1,
-    build_time=0,
-    path="sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
-)
-
-
-@given(mock_publisher, lib.build)
+@given(mock_publisher, lib.build, lib.package)
 class GetFullPackagePathTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         build = fixtures.build
@@ -50,7 +41,7 @@ class GetFullPackagePathTests(TestCase):
         storage.get_path.return_value = Path(f"/binpkgs/{build_str}")
         gbp = gw.GBPGateway()
 
-        full_package_path = gbp.get_full_package_path(build, package)
+        full_package_path = gbp.get_full_package_path(build, fixtures.package)
 
         self.assertEqual(
             str(full_package_path),
@@ -58,40 +49,32 @@ class GetFullPackagePathTests(TestCase):
         )
 
 
-@given(mock_publisher, lib.build)
+@given(mock_publisher, lib.build, lib.package)
 class GetPackagesTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mocks = fixtures.mock_publisher
         storage = mocks["storage"]
+        package = fixtures.package
 
-        gbp_packages = [
+        storage.get_packages.return_value = [
             gtype.Package(
-                cpv="sys-libs/mtdev-1.1.7",
-                build_id=1,
-                repo="gentoo",
-                path="/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+                cpv=package.cpv,
+                build_id=package.build_id,
+                repo=package.repo,
+                path=package.path,
                 size=200,
-                build_time=0,
+                build_time=package.build_time,
             )
         ]
-        storage.get_packages.return_value = gbp_packages
         gbp = gw.GBPGateway()
 
         packages = gbp.get_packages(fixtures.build)
 
-        expected = [
-            Package(
-                cpv="sys-libs/mtdev-1.1.7",
-                repo="gentoo",
-                build_id=1,
-                build_time=0,
-                path="/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
-            )
-        ]
+        expected = [package]
         self.assertEqual(packages, expected)
 
 
-@given(mock_publisher, lib.build)
+@given(mock_publisher, lib.build, lib.package)
 class GetPackageContentsTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         mocks = fixtures.mock_publisher
@@ -99,7 +82,7 @@ class GetPackageContentsTests(TestCase):
         storage.get_path.return_value = lib.TESTDIR / "assets"
 
         gbp = gw.GBPGateway()
-        result = list(gbp.get_package_contents(fixtures.build, package))
+        result = list(gbp.get_package_contents(fixtures.build, fixtures.package))
 
         self.assertEqual(len(result), 19)
 
@@ -110,7 +93,7 @@ class GetPackageContentsTests(TestCase):
             gbp, "get_full_package_path", return_value=lib.TESTDIR / "assets/empty.tar"
         ):
             with self.assertRaises(MissingPackageIdentifier):
-                list(gbp.get_package_contents(fixtures.build, package))
+                list(gbp.get_package_contents(fixtures.build, fixtures.package))
 
 
 class ReceiveSignalTests(TestCase):
