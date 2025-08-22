@@ -6,8 +6,6 @@ from gentoo_build_publisher import publisher
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
-from gbp_fl.cli import ls
-
 from . import lib
 
 BULK_CONTENT_FILES = """
@@ -32,19 +30,10 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 
 
-@given(
-    lib.local_timezone,
-    lib.bulk_content_files,
-    testkit.console,
-    lib.gbp_client,
-    lib.repo,
-    testkit.publisher,
-)
-@where(
-    records_db={"records_backend": "memory"},
-    bulk_content_files=BULK_CONTENT_FILES,
-    repo="gbp_fl.graphql.queries.repo",
-)
+@given(testkit.gbpcli)
+@given(lib.local_timezone, lib.bulk_content_files, lib.repo, testkit.publisher)
+@where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
+@where(repo="gbp_fl.graphql.queries.repo")
 class LsTests(TestCase):
 
     def test_short_format(self, fixtures: Fixtures) -> None:
@@ -54,12 +43,9 @@ class LsTests(TestCase):
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = lib.parse_args(cmd)
         console = fixtures.console
-        gbp = fixtures.gbp_client
 
-        lib.print_command(cmd, console)
-        status = ls.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmd)
 
         self.assertEqual(0, status)
         self.assertEqual(LS_OUTPUT, console.out.file.getvalue())
@@ -71,12 +57,9 @@ class LsTests(TestCase):
 
         pkgspec = "lighthouse/34/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
-        args = lib.parse_args(cmd)
         console = fixtures.console
-        gbp = fixtures.gbp_client
 
-        lib.print_command(cmd, console)
-        status = ls.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmd)
 
         self.assertEqual(0, status)
         self.assertEqual(LS_LONG_OUTPUT, console.out.file.getvalue())
@@ -89,12 +72,9 @@ class LsTests(TestCase):
         publisher.publish(GBPBuild(machine="lighthouse", build_id="34"))
         pkgspec = "lighthouse/@/app-arch/tar-1.35-1"
         cmd = f"gbp fl ls -l {pkgspec}"
-        args = lib.parse_args(cmd)
         console = fixtures.console
-        gbp = fixtures.gbp_client
 
-        lib.print_command(cmd, console)
-        status = ls.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmd)
 
         self.assertEqual(0, status)
         expected = LS_LONG_OUTPUT.replace("lighthouse/34/", "lighthouse/@/")
@@ -104,26 +84,26 @@ class LsTests(TestCase):
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         cmd = f"gbp fl ls {pkgspec}"
         args = lib.parse_args(cmd)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        status = ls.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmd)
 
         self.assertEqual(status, 1)
         self.assertEqual(f"Invalid specifier: {pkgspec}\n", console.err.file.getvalue())
-        self.assertEqual("", console.out.file.getvalue())
+        self.assertEqual(f"$ {cmd}\n", console.out.file.getvalue())
 
     def test_package_doesnt_exist(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/sys-apps/bogus-0.0-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = lib.parse_args(cmd)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        status = ls.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmd)
 
         self.assertEqual(status, 0)
-        self.assertEqual("", console.out.file.getvalue())
+        self.assertEqual(
+            "$ gbp fl ls lighthouse/34/sys-apps/bogus-0.0-1\n",
+            console.out.file.getvalue(),
+        )
 
 
 LS_OUTPUT = """$ gbp fl ls lighthouse/34/app-arch/tar-1.35-1
