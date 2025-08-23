@@ -3,7 +3,7 @@ import datetime as dt
 from argparse import ArgumentParser
 from dataclasses import replace
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, given, where
@@ -17,13 +17,13 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
 @given(lib.environ, testkit.gbpcli, lib.repo, lib.bulk_content_files, testkit.console)
-@given(lib.local_timezone)
+@given(lib.local_timezone, gateway=testkit.patch)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
-@patch("gbp_fl.graphql.binpkg.gateway")
+@where(gateway__target="gbp_fl.graphql.binpkg.gateway")
 class SearchTests(TestCase):
     options = {"records_backend": "memory"}
 
-    def test(self, gateway: Mock, fixtures: Fixtures) -> None:
+    def test(self, fixtures: Fixtures) -> None:
         cfs = fixtures.bulk_content_files
         repo = fixtures.repo
         now = fixtures.now
@@ -35,7 +35,7 @@ class SearchTests(TestCase):
 
         bash_file_indexes = [0, 3, 4, 5]
 
-        make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
+        make_build_records(fixtures.gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search bash"
         console = fixtures.console
@@ -49,7 +49,7 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
-    def test_with_machine(self, gateway: Mock, fixtures: Fixtures) -> None:
+    def test_with_machine(self, fixtures: Fixtures) -> None:
         cfs = fixtures.bulk_content_files
         repo = fixtures.repo
         now = fixtures.now
@@ -61,7 +61,7 @@ class SearchTests(TestCase):
 
         bash_file_indexes = [0, 3, 4, 5]
 
-        make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
+        make_build_records(fixtures.gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search -m lighthouse bash"
         console = fixtures.console
@@ -75,7 +75,7 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
-    def test_with_mine(self, gateway: Mock, fixtures: Fixtures) -> None:
+    def test_with_mine(self, fixtures: Fixtures) -> None:
         cfs = fixtures.bulk_content_files
         repo = fixtures.repo
         now = fixtures.now
@@ -87,7 +87,7 @@ class SearchTests(TestCase):
 
         bash_file_indexes = [0, 3, 4, 5]
 
-        make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
+        make_build_records(fixtures.gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search --mine bash"
         console = fixtures.console
@@ -101,7 +101,7 @@ class SearchTests(TestCase):
             "\n" + console.out.file.getvalue(),
         )
 
-    def test_no_match(self, gateway: Mock, fixtures: Fixtures) -> None:
+    def test_no_match(self, fixtures: Fixtures) -> None:
         cmdline = "gbp fl search bash"
         console = fixtures.console
 
@@ -110,7 +110,7 @@ class SearchTests(TestCase):
         self.assertEqual(status, 0)
         self.assertEqual("$ gbp fl search bash\n", console.out.file.getvalue())
 
-    def test_with_missing_metadata(self, gateway: Mock, fixtures: Fixtures) -> None:
+    def test_with_missing_metadata(self, fixtures: Fixtures) -> None:
         # When a package is being deleted, e.g. during a purge run, the binpkg metadata
         # may be gone. This results in an error in the graphql call and the binpkg field
         # being set to null. We want to (silently) ignore those
@@ -129,7 +129,7 @@ class SearchTests(TestCase):
         ]
         # make the second one return None
         build_records[1] = None  # type: ignore
-        gateway.get_build_record.side_effect = tuple(build_records)
+        fixtures.gateway.get_build_record.side_effect = tuple(build_records)
 
         cmdline = "gbp fl search bash"
         console = fixtures.console
