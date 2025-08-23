@@ -6,7 +6,6 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import gbp_testkit.fixtures as testkit
-from gbp_testkit.helpers import parse_args, print_command
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import search
@@ -17,7 +16,7 @@ from . import lib
 DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
-@given(lib.environ, lib.gbp_client, lib.repo, lib.bulk_content_files, testkit.console)
+@given(lib.environ, testkit.gbpcli, lib.repo, lib.bulk_content_files, testkit.console)
 @given(lib.local_timezone)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @patch("gbp_fl.graphql.binpkg.gateway")
@@ -39,12 +38,9 @@ class SearchTests(TestCase):
         make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search bash"
-        args = parse_args(cmdline)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        print_command(cmdline, console)
-        status = search.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 0)
         self.assertEqual(
@@ -68,12 +64,9 @@ class SearchTests(TestCase):
         make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search -m lighthouse bash"
-        args = parse_args(cmdline)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        print_command(cmdline, console)
-        status = search.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 0)
         self.assertEqual(
@@ -97,12 +90,9 @@ class SearchTests(TestCase):
         make_build_records(gateway, [cfs[i] for i in bash_file_indexes])
 
         cmdline = "gbp fl search --mine bash"
-        args = parse_args(cmdline)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        print_command(cmdline, console)
-        status = search.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 0)
         self.assertEqual(
@@ -113,14 +103,12 @@ class SearchTests(TestCase):
 
     def test_no_match(self, gateway: Mock, fixtures: Fixtures) -> None:
         cmdline = "gbp fl search bash"
-        args = parse_args(cmdline)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        status = search.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 0)
-        self.assertEqual("", console.out.file.getvalue())
+        self.assertEqual("$ gbp fl search bash\n", console.out.file.getvalue())
 
     def test_with_missing_metadata(self, gateway: Mock, fixtures: Fixtures) -> None:
         # When a package is being deleted, e.g. during a purge run, the binpkg metadata
@@ -144,12 +132,9 @@ class SearchTests(TestCase):
         gateway.get_build_record.side_effect = tuple(build_records)
 
         cmdline = "gbp fl search bash"
-        args = parse_args(cmdline)
-        gbp = fixtures.gbp_client
         console = fixtures.console
 
-        print_command(cmdline, console)
-        status = search.handler(args, gbp, console)
+        status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 0)
         self.assertEqual(
