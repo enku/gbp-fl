@@ -14,9 +14,7 @@ from unittest import mock
 
 import gbpcli
 from gbp_testkit import fixtures as testkit
-from gbp_testkit import helpers
 from gbpcli.config import Config
-from gbpcli.gbp import GBP
 from gbpcli.types import Console
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
@@ -83,11 +81,6 @@ def parse_args(cmdline: str) -> argparse.Namespace:
 def print_command(cmdline: str, console: Console) -> None:
     """Pretty print the cmdline to console"""
     console.out.print(f"[green]$ [/green]{cmdline}")
-
-
-@fixture()
-def gbp_client(_fixtures: Fixtures, url: str = "http://gbp.invalid/") -> GBP:
-    return helpers.test_gbp(url)
 
 
 @fixture(testkit.tmpdir)
