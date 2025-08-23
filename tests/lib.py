@@ -2,19 +2,15 @@
 
 # pylint: disable=missing-docstring,redefined-outer-name
 
-import argparse
 import datetime as dt
 import os
-import shlex
 from contextlib import contextmanager
 from pathlib import PurePath as Path
 from tarfile import TarInfo
 from typing import Any, Generator, Sequence
 from unittest import mock
 
-import gbpcli
 from gbp_testkit import fixtures as testkit
-from gbpcli.config import Config
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
 from unittest_fixtures import FixtureContext, Fixtures, fixture
@@ -67,14 +63,6 @@ def cd(path: str) -> Generator[None, None, None]:
     os.chdir(path)
     yield
     os.chdir(cwd)
-
-
-def parse_args(cmdline: str) -> argparse.Namespace:
-    """Return cmdline as parsed arguments"""
-    args = shlex.split(cmdline)
-    parser = gbpcli.build_parser(Config(url="http://gbp.invalid/"))
-
-    return parser.parse_args(args[1:])
 
 
 @fixture(testkit.tmpdir)
