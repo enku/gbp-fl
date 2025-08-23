@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,unused-argument
+# pylint: disable=missing-docstring
 from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
@@ -83,7 +83,6 @@ class LsTests(TestCase):
     def test_invalid_spec(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         cmd = f"gbp fl ls {pkgspec}"
-        args = lib.parse_args(cmd)
         console = fixtures.console
 
         status = fixtures.gbpcli(cmd)
