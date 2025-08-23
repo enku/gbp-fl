@@ -14,13 +14,12 @@ from gbp_fl.cli import fetch
 from . import lib
 
 
-@given(testkit.console, testkit.tmpdir, gbp=lib.gbp_client)
+@given(testkit.tmpdir, testkit.gbpcli)
 @where(records_backend="memory")
 @patch("gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):
     def test(self, requests: MagicMock, fixtures: Fixtures) -> None:
         args = argparse.Namespace(pkgspec="lighthouse/34/app-shells/bash-5.2_p37-1")
-        gbp = fixtures.gbp
         console = fixtures.console
         pkg = "bash-5.2_p37-1"
 
@@ -38,9 +37,9 @@ class HandlerTests(TestCase):
 
         requests.get.return_value = mock_response
 
-        console.out.print(f"$ gbp fl fetch {args.pkgspec}")
+        cmdline = f"gbp fl fetch {args.pkgspec}"
         with lib.cd(fixtures.tmpdir):
-            status = fetch.handler(args, gbp, console)
+            status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(0, status)
         self.assertEqual("", console.err.file.getvalue())
@@ -57,16 +56,15 @@ class HandlerTests(TestCase):
 
     def test_invalid_spec(self, requests: MagicMock, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
-        args = argparse.Namespace(pkgspec=pkgspec)
-        gbp = MagicMock()
+        cmdline = f"gbp fl fetch {pkgspec}"
         console = fixtures.console
 
         with lib.cd(fixtures.tmpdir):
-            status = fetch.handler(args, gbp, console)
+            status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(status, 1)
         self.assertEqual(f"Invalid specifier: {pkgspec}\n", console.err.file.getvalue())
-        self.assertEqual("", console.out.file.getvalue())
+        self.assertEqual(f"$ {cmdline}\n", console.out.file.getvalue())
 
         requests.get.assert_not_called()
 
@@ -74,18 +72,17 @@ class HandlerTests(TestCase):
         self, requests: MagicMock, fixtures: Fixtures
     ) -> None:
         pkgspec = "lighthouse/34/app-shells/bash-5.2_p37-1"
-        args = argparse.Namespace(pkgspec=pkgspec)
+        cmdline = f"gbp fl fetch {pkgspec}"
         url = (
             "http://gbp.invalid/machines/lighthouse/builds/34/packages"
             "/app-shells/bash/bash-5.2_p37-1"
         )
         mock_response = get_mock_response(404, b"Not Found", url=url)
-        gbp = fixtures.gbp
         console = fixtures.console
         requests.get.return_value = mock_response
 
         with lib.cd(fixtures.tmpdir):
-            status = fetch.handler(args, gbp, console)
+            status = fixtures.gbpcli(cmdline)
 
         self.assertEqual(2, status)
         self.assertEqual(
