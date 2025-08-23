@@ -4,7 +4,7 @@
 import argparse
 from typing import Any
 from unittest import TestCase
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import ANY, MagicMock
 
 import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, given, where
@@ -14,11 +14,10 @@ from gbp_fl.cli import fetch
 from . import lib
 
 
-@given(testkit.tmpdir, testkit.gbpcli)
-@where(records_backend="memory")
-@patch("gbp_fl.cli.fetch.requests")
+@given(testkit.tmpdir, testkit.gbpcli, requests=testkit.patch)
+@where(records_backend="memory", requests__target="gbp_fl.cli.fetch.requests")
 class HandlerTests(TestCase):
-    def test(self, requests: MagicMock, fixtures: Fixtures) -> None:
+    def test(self, fixtures: Fixtures) -> None:
         args = argparse.Namespace(pkgspec="lighthouse/34/app-shells/bash-5.2_p37-1")
         console = fixtures.console
         pkg = "bash-5.2_p37-1"
@@ -35,7 +34,7 @@ class HandlerTests(TestCase):
 
         mock_response = get_mock_response(url=response_url)
 
-        requests.get.return_value = mock_response
+        fixtures.requests.get.return_value = mock_response
 
         cmdline = f"gbp fl fetch {args.pkgspec}"
         with lib.cd(fixtures.tmpdir):
@@ -52,9 +51,11 @@ class HandlerTests(TestCase):
             content = fp.read()
         self.assertEqual(content, b"no matter")
 
-        requests.get.assert_called_once_with(request_url, stream=True, timeout=ANY)
+        fixtures.requests.get.assert_called_once_with(
+            request_url, stream=True, timeout=ANY
+        )
 
-    def test_invalid_spec(self, requests: MagicMock, fixtures: Fixtures) -> None:
+    def test_invalid_spec(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/bash-5.2_p37-1"
         cmdline = f"gbp fl fetch {pkgspec}"
         console = fixtures.console
@@ -66,11 +67,9 @@ class HandlerTests(TestCase):
         self.assertEqual(f"Invalid specifier: {pkgspec}\n", console.err.file.getvalue())
         self.assertEqual(f"$ {cmdline}\n", console.out.file.getvalue())
 
-        requests.get.assert_not_called()
+        fixtures.requests.get.assert_not_called()
 
-    def test_when_server_returns_404(
-        self, requests: MagicMock, fixtures: Fixtures
-    ) -> None:
+    def test_when_server_returns_404(self, fixtures: Fixtures) -> None:
         pkgspec = "lighthouse/34/app-shells/bash-5.2_p37-1"
         cmdline = f"gbp fl fetch {pkgspec}"
         url = (
@@ -79,7 +78,7 @@ class HandlerTests(TestCase):
         )
         mock_response = get_mock_response(404, b"Not Found", url=url)
         console = fixtures.console
-        requests.get.return_value = mock_response
+        fixtures.requests.get.return_value = mock_response
 
         with lib.cd(fixtures.tmpdir):
             status = fixtures.gbpcli(cmdline)
