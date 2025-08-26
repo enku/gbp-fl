@@ -710,11 +710,11 @@ files = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.8.1.dev7+gb168f8c"
+version = "2.8.1.dev14"
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "b168f8c35dcea111f07d8a4710b076d3282e2fc1"
+revision = "f88475378c76388e3a41828bd30f2816c0a162e2"
 summary = "Gentoo Build Publisher"
 groups = ["dev", "server"]
 dependencies = [
@@ -733,18 +733,18 @@ dependencies = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.8.1.dev7"
+version = "2.8.1.dev14"
 extras = ["test"]
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "b168f8c35dcea111f07d8a4710b076d3282e2fc1"
+revision = "f88475378c76388e3a41828bd30f2816c0a162e2"
 summary = "Gentoo Build Publisher"
 groups = ["dev"]
 dependencies = [
     "factory-boy>=3.3.3",
     "gentoo-build-publisher @ git+https://github.com/enku/gentoo-build-publisher.git@master",
-    "unittest-fixtures",
+    "unittest-fixtures>=2.3.0",
 ]
 
 [[package]]
@@ -1492,13 +1492,13 @@ files = [
 
 [[package]]
 name = "unittest-fixtures"
-version = "1.0.0"
+version = "2.3.0"
 requires_python = ">=3.11"
 summary = "A small library for loading unittest fixtures"
 groups = ["dev"]
 files = [
-    {file = "unittest_fixtures-1.0.0-py3-none-any.whl", hash = "sha256:3001fdc9f9354537208dbf5f0655198fa838c513f99d84b448117b4eec247e40"},
-    {file = "unittest_fixtures-1.0.0.tar.gz", hash = "sha256:361d6d4d5faa5b3951574560f51ff1201caf393d92191f8ef202a590a7ccc897"},
+    {file = "unittest_fixtures-2.3.0-py3-none-any.whl", hash = "sha256:cfd670240c4401010ca20f51bb363f181267eaea52713ab9464ad324243012d6"},
+    {file = "unittest_fixtures-2.3.0.tar.gz", hash = "sha256:aab82eb8949505340f24eb00e8be0a3f406643d5092257324302cc74a6a16898"},
 ]
 
 [[package]]
