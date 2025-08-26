@@ -2,6 +2,7 @@
 from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
+from gbp_testkit.helpers import LOCAL_TIMEZONE
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
@@ -30,10 +31,12 @@ polaris    27 app-shells/bash-5.2_p37-1 /bin/bash
 """
 
 
-@given(testkit.gbpcli)
-@given(lib.local_timezone, lib.bulk_content_files, lib.repo, testkit.publisher)
+@given(testkit.gbpcli, local_timezone=testkit.patch)
+@given(lib.bulk_content_files, lib.repo, testkit.publisher)
 @where(records_db={"records_backend": "memory"}, bulk_content_files=BULK_CONTENT_FILES)
 @where(repo="gbp_fl.graphql.queries.repo")
+@where(local_timezone__target="gbpcli.render.LOCAL_TIMEZONE")
+@where(local_timezone__new=LOCAL_TIMEZONE)
 class LsTests(TestCase):
 
     def test_short_format(self, fixtures: Fixtures) -> None:

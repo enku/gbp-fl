@@ -267,14 +267,6 @@ def gateway(_: Fixtures) -> MockGBPGateway:
 
 
 @fixture()
-def local_timezone(
-    _: Fixtures, local_timezone: dt.timezone = LOCAL_TIMEZONE
-) -> FixtureContext[dt.timezone]:
-    with mock.patch("gbpcli.render.LOCAL_TIMEZONE", new=local_timezone):
-        yield local_timezone
-
-
-@fixture()
 def tarinfo(_: Fixtures, name: str = "image/bin/bash") -> mock.Mock:
     mock_tarinfo = mock.Mock(mtime=0, size=22)
     mock_tarinfo.isdir.return_value = False

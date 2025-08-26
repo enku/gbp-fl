@@ -6,6 +6,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 import gbp_testkit.fixtures as testkit
+from gbp_testkit.helpers import LOCAL_TIMEZONE
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.cli import search
@@ -17,9 +18,11 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 
 @given(lib.environ, testkit.gbpcli, lib.repo, lib.bulk_content_files, testkit.console)
-@given(lib.local_timezone, gateway=testkit.patch)
+@given(local_timezone=testkit.patch, gateway=testkit.patch)
 @where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @where(gateway__target="gbp_fl.graphql.binpkg.gateway")
+@where(local_timezone__target="gbpcli.render.LOCAL_TIMEZONE")
+@where(local_timezone__new=LOCAL_TIMEZONE)
 class SearchTests(TestCase):
     options = {"records_backend": "memory"}
 
