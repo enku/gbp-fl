@@ -281,7 +281,7 @@ def package(
     cpv: str = "sys-libs/mtdev-1.1.7",
     repo: str = "gentoo",
     build_id: int = 1,
-    build_time: int = 0,
+    build_time: int = 10,
     path: str = "sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
 ) -> Package:
     return Package(

@@ -3,10 +3,12 @@
 # pylint: disable=missing-docstring,unused-argument
 
 from contextlib import ExitStack
-from pathlib import PurePath as Path
 from unittest import TestCase, mock
 
+import gbp_testkit.fixtures as testkit
 import gentoo_build_publisher
+from gbp_testkit.factories import ArtifactFactory
+from gentoo_build_publisher import publisher
 from gentoo_build_publisher import types as gtype
 from unittest_fixtures import FixtureContext, Fixtures, given
 
@@ -30,43 +32,36 @@ def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
         yield mocks
 
 
-@given(mock_publisher, lib.build, lib.package)
+@given(testkit.publisher, lib.build, lib.package)
 class GetFullPackagePathTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         build = fixtures.build
-        mocks = fixtures.mock_publisher
-        storage = mocks["storage"]
         build_str = f"{build.machine}.{build.build_id}"
+        publisher.pull(build)
 
-        storage.get_path.return_value = Path(f"/binpkgs/{build_str}")
         gbp = gw.GBPGateway()
 
         full_package_path = gbp.get_full_package_path(build, fixtures.package)
 
         self.assertEqual(
             str(full_package_path),
-            f"/binpkgs/{build_str}/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+            f"{fixtures.tmpdir}/root/binpkgs/{build_str}/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
         )
 
 
-@given(mock_publisher, lib.build, lib.package)
+@given(testkit.publisher, lib.build, lib.package)
 class GetPackagesTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
-        mocks = fixtures.mock_publisher
-        storage = mocks["storage"]
+        build = fixtures.build
         package = fixtures.package
-
-        storage.get_packages.return_value = [
-            gtype.Package(
-                cpv=package.cpv,
-                build_id=package.build_id,
-                repo=package.repo,
-                path=package.path,
-                size=200,
-                build_time=package.build_time,
-            )
-        ]
         gbp = gw.GBPGateway()
+        g_build = gtype.Build(machine=build.machine, build_id=build.build_id)
+
+        publisher.jenkins.artifact_builder = ArtifactFactory(
+            initial_packages=[], timestamp=10
+        )
+        publisher.jenkins.artifact_builder.build(g_build, package.cpv)
+        publisher.pull(g_build)
 
         packages = gbp.get_packages(fixtures.build)
 
