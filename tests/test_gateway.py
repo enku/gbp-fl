@@ -10,7 +10,7 @@ import gentoo_build_publisher
 from gbp_testkit.factories import ArtifactFactory
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher import types as gtype
-from unittest_fixtures import FixtureContext, Fixtures, given
+from unittest_fixtures import FixtureContext, Fixtures, given, where
 
 from gbp_fl import gateway as gw
 from gbp_fl.types import Build, MissingPackageIdentifier
@@ -129,50 +129,56 @@ class RunTaskTests(TestCase):
         worker.run.assert_called_once_with(func, 1, 2, buckle_my="shoe")
 
 
+@given(publisher=testkit.patch)
+@where(publisher__target="gentoo_build_publisher.publisher")
 class ListMachineNamesTests(TestCase):
-    @mock.patch("gentoo_build_publisher.publisher")
-    def test(self, publisher: mock.Mock) -> None:
+    def test(self, fixtures: Fixtures) -> None:
         machines = ["babette", "lighthouse", "polaris"]
-        publisher.repo.build_records.list_machines.return_value = machines
+        fixtures.publisher.repo.build_records.list_machines.return_value = machines
 
         gbp = gw.GBPGateway()
 
         self.assertEqual(gbp.list_machine_names(), machines)
-        publisher.repo.build_records.list_machines.assert_called_once_with()
+        fixtures.publisher.repo.build_records.list_machines.assert_called_once_with()
 
 
+@given(publisher=testkit.patch)
+@where(publisher__target="gentoo_build_publisher.publisher")
 class GetBuildsForMachineTests(TestCase):
-    @mock.patch("gentoo_build_publisher.publisher")
-    def test(self, publisher: mock.Mock) -> None:
+    def test(self, fixtures: Fixtures) -> None:
+        pub = fixtures.publisher
         builds = [Build(machine="babette", build_id=f"150{i}") for i in range(5)]
-        publisher.repo.build_records.for_machine.return_value = iter(builds)
+        pub.repo.build_records.for_machine.return_value = iter(builds)
 
         gbp = gw.GBPGateway()
 
         self.assertEqual(list(gbp.get_builds_for_machine("babette")), builds)
-        publisher.repo.build_records.for_machine.assert_called_once_with("babette")
+        pub.repo.build_records.for_machine.assert_called_once_with("babette")
 
 
+@given(publisher=testkit.patch)
+@where(publisher__target="gentoo_build_publisher.publisher")
 @given(lib.build)
 class GetBuildRecordTests(TestCase):
-    @mock.patch("gentoo_build_publisher.publisher")
-    def test(self, publisher: mock.Mock, fixtures: Fixtures) -> None:
+    def test(self, fixtures: Fixtures) -> None:
+        pub = fixtures.publisher
         build = fixtures.build
         bdict = {"machine": build.machine, "build_id": build.build_id}
         build_record = mock.Mock(**bdict)
-        publisher.repo.build_records.get.return_value = build_record
+        pub.repo.build_records.get.return_value = build_record
         gbp = gw.GBPGateway()
 
         result = gbp.get_build_record(Build(**bdict))
 
         self.assertEqual(result, build_record)
-        publisher.repo.build_records.get.assert_called_once_with(gtype.Build(**bdict))
+        pub.repo.build_records.get.assert_called_once_with(gtype.Build(**bdict))
 
 
+@given(set_process=testkit.patch)
+@where(set_process__target="gbp_ps.signals.set_process")
 @given(lib.build)
 class SetProcessTests(TestCase):
-    @mock.patch("gbp_ps.signals.set_process")
-    def test(self, set_process: mock.Mock, fixtures: Fixtures) -> None:
+    def test(self, fixtures: Fixtures) -> None:
         build = fixtures.build
         gbp = gw.GBPGateway()
 
@@ -180,21 +186,18 @@ class SetProcessTests(TestCase):
             self.assertTrue(was_set)
 
         gbuild = gtype.Build(machine=build.machine, build_id=build.build_id)
-        set_process.assert_has_calls(
+        fixtures.set_process.assert_has_calls(
             [mock.call(gbuild, "index"), mock.call(gbuild, "clean")]
         )
 
-    @mock.patch("gbp_ps.signals.set_process")
-    def test_when_no_gbp_ps_plugin(
-        self, set_process: mock.Mock, fixtures: Fixtures
-    ) -> None:
+    def test_when_no_gbp_ps_plugin(self, fixtures: Fixtures) -> None:
         gbp = gw.GBPGateway()
 
         with mock.patch.object(gbp, "has_plugin", return_value=False):
             with gbp.set_process(fixtures.build, "index") as was_set:
                 self.assertFalse(was_set)
 
-        set_process.assert_not_called()
+        fixtures.set_process.assert_not_called()
 
 
 class HasPluginTests(TestCase):
