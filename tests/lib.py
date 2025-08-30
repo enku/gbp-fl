@@ -224,7 +224,7 @@ def bulk_packages(fixtures: Fixtures, bulk_packages: str = "") -> list[Package]:
     return packages
 
 
-@fixture(testkit.record, now)
+@fixture(testkit.build_record, now)
 def gbp_package(  # pylint: disable=too-many-arguments
     fixtures: Fixtures,
     *,

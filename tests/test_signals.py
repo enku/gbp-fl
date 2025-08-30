@@ -2,10 +2,9 @@
 import logging
 import shutil
 from pathlib import Path
-from unittest import mock
+from unittest import TestCase, mock
 
 import gbp_testkit.fixtures as testkit
-from django.test import TestCase
 from unittest_fixtures import Fixtures, fixture, given, where
 
 from gbp_fl import gateway
@@ -16,12 +15,7 @@ from . import lib
 logging.basicConfig(handlers=[logging.NullHandler()])
 
 
-@given(testkit.publisher)
-class GBPTestCase(TestCase):
-    options = {"records_backend": "django"}
-
-
-@fixture(lib.gbp_package, build_record=testkit.record)
+@fixture(lib.gbp_package, build_record=testkit.build_record)
 def binpkg(f: Fixtures) -> Path:
     gbp = gateway.GBPGateway()
     path = Path(gbp.get_full_package_path(f.build_record, f.gbp_package))
@@ -34,11 +28,8 @@ def binpkg(f: Fixtures) -> Path:
     return path
 
 
-# Any test that uses "record" depends on Django, because "records" depends on Django.
-# This needs to be fixed
-@given(lib.worker, lib.gbp_package, lib.fl_settings, binpkg)
-@where(records_db__backend="django")
-class PostPulledTests(GBPTestCase):
+@given(testkit.publisher, lib.worker, lib.gbp_package, lib.fl_settings, binpkg)
+class PostPulledTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
@@ -104,7 +95,7 @@ class PostPulledTests(GBPTestCase):
 
 @given(lib.worker, lib.fl_settings, lib.bulk_content_files, lib.build)
 @where(build="polaris.26")
-class PostDeleteTests(GBPTestCase):
+class PostDeleteTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
         repo: Repo = Repo.from_settings(f.settings)
@@ -119,11 +110,8 @@ class PostDeleteTests(GBPTestCase):
         self.assertEqual(repo.files.count(None, None, None), 3)
 
 
-# Any test that uses "record" depends on Django, because "records" depends on Django.
-# This needs to be fixed
-@given(lib.gbp_package, binpkg, build_record=testkit.record)
-@where(records_db__backend="django")
-class GetPackageContentsTests(GBPTestCase):
+@given(testkit.publisher, lib.gbp_package, binpkg, build_record=testkit.build_record)
+class GetPackageContentsTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
         gbp = gateway.GBPGateway()
