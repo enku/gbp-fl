@@ -36,7 +36,7 @@ def binpkg(f: Fixtures) -> Path:
 
 # Any test that uses "record" depends on Django, because "records" depends on Django.
 # This needs to be fixed
-@given(lib.worker, lib.gbp_package, lib.settings, binpkg)
+@given(lib.worker, lib.gbp_package, lib.fl_settings, binpkg)
 @where(records_db__backend="django")
 class PostPulledTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:
@@ -102,7 +102,7 @@ class PostPulledTests(GBPTestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@given(lib.worker, lib.settings, lib.bulk_content_files, lib.build)
+@given(lib.worker, lib.fl_settings, lib.bulk_content_files, lib.build)
 @where(build="polaris.26")
 class PostDeleteTests(GBPTestCase):
     def test(self, fixtures: Fixtures) -> None:

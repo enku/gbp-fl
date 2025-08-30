@@ -85,13 +85,13 @@ def environ(
 
 
 @fixture(testkit.tmpdir, environ)
-def settings(_fixtures: Fixtures) -> Settings:
+def fl_settings(_fixtures: Fixtures) -> Settings:
     return Settings.from_environ()
 
 
-@fixture(settings)
+@fixture(fl_settings)
 def repo(fixtures: Fixtures, repo: str = "gbp_fl.records.repo") -> FixtureContext[Repo]:
-    repo_: Repo = Repo.from_settings(fixtures.settings)
+    repo_: Repo = Repo.from_settings(fixtures.fl_settings)
 
     with mock.patch(repo, new=repo_):
         yield repo_
