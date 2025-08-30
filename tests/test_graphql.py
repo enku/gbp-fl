@@ -1,11 +1,12 @@
 """Tests for the GraphQL interface for gbp-fl"""
 
+# pylint: disable=missing-docstring
+
 from dataclasses import replace
 from unittest import TestCase
 from unittest.mock import Mock
 
 import gbp_testkit.fixtures as testkit
-from django.test import TestCase as DjangoTestCase
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.graphql import schema
@@ -17,11 +18,9 @@ from gbp_fl.types import BinPkg, Build
 
 from . import lib
 
-# pylint: disable=missing-docstring
-
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
+@where(repo="gbp_fl.graphql.queries.repo")
 class FileListSearchTests(TestCase):
     def test_search_without_machine(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -64,7 +63,7 @@ class FileListSearchTests(TestCase):
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
+@where(repo="gbp_fl.graphql.queries.repo")
 class ResolveQueryCountTests(TestCase):
     query = "query totalFileCount { flCount }"
 
@@ -122,11 +121,8 @@ class ResolveQueryCountTests(TestCase):
         self.assertEqual(result["data"]["flCount"], 3)
 
 
-# Any test that uses "record" depends on Django, because "records" depends on Django.
-# This needs to be fixed
-@given(testkit.publisher, testkit.record, lib.now)
-@where(records_db__backend="django")
-class ResolveBinPkgBuildTests(DjangoTestCase):
+@given(testkit.publisher, lib.now, record=testkit.build_record)
+class ResolveBinPkgBuildTests(TestCase):
 
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -145,7 +141,7 @@ class ResolveBinPkgBuildTests(DjangoTestCase):
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(records_backend="memory", repo="gbp_fl.graphql.queries.repo")
+@where(repo="gbp_fl.graphql.queries.repo")
 class FileListListTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -178,7 +174,6 @@ class FileListListTests(TestCase):
 
 
 @given(lib.repo, testkit.client, testkit.publisher)
-@where(records_backend="memory")
 class FlListPackages(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         build = GBPBuild(machine="lighthouse", build_id="34404")
