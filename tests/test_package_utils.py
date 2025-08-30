@@ -4,7 +4,6 @@ from pathlib import Path
 from unittest import TestCase, mock
 
 import gbp_testkit.fixtures as testkit
-from django.test import TestCase as DjangoTestCase
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl import package_utils
@@ -59,11 +58,8 @@ class IndexBuildTests(TestCase):
         self.assertEqual(repo.files.count(None, None, None), 0)
 
 
-# Any test that uses "record" depends on Django, because "records" depends on Django.
-# This needs to be fixed
-@where(records_db__backend="django")
-@given(lib.gbp_package, testkit.record)
-class MakeContentFileTests(DjangoTestCase):
+@given(lib.gbp_package, record=testkit.build_record)
+class MakeContentFileTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
         info = ContentFileInfo(name="/bin/bash", mtime=1738258812, size=8829)
