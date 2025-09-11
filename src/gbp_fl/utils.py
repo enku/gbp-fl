@@ -6,7 +6,6 @@ from tarfile import TarFile
 
 from gbp_fl.types import MissingPackageIdentifier, Package
 
-# firefox-135.0-1
 PKGSPEC_RE_STR = r"""
 (?P<p>[a-z].*)-
 (?P<v>[0-9].*)-
