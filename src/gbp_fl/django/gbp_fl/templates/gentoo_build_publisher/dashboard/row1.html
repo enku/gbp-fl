@@ -1,0 +1,8 @@
+{% extends "gentoo_build_publisher/dashboard/row1.html" %}
+{% load gbp_fl %}
+{% load gbp %}
+{% block dashboard_metrics %}
+    {{ block.super }}
+    {% file_count as files %}
+    {% circle files "Files" %}
+{% endblock %}

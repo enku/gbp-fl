@@ -14,4 +14,5 @@ plugin = {
     "description": "List and search build's package files",
     "version": __version__,
     "graphql": "gbp_fl.graphql",
+    "priority": -10,
 }
