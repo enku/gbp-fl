@@ -22,7 +22,7 @@ from typing import Any, Callable, Iterator, ParamSpec, cast
 from pydispatch import Dispatcher  # type: ignore
 
 from gbp_fl import utils
-from gbp_fl.types import Build, BuildLike, Package
+from gbp_fl.types import Build, BuildLike, MissingPackageIdentifier, Package
 
 P = ParamSpec("P")
 
@@ -125,7 +125,10 @@ class GBPGateway:
         package_path = self.get_full_package_path(build, package)
 
         with TarFile.open(package_path, "r") as tarfile:
-            utils.ensure_package_identifier(package, tarfile)
+            try:
+                utils.ensure_package_identifier(package, tarfile)
+            except MissingPackageIdentifier:
+                yield from tarfile.getmembers()
 
             # We're not sure of the exact filename of the inner tarfile because of
             # available compression options, but we know what the name starts with.

@@ -7,7 +7,8 @@ import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl import package_utils
-from gbp_fl.types import ContentFileInfo
+from gbp_fl.records import files_backend
+from gbp_fl.types import ContentFileInfo, Package
 
 from . import lib
 
@@ -53,6 +54,58 @@ class IndexBuildTests(TestCase):
             package_utils.index_build(fixtures.build, repo)
 
         self.assertEqual(repo.files.count(None, None, None), 0)
+
+    def test_with_actual_package(self, fixtures: Fixtures) -> None:
+        build = fixtures.build
+        package = Package(
+            "sys-libs/mtdev-1.1.7",
+            repo="gentoo",
+            build_id=1,
+            build_time=123,
+            path=str(lib.TESTDIR / "assets/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar"),
+        )
+        repo = mock.Mock(files=files_backend("memory"))
+
+        with mock.patch(f"{MOCK_PREFIX}gateway.get_packages") as get_packages:
+            get_packages.return_value = [package]
+            package_utils.index_build(build, repo)
+
+        files = {
+            i.path.name for i in repo.files.for_build(build.machine, build.build_id)
+        }
+        expected = {
+            "mtdev-test",
+            "mtdev-mapping.h",
+            "mtdev-plumbing.h",
+            "mtdev.h",
+            "libmtdev.so",
+            "libmtdev.so.1",
+            "libmtdev.so.1.0.0",
+            "mtdev.pc",
+            "ChangeLog",
+            "README",
+        }
+        self.assertEqual(files, expected)
+
+    def test_with_xpak_package(self, fixtures: Fixtures) -> None:
+        build = fixtures.build
+        package = Package(
+            "app-eselect/eselect-pinentry",
+            repo="gentoo",
+            build_id=1,
+            build_time=123,
+            path=str(lib.TESTDIR / "assets/eselect-pinentry-0.7.2-1.xpak"),
+        )
+        repo = mock.Mock(files=files_backend("memory"))
+
+        with mock.patch(f"{MOCK_PREFIX}gateway.get_packages") as get_packages:
+            get_packages.return_value = [package]
+            package_utils.index_build(build, repo)
+
+        files = {
+            str(i.path) for i in repo.files.for_build(build.machine, build.build_id)
+        }
+        self.assertEqual(files, {"/usr/share/eselect/modules/pinentry.eselect"})
 
 
 @given(lib.gbp_package, record=testkit.build_record)

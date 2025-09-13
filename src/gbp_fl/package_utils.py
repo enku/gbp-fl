@@ -30,7 +30,7 @@ def index_package(package: Package, build: Build, repo: Repo) -> None:
     repo.files.bulk_save(
         content_file(ContentFileInfo(name=i.name, mtime=int(i.mtime), size=i.size))
         for i in items
-        if not i.isdir() and i.name.startswith("image/")
+        if not i.isdir() and i.name.startswith(("image/", "./"))
     )
 
 
@@ -38,8 +38,10 @@ def make_content_file(
     build: Build, gbp_package: Package, metadata: ContentFileInfo
 ) -> ContentFile:
     """Return a ContentFile given the parameters"""
+    path = metadata.name.removeprefix("image").removeprefix(".")
+
     return ContentFile(
-        path=Path(metadata.name.removeprefix("image")),
+        path=Path(path),
         binpkg=make_binpkg(build, gbp_package),
         size=metadata.size,
         timestamp=dt.datetime.fromtimestamp(metadata.mtime, tz=dt.UTC),

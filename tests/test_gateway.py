@@ -13,7 +13,7 @@ from gentoo_build_publisher import types as gtype
 from unittest_fixtures import FixtureContext, Fixtures, given, where
 
 from gbp_fl import gateway as gw
-from gbp_fl.types import Build, MissingPackageIdentifier
+from gbp_fl.types import Build
 
 from . import lib
 
@@ -87,8 +87,18 @@ class GetPackageContentsTests(TestCase):
         with mock.patch.object(
             gbp, "get_full_package_path", return_value=lib.TESTDIR / "assets/empty.tar"
         ):
-            with self.assertRaises(MissingPackageIdentifier):
-                list(gbp.get_package_contents(fixtures.build, fixtures.package))
+            result = gbp.get_package_contents(fixtures.build, fixtures.package)
+
+            self.assertEqual(sum(1 for _ in result), 0)
+
+    def test_xpak_files(self, fixtures: Fixtures) -> None:
+        gbp = gw.GBPGateway()
+        xpak = lib.TESTDIR / "assets/eselect-pinentry-0.7.2-1.xpak"
+
+        with mock.patch.object(gbp, "get_full_package_path", return_value=xpak):
+            result = gbp.get_package_contents(fixtures.build, fixtures.package)
+
+            self.assertEqual(sum(1 for _ in result), 6)
 
 
 class ReceiveSignalTests(TestCase):
