@@ -49,7 +49,7 @@ def parse_pkgspec(pkgspec: str) -> Parsed | None:
 
 
 def ensure_package_identifier(package: Package, tarfile: TarFile) -> None:
-    """Raise LookupError if tarfile is missing the required identifier"""
+    """Raise MissingPackageIdentifier if tarfile is missing the required identifier"""
     pv = package.cpv.partition("/")[2]
     package_identifier = f"{pv}-{package.build_id}/gpkg-1"
 
