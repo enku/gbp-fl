@@ -1,6 +1,7 @@
 """Template tags for gbp-fl"""
 
-from typing import cast
+import hashlib
+from typing import Any, Iterable, cast
 
 from django import template
 from django.core.cache import cache
@@ -42,3 +43,24 @@ def machine_file_count(machine: str, build_count: int) -> dict[str, int]:
         machine, None, None
     )
     return {"total": count, "per_build": count // build_count}
+
+
+@register.simple_tag
+def gbp_fl_dashboard(machines: Iterable[str]) -> dict[str, Any]:
+    """Return the gbp-fl context for the dashboard view"""
+    machines = sorted(set(machines))
+    joined = "".join(machines)
+    my_hash = hashlib.sha256(joined.encode()).hexdigest()
+    key = f"gbp-fl-dashboard.{my_hash}"
+
+    if stats := cache.get(key):
+        return cast(dict[str, Any], stats)
+
+    repo = Repo.from_settings(Settings.from_environ())
+    files_by_machine = {
+        machine: repo.files.count(machine, None, None) for machine in machines
+    }
+    stats = {"files_by_machine": files_by_machine}
+    cache.set(key, stats, timeout=1800)
+
+    return stats

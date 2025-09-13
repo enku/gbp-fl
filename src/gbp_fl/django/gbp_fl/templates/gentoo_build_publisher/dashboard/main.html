@@ -1,0 +1,15 @@
+{% extends "gentoo_build_publisher/dashboard/main.html" %}
+{% load static %}
+{% load gbp_fl %}
+
+{% block main %}
+  {{ block.super }}
+  {% include "gentoo_build_publisher/dashboard/gbp_fl.html" %}
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  {% gbp_fl_dashboard machines as dashboard %}
+  {{ dashboard.files_by_machine|json_script:'machineFiles' }}
+  <script src="{% static 'gbp_fl/dashboard.js' %}"></script>
+{% endblock %}
