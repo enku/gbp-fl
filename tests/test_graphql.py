@@ -12,7 +12,7 @@ from gentoo_build_publisher import publisher
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
-from unittest_fixtures import Fixtures, given, where
+from unittest_fixtures import Fixtures, given
 
 from gbp_fl.types import BinPkg, Build
 
@@ -20,7 +20,6 @@ from . import lib
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(repo="gbp_fl.graphql.queries.repo")
 class FileListSearchTests(TestCase):
     def test_search_without_machine(self, fixtures: Fixtures) -> None:
         f = fixtures
@@ -63,7 +62,6 @@ class FileListSearchTests(TestCase):
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(repo="gbp_fl.graphql.queries.repo")
 class ResolveQueryCountTests(TestCase):
     query = "query totalFileCount { flCount }"
 
@@ -141,7 +139,6 @@ class ResolveBinPkgBuildTests(TestCase):
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)
-@where(repo="gbp_fl.graphql.queries.repo")
 class FileListListTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures

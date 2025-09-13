@@ -2,7 +2,7 @@
 import logging
 import shutil
 from pathlib import Path
-from unittest import TestCase, mock
+from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, fixture, given, where
@@ -28,18 +28,15 @@ def binpkg(f: Fixtures) -> Path:
     return path
 
 
-@given(testkit.publisher, lib.worker, lib.gbp_package, lib.fl_settings, binpkg)
+@given(lib.repo, testkit.publisher, lib.worker, lib.gbp_package, binpkg)
 class PostPulledTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
-        repo: Repo = Repo.from_settings(f.settings)
+        repo: Repo = fixtures.repo
         gbp = gateway.GBPGateway()
         _ = None
 
-        with mock.patch("gbp_fl.package_utils.repo", new=repo):
-            gbp.emit_signal(
-                "postpull", build=f.build_record, packages=_, gbp_metadata=_
-            )
+        gbp.emit_signal("postpull", build=f.build_record, packages=_, gbp_metadata=_)
 
         # pylint: disable=assignment-from-no-return
         content_files = repo.files.for_package(
@@ -51,16 +48,13 @@ class PostPulledTests(TestCase):
 
     def test_with_empty_tar(self, fixtures: Fixtures) -> None:
         f = fixtures
-        repo: Repo = Repo.from_settings(f.settings)
+        repo: Repo = fixtures.repo
         gbp = gateway.GBPGateway()
         _ = None
 
         shutil.copy(lib.TESTDIR / "assets/empty.tar", f.binpkg)
 
-        with mock.patch("gbp_fl.package_utils.repo", new=repo):
-            gbp.emit_signal(
-                "postpull", build=f.build_record, packages=_, gbp_metadata=_
-            )
+        gbp.emit_signal("postpull", build=f.build_record, packages=_, gbp_metadata=_)
 
         content_files = list(
             repo.files.for_package(
@@ -71,17 +65,14 @@ class PostPulledTests(TestCase):
 
     def test_pull_with_no_package_manifest(self, fixtures: Fixtures) -> None:
         f = fixtures
-        repo: Repo = Repo.from_settings(f.settings)
+        repo: Repo = fixtures.repo
         gbp = gateway.GBPGateway()
         _ = None
 
         package_manifest: Path = f.binpkg.parents[2] / "Packages"
         package_manifest.unlink()
 
-        with mock.patch("gbp_fl.package_utils.repo", new=repo):
-            gbp.emit_signal(
-                "postpull", build=f.build_record, packages=_, gbp_metadata=_
-            )
+        gbp.emit_signal("postpull", build=f.build_record, packages=_, gbp_metadata=_)
 
         content_files = list(
             repo.files.for_package(
@@ -93,19 +84,18 @@ class PostPulledTests(TestCase):
         self.assertEqual(len(content_files), 0)
 
 
-@given(lib.worker, lib.fl_settings, lib.bulk_content_files, lib.build)
+@given(lib.worker, lib.repo, lib.bulk_content_files, lib.build)
 @where(build="polaris.26")
 class PostDeleteTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         f = fixtures
-        repo: Repo = Repo.from_settings(f.settings)
+        repo: Repo = fixtures.repo
         repo.files.bulk_save(f.bulk_content_files)
         gbp = gateway.GBPGateway()
 
         self.assertEqual(repo.files.count(None, None, None), 6)
 
-        with mock.patch("gbp_fl.records.repo", new=repo):
-            gbp.emit_signal("postdelete", build=fixtures.build)
+        gbp.emit_signal("postdelete", build=fixtures.build)
 
         self.assertEqual(repo.files.count(None, None, None), 3)
 

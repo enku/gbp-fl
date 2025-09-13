@@ -19,7 +19,7 @@ DAY = dt.timedelta(days=1, minutes=11, seconds=12)
 
 @given(lib.environ, testkit.gbpcli, lib.repo, lib.bulk_content_files, testkit.console)
 @given(local_timezone=testkit.patch, gateway=testkit.patch)
-@where(repo="gbp_fl.graphql.queries.repo", environ={"GBPCLI_MYMACHINES": "lighthouse"})
+@where(environ={"GBPCLI_MYMACHINES": "lighthouse"})
 @where(gateway__target="gbp_fl.graphql.binpkg.gateway")
 @where(local_timezone__target="gbpcli.render.LOCAL_TIMEZONE")
 @where(local_timezone__new=LOCAL_TIMEZONE)

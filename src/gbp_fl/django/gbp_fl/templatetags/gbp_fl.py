@@ -5,7 +5,8 @@ from typing import cast
 from django import template
 from django.core.cache import cache
 
-from gbp_fl.records import repo
+from gbp_fl.records import Repo
+from gbp_fl.settings import Settings
 
 register = template.Library()
 
@@ -16,7 +17,10 @@ def file_count() -> int:
     if count := cache.get("file-count"):
         return cast(int, count)
 
-    count = repo.files.count(None, None, None)
+    repo = Repo.from_settings(Settings.from_environ())
+    count = repo.files.count(  # pylint: disable=assignment-from-no-return
+        None, None, None
+    )
     cache.set("file-count", count, timeout=1800)
 
     return count

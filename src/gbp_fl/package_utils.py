@@ -6,11 +6,11 @@ from functools import partial
 from pathlib import PurePath as Path
 
 from gbp_fl.gateway import gateway
-from gbp_fl.records import repo
+from gbp_fl.records import Repo
 from gbp_fl.types import BinPkg, Build, ContentFile, ContentFileInfo, Package
 
 
-def index_build(build: Build) -> None:
+def index_build(build: Build, repo: Repo) -> None:
     """Save the given Build's packages to the database"""
     executor = ThreadPoolExecutor()
 
@@ -19,10 +19,10 @@ def index_build(build: Build) -> None:
     except LookupError:
         return
 
-    wait(executor.submit(index_package, package, build) for package in packages)
+    wait(executor.submit(index_package, package, build, repo) for package in packages)
 
 
-def index_package(package: Package, build: Build) -> None:
+def index_package(package: Package, build: Build, repo: Repo) -> None:
     """Save the files from the given build/package"""
     items = gateway.get_package_contents(build, package)
     content_file = partial(make_content_file, build, package)

@@ -90,10 +90,11 @@ def fl_settings(_fixtures: Fixtures) -> Settings:
 
 
 @fixture(fl_settings)
-def repo(fixtures: Fixtures, repo: str = "gbp_fl.records.repo") -> FixtureContext[Repo]:
-    repo_: Repo = Repo.from_settings(fixtures.fl_settings)
+def repo(fixtures: Fixtures, repo: str = "gbp_fl.records.Repo") -> FixtureContext[Repo]:
+    Repo.from_settings.cache_clear()
+    repo_ = Repo.from_settings(fixtures.fl_settings)
 
-    with mock.patch(repo, new=repo_):
+    with mock.patch(f"{repo}.from_settings", return_value=repo_):
         yield repo_
 
 

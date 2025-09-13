@@ -5,7 +5,7 @@
 from unittest import TestCase
 
 from django.core.cache import cache
-from unittest_fixtures import Fixtures, given, where
+from unittest_fixtures import Fixtures, given
 
 from gbp_fl.django.gbp_fl.templatetags.gbp_fl import file_count
 
@@ -13,7 +13,6 @@ from . import lib
 
 
 @given(lib.repo, lib.bulk_content_files, cache_clear=lambda _: cache.clear())
-@where(repo="gbp_fl.django.gbp_fl.templatetags.gbp_fl.repo")
 class FileCountTest(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         content_files = fixtures.bulk_content_files

@@ -8,7 +8,8 @@ from ariadne import ObjectType, convert_kwargs_to_snake_case
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import gateway
-from gbp_fl.records import repo
+from gbp_fl.records import Repo
+from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile
 
 Info: TypeAlias = GraphQLResolveInfo
@@ -21,6 +22,8 @@ Query = ObjectType("Query")
 def _(
     _obj: Any, _info: Info, *, key: str, machine: str | None = None
 ) -> list[ContentFile]:
+    repo = Repo.from_settings(Settings.from_environ())
+
     return list(repo.files.search(key, [machine] if machine else None))
 
 
@@ -28,6 +31,8 @@ def _(
 def _(
     _obj: Any, _info: Info, *, key: str, machines: list[str] | None = None
 ) -> list[ContentFile]:
+    repo = Repo.from_settings(Settings.from_environ())
+
     return list(repo.files.search(key, machines))
 
 
@@ -36,6 +41,8 @@ def _(
 def _(
     _obj: Any, _info: Info, *, machine: str | None = None, build_id: str | None = None
 ) -> int:
+    repo = Repo.from_settings(Settings.from_environ())
+
     return repo.files.count(machine, build_id, None)
 
 
@@ -44,6 +51,8 @@ def _(
 def _(
     _obj: Any, _info: Info, *, machine: str, build_id: str, cpvb: str
 ) -> list[ContentFile]:
+    repo = Repo.from_settings(Settings.from_environ())
+
     return list(repo.files.for_package(machine, build_id, cpvb))
 
 
