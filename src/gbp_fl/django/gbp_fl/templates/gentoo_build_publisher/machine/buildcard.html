@@ -3,7 +3,7 @@
 {% load gbp_fl %}
 {% block build-card-items %}
 {{ block.super }}
-{% machine_file_count machine build_count as counts %}
+{% machine_file_count machine as counts %}
 {% card_item "Files" counts.total True %}
 {% card_item "Files per build" counts.per_build True %}
 {% endblock %}

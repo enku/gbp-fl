@@ -32,7 +32,7 @@ def mock_publisher(_f: Fixtures) -> FixtureContext[dict[str, mock.Mock]]:
         yield mocks
 
 
-@given(testkit.publisher, lib.build, lib.package)
+@given(lib.environ, testkit.publisher, lib.build, lib.package)
 class GetFullPackagePathTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         build = fixtures.build
@@ -45,11 +45,11 @@ class GetFullPackagePathTests(TestCase):
 
         self.assertEqual(
             str(full_package_path),
-            f"{fixtures.tmpdir}/root/binpkgs/{build_str}/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
+            f"{fixtures.tmpdir}/gbp/binpkgs/{build_str}/sys-libs/mtdev/mtdev-1.1.7-1.gpkg.tar",
         )
 
 
-@given(testkit.publisher, lib.build, lib.package)
+@given(lib.environ, testkit.publisher, lib.build, lib.package)
 class GetPackagesTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
         build = fixtures.build

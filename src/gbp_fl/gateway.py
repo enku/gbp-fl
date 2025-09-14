@@ -22,7 +22,8 @@ from typing import Any, Callable, Iterator, ParamSpec, cast
 from pydispatch import Dispatcher  # type: ignore
 
 from gbp_fl import utils
-from gbp_fl.types import Build, BuildLike, MissingPackageIdentifier, Package
+from gbp_fl.records import Repo
+from gbp_fl.types import Build, BuildLike, FileStats, MissingPackageIdentifier, Package
 
 P = ParamSpec("P")
 
@@ -177,6 +178,22 @@ class GBPGateway:
             self._really_set_process(build, "clean")
         else:
             yield False
+
+    def cache_file_stats(self, stats: FileStats) -> None:
+        """Save the given FileStats to Django's cache"""
+        from django.core.cache import cache
+
+        from gbp_fl.types import STATS_CACHE_KEY
+
+        cache.set(STATS_CACHE_KEY, stats, timeout=None)
+
+    def get_file_stats(self, repo: Repo) -> FileStats:
+        """Calculate the current file stats from the Repo"""
+        builds_per_machine = {
+            machine: sum(1 for _ in self.get_builds_for_machine(machine))
+            for machine in self.list_machine_names()
+        }
+        return FileStats.collect(repo.files, builds_per_machine)
 
     @staticmethod
     def has_plugin(name: str) -> bool:

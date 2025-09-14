@@ -20,6 +20,7 @@ def index_build(machine: str, build_id: str) -> None:
     logger.info("Saving packages for %s.%s", machine, build_id)
     with gateway.set_process(build, "index"):
         package_utils.index_build(build, repo)
+        gateway.cache_file_stats(gateway.get_file_stats(repo))
 
 
 def deindex_build(machine: str, build_id: str) -> None:
@@ -35,3 +36,4 @@ def deindex_build(machine: str, build_id: str) -> None:
 
     with gateway.set_process(build, "deindex"):
         files.deindex_build(machine, build_id)
+        gateway.cache_file_stats(gateway.get_file_stats(repo))

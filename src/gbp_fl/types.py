@@ -5,9 +5,14 @@ metadata.
 """
 
 import datetime as dt
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import PurePath as Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol, Self
+
+if TYPE_CHECKING:
+    from gbp_fl.records import ContentFiles
+
+STATS_CACHE_KEY = "gbp-fl-stats"
 
 
 @dataclass(frozen=True)
@@ -94,6 +99,57 @@ class ContentFileInfo:
 
     size: int
     """file size in bytes"""
+
+
+@dataclass(kw_only=True, frozen=True)
+class MachineStats:
+    """machine-specific gbp-fl stats
+
+    This data structure includes:
+
+        - total: the total number of files from all packages in all builds for the
+          machine
+        - build_count: the number of builds the machine has
+        - per_build: the average number of files per build. In other words
+          total // build_count
+    """
+
+    total: int = 0
+    build_count: int = 0
+    per_build: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.total > 0 and self.build_count == 0:
+            raise ValueError("Cannot have files but no builds")
+
+        per_build = 0 if self.build_count == 0 else self.total // self.build_count
+        object.__setattr__(self, "per_build", per_build)
+
+
+@dataclass(kw_only=True, frozen=True)
+class FileStats:
+    """gbp-fl aggregated stats"""
+
+    total: int = 0
+    by_machine: dict[str, MachineStats] = field(default_factory=dict)
+
+    @classmethod
+    def collect(cls, files: "ContentFiles", machines_info: dict[str, int]) -> Self:
+        """Given the files repo,  and machine info return the FileStats
+
+        `machines_info` is a dict of machine_name => build_count
+        """
+        by_machine = {
+            machine: MachineStats(
+                total=files.count(machine, None, None),
+                build_count=machines_info[machine],
+            )
+            for machine in machines_info
+        }
+        return cls(
+            total=sum(by_machine[machine].total for machine in machines_info),
+            by_machine=by_machine,
+        )
 
 
 class MissingPackageIdentifier(LookupError):

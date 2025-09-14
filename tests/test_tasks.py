@@ -5,6 +5,7 @@
 
 from unittest import TestCase, mock
 
+from django.core.cache import cache
 from unittest_fixtures import Fixtures, given
 
 from gbp_fl.worker import tasks
@@ -28,6 +29,14 @@ class IndexBuildTests(TestCase):
 
         set_process.assert_called_once_with(build, "index")
 
+    def test_caches_stats(self, fixtures: Fixtures) -> None:
+        build = fixtures.build
+
+        cache.clear()
+        tasks.index_build(build.machine, build.build_id)
+
+        self.assertIsNotNone(cache.get("gbp-fl-stats"))
+
 
 @given(lib.build)
 class DeindexBuildTests(TestCase):
@@ -43,3 +52,11 @@ class DeindexBuildTests(TestCase):
         repo.files.deindex_build.assert_called_once_with(build.machine, build.build_id)
 
         set_process.assert_called_once_with(build, "deindex")
+
+    def test_caches_stats(self, fixtures: Fixtures) -> None:
+        build = fixtures.build
+
+        cache.clear()
+        tasks.deindex_build(build.machine, build.build_id)
+
+        self.assertIsNotNone(cache.get("gbp-fl-stats"))
