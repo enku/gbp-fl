@@ -8,30 +8,11 @@ import gbp_testkit.fixtures as testkit
 from django.core.cache import cache
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.types import Build as GBPBuild
-from unittest_fixtures import Fixtures, given, where
+from unittest_fixtures import Fixtures, given, params, where
 
-from gbp_fl.django.gbp_fl.templatetags.gbp_fl import file_count, gbp_fl_dashboard
 from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats
 
 from . import lib
-
-
-@given(lib.repo, lib.bulk_content_files, cache_clear=lambda _: cache.clear())
-class FileCountTest(TestCase):
-    def test(self, fixtures: Fixtures) -> None:
-        stats = FileStats(
-            total=6,
-            by_machine={
-                "polaris": MachineStats(total=4, build_count=4),
-                "lighthouse": MachineStats(total=2, build_count=1),
-            },
-        )
-        cache.set(STATS_CACHE_KEY, stats)
-
-        result = file_count()
-
-        self.assertEqual(result, 6)
-
 
 CONTENTS = """
     polaris 26 app-arch/tar-1.35-1       /bin/gtar
@@ -41,6 +22,7 @@ CONTENTS = """
 """
 
 
+@params(cached=[False, True])
 @given(testkit.publisher, lib.bulk_content_files, build1=lib.build, build2=lib.build)
 @given(lib.repo, testkit.client)
 @where(bulk_content_files=CONTENTS)
@@ -52,6 +34,9 @@ class MachineDetaiViewTests(TestCase):
         repo.files.bulk_save(fixtures.bulk_content_files)
         publisher.pull(GBPBuild(machine="polaris", build_id="26"))
         publisher.pull(GBPBuild(machine="polaris", build_id="27"))
+
+        if not fixtures.cached:
+            cache.clear()
 
         response = fixtures.client.get("/machines/polaris/")
 
@@ -65,18 +50,9 @@ class MachineDetaiViewTests(TestCase):
 
 
 @given(cache_clear=lambda _: cache.clear())
-class GBPFLDashboardTests(TestCase):
-    def test_contains_file_by_machines(self, fixtures: Fixtures) -> None:
-        result = gbp_fl_dashboard()
-
-        self.assertIn("files_by_machine", result)
-
-    def test_empty(self, fixtures: Fixtures) -> None:
-        result = gbp_fl_dashboard()
-
-        self.assertEqual(result, {"files_by_machine": FileStats().by_machine})
-
-    def test_cached_value(self, fixtures: Fixtures) -> None:
+@given(testkit.client)
+class DashboardViewTests(TestCase):
+    def test_files_circle(self, fixtures: Fixtures) -> None:
         stats = FileStats(
             total=6,
             by_machine={
@@ -86,6 +62,26 @@ class GBPFLDashboardTests(TestCase):
         )
         cache.set(STATS_CACHE_KEY, stats)
 
-        result = gbp_fl_dashboard()
+        response = fixtures.client.get("/")
 
-        self.assertEqual(result, {"files_by_machine": {"lighthouse": 2, "polaris": 4}})
+        self.assertRegex(response.text, r">6</text></svg>\s*<h2>Files</h2>")
+
+    def test_files_chart(self, fixtures: Fixtures) -> None:
+        stats = FileStats(
+            total=6,
+            by_machine={
+                "polaris": MachineStats(total=4, build_count=4),
+                "lighthouse": MachineStats(total=2, build_count=1),
+            },
+        )
+        cache.set(STATS_CACHE_KEY, stats)
+
+        response = fixtures.client.get("/")
+
+        expected = (
+            '<script id="machineFiles" type="application/json">{'
+            '"polaris": {"total": 4, "build_count": 4, "per_build": 1}, '
+            '"lighthouse": {"total": 2, "build_count": 1, "per_build": 2}'
+            "}</script>"
+        )
+        self.assertIn(expected, response.text)

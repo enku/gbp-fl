@@ -1,6 +1,6 @@
 function filesByMachineChart() {
   const machineFiles = JSON.parse(document.getElementById('machineFiles').textContent);
-  const fileCounts = Array.from(machines, (machine) => machineFiles[machine]);
+  const fileCounts = Array.from(machines, (machine) => machineFiles[machine].total);
   const filesByMachineConfig = {
     type: 'bar',
     responsive: true,

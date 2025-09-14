@@ -1,5 +1,6 @@
 """Template tags for gbp-fl"""
 
+from dataclasses import asdict
 from typing import Any, cast
 
 from django import template
@@ -14,12 +15,6 @@ register = template.Library()
 
 
 @register.simple_tag
-def file_count() -> int:
-    """Return the total number of files in the repo"""
-    return get_stats().total
-
-
-@register.simple_tag
 def machine_file_count(machine: str) -> MachineStats:
     """Return the total and average file counts for the given machine"""
     by_machine = get_stats().by_machine
@@ -28,15 +23,9 @@ def machine_file_count(machine: str) -> MachineStats:
 
 
 @register.simple_tag
-def gbp_fl_dashboard() -> dict[str, Any]:
-    """Return the gbp-fl context for the dashboard view"""
-    by_machine = get_stats().by_machine
-
-    return {
-        "files_by_machine": {
-            machine: value.total for machine, value in by_machine.items()
-        }
-    }
+def file_stats() -> dict[str, Any]:
+    """Return the current FileStats"""
+    return asdict(get_stats())
 
 
 def get_stats() -> FileStats:

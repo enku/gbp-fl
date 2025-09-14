@@ -3,6 +3,6 @@
 {% load gbp %}
 {% block dashboard_metrics %}
     {{ block.super }}
-    {% file_count as files %}
-    {% circle files "Files" %}
+    {% file_stats as stats %}
+    {% circle stats.total "Files" %}
 {% endblock %}
