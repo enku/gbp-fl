@@ -52,6 +52,11 @@ class GBPGateway:
         dispatcher = self._dispatcher
         dispatcher.emit(signal, **kwargs)
 
+    def register_signal(self, name: str) -> None:
+        """Register the given signal with GBP's dispatcher"""
+        dispatcher = self._dispatcher
+        dispatcher.register_event(name)
+
     def list_machine_names(self) -> list[str]:
         """Return the list of machines that GBP holds builds for"""
         from gentoo_build_publisher import publisher

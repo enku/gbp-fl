@@ -216,3 +216,20 @@ class HasPluginTests(TestCase):
 
     def test_false(self) -> None:
         self.assertFalse(gw.GBPGateway.has_plugin("bogus"))
+
+
+class RegisterSignalTests(TestCase):
+    def test(self) -> None:
+        gbp = gw.GBPGateway()
+        arg = "not called"
+
+        def handler(a: str) -> None:
+            nonlocal arg
+
+            arg = a
+
+        gbp.register_signal("RegisterSignalTests")
+        gbp.receive_signal(handler, "RegisterSignalTests")
+        gbp.emit_signal("RegisterSignalTests", a="called")
+
+        self.assertEqual(arg, "called")
