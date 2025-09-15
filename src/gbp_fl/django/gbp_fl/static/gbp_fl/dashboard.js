@@ -1,3 +1,5 @@
+/* global Chart, machines, gradientColors */
+
 function filesByMachineChart() {
   const machineFiles = JSON.parse(document.getElementById('machineFiles').textContent);
   const fileCounts = Array.from(machines, (machine) => machineFiles[machine].total);
