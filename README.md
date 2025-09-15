@@ -78,6 +78,8 @@ through the web interface.
 From the command-line interface, the `fl` subcommand is automatically made
 available after installation.
 
+### search
+
 To search for files, for example.
 
 ```
@@ -92,6 +94,17 @@ search to an particular screen name, use the `-m` argument.
 
 The search command displays the machine, build, package and path of the files
 that are a match. In addition the file size and timestamp are displayed.
+
+
+### stats
+
+File statistics for all your builds can be displayed with the `stats`
+subcommand:
+
+![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/stats.svg)
+
+
+### fetch
 
 The binpkg files can even be downloaded to the local machine using the `fetch`
 command:

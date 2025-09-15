@@ -13,10 +13,23 @@ type flContentFile {
   size: Int!
 }
 
+type flMachineStats {
+  machine: String!
+  total: Int!
+  buildCount: Int!
+  perBuild: Int!
+}
+
+type flFileStats {
+  total: Int!
+  byMachine: [flMachineStats!]!
+}
+
 extend type Query {
   flSearch(key: String!, machine: String): [flContentFile!]!
   flSearchV2(key: String!, machines: [String!]): [flContentFile!]!
   flCount(machine: String, buildId: String): Int!
   flList(machine: String!, buildId: String!, cpvb: String!): [flContentFile!]!
   flListPackages(machine: String!, buildId: String!): [flBinPkg!]!
+  flStats: flFileStats!
 }

@@ -1,0 +1,11 @@
+query stats {
+  flStats {
+    total
+    byMachine {
+      machine
+      total
+      buildCount
+      perBuild
+    }
+  }
+}

@@ -13,7 +13,7 @@ from gbpcli.gbp import GBP
 from gbpcli.types import Console
 
 HELP = "Access the Gentoo Build Publisher File List"
-SUBCOMMANDS = ("fetch", "ls", "search")
+SUBCOMMANDS = ("fetch", "ls", "search", "stats")
 
 
 def handler(args: argparse.Namespace, _gbp: GBP, console: Console) -> int:
