@@ -125,7 +125,7 @@ ability to fetch individual files from individual packages, etc.  Also the
 gbp-fl us both a plugin for Gentoo Build Publisher (server) and gbpcli
 (client), much like gbp-ps.
 
-There are 4 main components to **gbp-fl**:
+There are 5 main components to **gbp-fl**:
 
 - The database layer where file metadata are indexes. There is an abstract
   interface for this with different backends able to support the interface.
