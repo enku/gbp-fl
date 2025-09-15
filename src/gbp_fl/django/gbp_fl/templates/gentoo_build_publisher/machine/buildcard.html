@@ -1,9 +1,10 @@
 {% extends "gentoo_build_publisher/machine/buildcard.html" %}
 {% load gbp %}
 {% load gbp_fl %}
+{% load l10n %}
 {% block build-card-items %}
 {{ block.super }}
 {% machine_file_count machine as counts %}
-{% card_item "Files" counts.total True %}
-{% card_item "Files per build" counts.per_build True %}
+{% card_item "Files" counts.total|localize True %}
+{% card_item "Files per build" counts.per_build|localize True %}
 {% endblock %}
