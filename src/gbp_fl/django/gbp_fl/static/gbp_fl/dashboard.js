@@ -1,4 +1,4 @@
-/* global Chart, machines, gradientColors */
+/* global Chart, machines, gradientColors, barBorderRadius */
 
 function filesByMachineChart() {
   const machineFiles = JSON.parse(document.getElementById('machineFiles').textContent);
@@ -8,7 +8,13 @@ function filesByMachineChart() {
     responsive: true,
     data: {
       labels: machines,
-      datasets: [{ data: fileCounts, backgroundColor: gradientColors }],
+      datasets: [
+        {
+          data: fileCounts,
+          backgroundColor: gradientColors,
+          borderRadius: barBorderRadius,
+        },
+      ],
     },
     options: {
       animations: false,
