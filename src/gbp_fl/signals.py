@@ -24,5 +24,9 @@ def gbp_build_deleted(*, build: BuildLike) -> None:
 
 def init() -> None:
     """Initialize"""
+    gateway.register_signal("gbp_fl_preindex")
+    gateway.register_signal("gbp_fl_postindex")
+    gateway.register_signal("gbp_fl_predeindex")
+    gateway.register_signal("gbp_fl_postdeindex")
     gateway.receive_signal(gbp_build_pulled, "postpull")
     gateway.receive_signal(gbp_build_deleted, "postdelete")

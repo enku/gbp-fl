@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
-from unittest_fixtures import Fixtures, fixture, given, where
+from unittest_fixtures import Fixtures, fixture, given, params, where
 
 from gbp_fl import gateway
 from gbp_fl.records import Repo
@@ -109,6 +109,24 @@ class GetPackageContentsTests(TestCase):
         contents = gbp.get_package_contents(f.build_record, f.gbp_package)
 
         self.assertEqual(len(list(contents)), 19)
+
+
+@params(signal=["preindex", "postindex", "predeindex", "postdeindex"])
+class RegisterSignalTests(TestCase):
+    def test(self, fixtures: Fixtures) -> None:
+        signal = f"gbp_fl_{fixtures.signal}"
+        called = False
+
+        def handler(machine: str, build_id: str) -> None:
+            nonlocal called
+
+            called = True
+
+        gbp = gateway.GBPGateway()
+        gbp.receive_signal(handler, signal)
+
+        gbp.emit_signal(signal, machine="babette", build_id="123")
+        self.assertTrue(called)
 
 
 PACKAGES = """\
