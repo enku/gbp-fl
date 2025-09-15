@@ -18,9 +18,12 @@ def index_build(machine: str, build_id: str) -> None:
     repo = Repo.from_settings(Settings.from_environ())
 
     logger.info("Saving packages for %s.%s", machine, build_id)
+    gateway.emit_signal("gbp_fl_preindex", machine=machine, build_id=build_id)
+
     with gateway.set_process(build, "index"):
         package_utils.index_build(build, repo)
-        gateway.cache_file_stats(gateway.get_file_stats(repo))
+
+    gateway.emit_signal("gbp_fl_postindex", machine=machine, build_id=build_id)
 
 
 def deindex_build(machine: str, build_id: str) -> None:
@@ -34,6 +37,9 @@ def deindex_build(machine: str, build_id: str) -> None:
     files = repo.files
     build = Build(machine=machine, build_id=build_id)
 
+    gateway.emit_signal("gbp_fl_predeindex", machine=machine, build_id=build_id)
+
     with gateway.set_process(build, "deindex"):
         files.deindex_build(machine, build_id)
-        gateway.cache_file_stats(gateway.get_file_stats(repo))
+
+    gateway.emit_signal("gbp_fl_postdeindex", machine=machine, build_id=build_id)
