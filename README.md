@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/enku/screenshots/master/gbp-fl/dashboard-chart.png" alt"Dashboard chart" width-100%">
+</p>
+
 # gbp-fl
 
 A [pfl](https://www.portagefilelist.de/)-inspired plugin for [Gentoo Build
@@ -127,3 +131,6 @@ There are 4 main components to **gbp-fl**:
 - The CLI layer plugs into the gbpcli command-line interface to add the `fl`
   subcommand (and gbp-fl's own sub-subcommands) then it accesses the GraphQL
   interface on the server to make queries based on the commands.
+
+- The Django layer plugs into the Gentoo Build Publisher Django templates to
+  provide additional UI elements to the dashboard and machine details pages.
