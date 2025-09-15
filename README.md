@@ -104,6 +104,18 @@ subcommand:
 ![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/stats.svg)
 
 
+### ls
+
+The `ls` command is used to list the contents of a specific binpkg in a
+specific build. For example to list the contents of the `app-arch/tar-1.35-1`
+binpkg in the build `lighthouse.34`:
+
+![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/ls.svg)
+
+Without the `-l` flag the files are displayed as a simple list of files (akin
+to `/bin/ls -1`.
+
+
 ### fetch
 
 The binpkg files can even be downloaded to the local machine using the `fetch`
