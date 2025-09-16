@@ -113,7 +113,7 @@ binpkg in the build `lighthouse.34`:
 ![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/ls.svg)
 
 Without the `-l` flag the files are displayed as a simple list of files (akin
-to `/bin/ls -1`.
+to `/bin/ls -1`).
 
 
 ### fetch
@@ -126,11 +126,6 @@ $ gbp fl fetch <pkgspec>
 ```
 
 ![screenshot](https://raw.githubusercontent.com/enku/screenshots/refs/heads/master/gbp-fl/fetch.svg)
-
-Other commands are forthcoming, for example `gbp fl stats` to display
-statistics about files in a given build/machine. `gbp fl fetch` will gain the
-ability to fetch individual files from individual packages, etc.  Also the
-"special"  `--mine` argument will be added to `gbp fl search`
 
 ## Architecture
 
