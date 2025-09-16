@@ -17,13 +17,14 @@ access gbp-local attributes or else type checkers will holler.
 from contextlib import contextmanager
 from pathlib import PurePath as Path
 from tarfile import TarFile, TarInfo
-from typing import Any, Callable, Iterator, ParamSpec, cast
-
-from pydispatch import Dispatcher  # type: ignore
+from typing import TYPE_CHECKING, Any, Callable, Iterator, ParamSpec, cast
 
 from gbp_fl import utils
 from gbp_fl.records import Repo
 from gbp_fl.types import Build, BuildLike, FileStats, MissingPackageIdentifier, Package
+
+if TYPE_CHECKING:
+    from gentoo_build_publisher import signals
 
 P = ParamSpec("P")
 
@@ -208,7 +209,7 @@ class GBPGateway:
         return any(plugin.name == name for plugin in plugins.get_plugins())
 
     @property
-    def _dispatcher(self) -> Dispatcher:
+    def _dispatcher(self) -> "signals.PublisherDispatcher":
         """Return the GBP signal dispatcher.
 
         Warning: this method leaks!

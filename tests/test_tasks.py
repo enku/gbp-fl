@@ -29,7 +29,8 @@ class IndexBuildTests(TestCase):
 
         set_process.assert_called_once_with(build, "index")
 
-    def test_caches_stats(self, fixtures: Fixtures) -> None:
+    @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
+    def test_caches_stats(self, _, fixtures: Fixtures) -> None:
         build = fixtures.build
 
         cache.clear()

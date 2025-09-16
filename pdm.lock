@@ -5,7 +5,7 @@
 groups = ["default", "dev", "server"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:86c10bf44fefd4c063b0186dd2e7a5abb6a3d10ebd8cc4de98ea92ae456538fe"
+content_hash = "sha256:d614a69472f7d51e2df9dff7d7dc8f2e3281e2e166354095f281b448f9146958"
 
 [[metadata.targets]]
 requires_python = ">=3.11"
@@ -151,6 +151,17 @@ files = [
     {file = "black-25.1.0-cp313-cp313-win_amd64.whl", hash = "sha256:a22f402b410566e2d1c950708c77ebf5ebd5d0d88a6a2e87c86d9fb48afa0d18"},
     {file = "black-25.1.0-py3-none-any.whl", hash = "sha256:95e8176dae143ba9097f351d174fdaf0ccd29efb414b362ae3fd72bf0f710717"},
     {file = "black-25.1.0.tar.gz", hash = "sha256:33496d5cd1222ad73391352b4ae8da15253c5de89b93a80b3e2c8d9a19ec2666"},
+]
+
+[[package]]
+name = "blinker"
+version = "1.9.0"
+requires_python = ">=3.9"
+summary = "Fast, simple object-to-object and broadcast signaling"
+groups = ["dev", "server"]
+files = [
+    {file = "blinker-1.9.0-py3-none-any.whl", hash = "sha256:ba0efaa9080b619ff2f3459d1d500c57bddea4a6b424b60a91141db6fd2f08bc"},
+    {file = "blinker-1.9.0.tar.gz", hash = "sha256:b4ce2265a7abece45e7cc896e98dbebe6cead56bcf805a3d23136d145f5445bf"},
 ]
 
 [[package]]
@@ -715,7 +726,7 @@ files = [
 
 [[package]]
 name = "gbpcli"
-version = "3.1.2"
+version = "3.2.0"
 requires_python = ">=3.11"
 summary = "Gentoo Build Publisher Command-Line Interface"
 groups = ["default", "dev", "server"]
@@ -729,28 +740,28 @@ dependencies = [
     "yarl",
 ]
 files = [
-    {file = "gbpcli-3.1.2-py3-none-any.whl", hash = "sha256:6afca7d4d1c921749dfea7d21ab1d2bd8d38f4a64da3dece110d883a94c89333"},
-    {file = "gbpcli-3.1.2.tar.gz", hash = "sha256:8aecfdf45402f10f30911ec125617ad0fe50cb3cbece667a2a66e0dcdd4945e2"},
+    {file = "gbpcli-3.2.0-py3-none-any.whl", hash = "sha256:9e201cb75d9165c517d9537f503bd8abd8b5cc75c3c56ac05805b07bdc74e885"},
+    {file = "gbpcli-3.2.0.tar.gz", hash = "sha256:c59c4fb8e242511ad3fe308dfdf774bbfcad17b17bb1eda888e769f088baff4f"},
 ]
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.8.1.dev45"
+version = "3.0.0"
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "bda91eac2de6bb6b3c814ba810a5e8ad2d658184"
+revision = "11023a987ccd3963b423bae64797f3dfa104a238"
 summary = "Gentoo Build Publisher"
 groups = ["dev", "server"]
 dependencies = [
     "ariadne-django",
     "ariadne>=0.14.0",
+    "blinker>=1.9.0",
     "celery[msgpack]",
     "cryptography>=42.0.4",
     "django",
     "gbpcli>=3.0.0",
     "orjson>=3.9.1",
-    "python-dispatch>=0.2.1",
     "requests",
     "rich>=13.7.0",
     "yarl!=1.9.1",
@@ -758,12 +769,12 @@ dependencies = [
 
 [[package]]
 name = "gentoo-build-publisher"
-version = "2.8.1.dev45"
+version = "3.0.0"
 extras = ["test"]
 requires_python = ">=3.11"
 git = "https://github.com/enku/gentoo-build-publisher.git"
 ref = "master"
-revision = "bda91eac2de6bb6b3c814ba810a5e8ad2d658184"
+revision = "11023a987ccd3963b423bae64797f3dfa104a238"
 summary = "Gentoo Build Publisher"
 groups = ["dev"]
 dependencies = [
@@ -1335,16 +1346,6 @@ dependencies = [
 files = [
     {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
     {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
-]
-
-[[package]]
-name = "python-dispatch"
-version = "0.2.2"
-summary = "Lightweight Event Handling"
-groups = ["dev", "server"]
-files = [
-    {file = "python-dispatch-0.2.2.tar.gz", hash = "sha256:d05278ff76625a53865c92ca6b5069e82c27b5741999f7ec737c64180f0123e6"},
-    {file = "python_dispatch-0.2.2-py3-none-any.whl", hash = "sha256:0305898bf011fb164bb21e0f48809cf21faee6d8ea311177bd9a43f86201b9cd"},
 ]
 
 [[package]]
