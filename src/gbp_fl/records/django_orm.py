@@ -179,7 +179,7 @@ class ContentFiles:
 
     def get_builds(self) -> Iterable[Build]:
         """Return all the builds that have indexed files"""
-        query = session.values("machine", "build_id").distinct()
+        query = session.values("machine", "build_id").distinct().order_by()
 
         return (Build(machine=i["machine"], build_id=i["build_id"]) for i in query)
 
