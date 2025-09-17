@@ -177,6 +177,12 @@ class ContentFiles:
 
         yield from (model_to_content_file(model) for model in query)
 
+    def get_builds(self) -> Iterable[Build]:
+        """Return all the builds that have indexed files"""
+        query = session.values("machine", "build_id").distinct()
+
+        return (Build(machine=i["machine"], build_id=i["build_id"]) for i in query)
+
     def maybe_delete(self, content_file: ContentFile) -> bool:
         """Delete the object given ContentFile from the database
 

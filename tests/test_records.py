@@ -11,7 +11,7 @@ from unittest_fixtures import Fixtures, given, params
 
 from gbp_fl.records import ContentFiles, RecordNotFound, Repo, django_orm, files_backend
 from gbp_fl.settings import Settings
-from gbp_fl.types import ContentFile
+from gbp_fl.types import Build, ContentFile
 
 from . import lib
 
@@ -277,6 +277,19 @@ class ContentFilesTests(TestCase):
         content_file = files.save(content_file, path="/dev/null")
 
         self.assertEqual("/dev/null", content_file.path)
+
+    def test_get_builds(self, fixtures: Fixtures) -> None:
+        files = fixtures.files
+        files.bulk_save(fixtures.bulk_content_files)
+
+        builds = set(files.get_builds())
+
+        expected = {
+            Build(machine="lighthouse", build_id="34"),
+            Build(machine="polaris", build_id="26"),
+            Build(machine="polaris", build_id="27"),
+        }
+        self.assertEqual(builds, expected)
 
 
 class ContentFilesBackendTests(TestCase):

@@ -5,7 +5,7 @@ from dataclasses import replace
 from pathlib import PurePath as Path
 from typing import Any, Iterable
 
-from gbp_fl.types import ContentFile
+from gbp_fl.types import Build, ContentFile
 
 from . import RecordNotFound
 
@@ -184,6 +184,10 @@ class ContentFiles:
                 continue
             if matcher(content_file, key):
                 yield content_file
+
+    def get_builds(self) -> Iterable[Build]:
+        """Return all the builds that have indexed files"""
+        return {Build(machine=i[0], build_id=i[1]) for i in self.files}
 
 
 def exact_match_checker(content_file: ContentFile, key: str) -> bool:

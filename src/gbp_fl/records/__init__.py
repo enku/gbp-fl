@@ -102,6 +102,9 @@ class ContentFiles(Protocol):  # pragma: no cover
               backend and are not guaranteed to provide the expected matches.
         """
 
+    def get_builds(self) -> Iterable[Build]:
+        """Return all the builds that have indexed files"""
+
 
 def files_backend(backend: str) -> ContentFiles:
     """Load the ContentFiles db interface given the settings"""
