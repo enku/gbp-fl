@@ -23,6 +23,7 @@ class AllIndicesHaveBuildsTests(TestCase):
     def test_good(self, fixtures: Fixtures) -> None:
         repo = fixtures.repo
         repo.files.bulk_save(fixtures.bulk_content_files)
+        publisher.pull(GBPBuild(machine="lighthouse", build_id="34"))
         publisher.pull(GBPBuild(machine="polaris", build_id="26"))
         publisher.pull(GBPBuild(machine="polaris", build_id="27"))
 
@@ -33,15 +34,19 @@ class AllIndicesHaveBuildsTests(TestCase):
     def test_bad(self, fixtures: Fixtures) -> None:
         repo = fixtures.repo
         repo.files.bulk_save(fixtures.bulk_content_files)
-        publisher.pull(GBPBuild(machine="polaris", build_id="26"))
+        publisher.pull(GBPBuild(machine="polaris", build_id="27"))
         console = fixtures.console
 
         status = checks.all_indices_have_builds(console)
 
-        self.assertEqual(status, (0, 1))
+        self.assertEqual(status, (0, 2))
+        lines = set(console.stderr.strip().split("\n"))
         self.assertEqual(
-            console.stderr,
-            "Warning: an index exists for build polaris.27 that does not exist.\n",
+            lines,
+            {
+                "Warning: an index exists for build lighthouse.34 that does not exist.",
+                "Warning: an index exists for build polaris.26 that does not exist.",
+            },
         )
 
 
