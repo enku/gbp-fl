@@ -24,17 +24,7 @@ def gbp_build_deleted(*, build: BuildLike) -> None:
     gateway.run_task(tasks.deindex_build, build.machine, build.build_id)
 
 
-def gbp_fl_postindex(**_kwargs: Any) -> None:
-    """Post index signal handler"""
-    cache_stats()
-
-
-def gbp_fl_postdeindex(**_kwargs: Any) -> None:
-    """Post deindex signal handler"""
-    cache_stats()
-
-
-def cache_stats() -> None:
+def cache_stats(**_kwargs: Any) -> None:
     """Signal handler for the the the postindex/postdeindex events
 
     Updates the stats cache.
@@ -53,5 +43,5 @@ def init() -> None:
 
     gateway.receive_signal(gbp_build_pulled, "postpull")
     gateway.receive_signal(gbp_build_deleted, "postdelete")
-    gateway.receive_signal(gbp_fl_postindex, "gbp_fl_postindex")
-    gateway.receive_signal(gbp_fl_postdeindex, "gbp_fl_postdeindex")
+    gateway.receive_signal(cache_stats, "gbp_fl_postindex")
+    gateway.receive_signal(cache_stats, "gbp_fl_postdeindex")
