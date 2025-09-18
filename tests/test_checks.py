@@ -16,6 +16,7 @@ from . import lib
 
 @given(testkit.publisher, lib.bulk_content_files, build1=lib.build, build2=lib.build)
 @given(lib.repo, testkit.console, set_process=testkit.patch)
+@given(cache_clear=lambda _: checks.get_builds.cache_clear())
 @where(build1__build="polaris.26")
 @where(build2__build="polaris.27")
 @where(set_process__target="gbp_ps.signals.set_process")
@@ -52,6 +53,7 @@ class AllIndicesHaveBuildsTests(TestCase):
 
 @given(testkit.publisher, lib.bulk_content_files, build1=lib.build, build2=lib.build)
 @given(lib.repo, testkit.console, set_process=testkit.patch)
+@given(cache_clear=lambda _: checks.get_builds.cache_clear())
 @where(build1__build="polaris.26")
 @where(build2__build="polaris.27")
 @where(set_process__target="gbp_ps.signals.set_process")
