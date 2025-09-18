@@ -4,5 +4,5 @@
 {% block dashboard_metrics %}
     {{ block.super }}
     {% file_stats as stats %}
-    {% circle stats.total "Files" %}
+    {% metric stats.total "Files" %}
 {% endblock %}

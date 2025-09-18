@@ -52,7 +52,7 @@ class MachineDetaiViewTests(TestCase):
 @given(cache_clear=lambda _: cache.clear())
 @given(testkit.client)
 class DashboardViewTests(TestCase):
-    def test_files_circle(self, fixtures: Fixtures) -> None:
+    def test_files_metric(self, fixtures: Fixtures) -> None:
         stats = FileStats(
             total=6,
             by_machine={
@@ -64,7 +64,11 @@ class DashboardViewTests(TestCase):
 
         response = fixtures.client.get("/")
 
-        self.assertRegex(response.text, r">6</text></svg>\s*<h2>Files</h2>")
+        expected = """<div class="col-lg metric" align="center">
+  <span class="number" title="">6</span>
+  <h2 class="label">Files</h2>
+</div>"""
+        self.assertIn(expected, response.text)
 
     def test_files_chart(self, fixtures: Fixtures) -> None:
         stats = FileStats(
