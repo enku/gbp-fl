@@ -6,11 +6,10 @@ from typing import Iterable
 import requests
 from gbpcli.gbp import GBP
 from gbpcli.types import Console
+from gbpcli.utils import resolve_build_id
 from yarl import URL
 
 from gbp_fl import utils
-
-from . import resolve_build_id
 
 BUFSIZE = 1024
 HELP = "Get package files from Gentoo Build Publisher"
@@ -22,9 +21,9 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         console.err.print(f"[red]Invalid specifier: {args.pkgspec}[/red]")
         return 1
 
-    build_id = resolve_build_id(spec.machine, spec.build_id, gbp) or ""
+    build = resolve_build_id(spec.machine, spec.build_id, gbp)
     path = (
-        f"machines/{spec.machine}/builds/{build_id}/packages/{spec.c}"
+        f"machines/{spec.machine}/builds/{build.number}/packages/{spec.c}"
         f"/{spec.p}/{spec.p}-{spec.v}-{spec.b}"
     )
     url = URL(gbp.query._url).origin() / path  # pylint: disable=protected-access

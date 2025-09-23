@@ -7,12 +7,11 @@ from typing import TypedDict
 from gbpcli import render
 from gbpcli.gbp import GBP
 from gbpcli.types import Console
+from gbpcli.utils import resolve_build_id
 from rich import box
 from rich.table import Table
 
 from gbp_fl import utils
-
-from . import resolve_build_id
 
 HELP = "List files in a package"
 
@@ -31,7 +30,7 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         console.err.print(f"[red]Invalid specifier: {args.pkgspec}[/red]")
         return 1
 
-    build_id = resolve_build_id(spec.machine, spec.build_id, gbp) or ""
+    build_id = str(resolve_build_id(spec.machine, spec.build_id, gbp).number)
     response, _ = gbp.query.gbp_fl.list(  # type: ignore
         machine=spec.machine, buildId=build_id, cpvb=spec.cpvb, extended=args.long
     )

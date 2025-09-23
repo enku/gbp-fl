@@ -41,16 +41,3 @@ def print_usage(io: IO[str]) -> None:
 
     for subcommand in SUBCOMMANDS:
         uprint(f"  {subcommand}")
-
-
-def resolve_build_id(machine: str, build_id_or_tag: str, gbp: GBP) -> str | None:
-    """Return build_id or the the build_id for the given tag
-
-    If the given tag does not resolve to a build, return None.
-    """
-    if not build_id_or_tag.startswith("@"):
-        return build_id_or_tag
-
-    build = gbp.resolve_tag(machine, build_id_or_tag[1:])
-
-    return str(build.number) if build else None
