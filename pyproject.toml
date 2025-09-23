@@ -5,7 +5,7 @@ description = "pfl-inspired plugin for Gentoo Build Publisher"
 authors = [
     {name = "Albert Hopkins", email = "marduk@letterboxes.org"},
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "GPL-3+"}
 dependencies = ["gbpcli>=2.4.1", "yarl>=1.18.3", "requests>=2.32.3", "rich>=13.9.4"]
