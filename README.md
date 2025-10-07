@@ -32,6 +32,15 @@ package on one machine to use on another.  Who knows.
 
 ## Installation
 
+> Note: That this plugin uses the Python tar implementation to inspect binpkg
+> files. The default compression format used by Gentoo's binpkgs is zstandard.
+> However Python versions older than 3.14 do not support the zstandard
+> compression format. Therefore if using Python <= 3.14 it is required to use
+> a non-default compression format compatible with your version of Python, for
+> example in `/etc/portage/make.conf`:
+>
+> `BINPKG_COMPRESS=xz`
+
 ### Server Plugin
 
 To use gbp-fl you must first install the plugin on the GBP server. This
