@@ -9,12 +9,13 @@ from unittest.mock import Mock
 import gbp_testkit.fixtures as testkit
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
+from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given
 
-from gbp_fl.types import BinPkg, Build
+from gbp_fl.types import STATS_CACHE_KEY, BinPkg, Build
 
 from . import lib
 
@@ -199,3 +200,48 @@ class FlListPackages(TestCase):
             {"cpvb": "app-crypt/gpgme-1.14.0-1", "files": []},
         ]
         self.assertEqual(expected, result["data"]["flListPackages"])
+
+
+@given(lib.stats, testkit.client, testkit.publisher)
+class MachineSummaryStatsTests(TestCase):
+    def test(self, fixtures: Fixtures) -> None:
+        f = fixtures
+        stats = f.stats
+        mstats = stats.by_machine
+
+        for machine in mstats:
+            publisher.pull(GBPBuild(machine=machine, build_id="test"))
+
+        cache.clear()
+        cache.set(STATS_CACHE_KEY, stats)
+
+        query = """
+          query {
+            machines {
+              machine
+              fileStats {
+                total
+                perBuild
+              }
+            }
+        }
+        """
+        result = graphql(f.client, query)
+
+        expected = [
+            {
+                "machine": "lighthouse",
+                "fileStats": {
+                    "perBuild": mstats["lighthouse"].per_build,
+                    "total": mstats["lighthouse"].total,
+                },
+            },
+            {
+                "machine": "polaris",
+                "fileStats": {
+                    "perBuild": mstats["polaris"].per_build,
+                    "total": mstats["polaris"].total,
+                },
+            },
+        ]
+        self.assertEqual(expected, result["data"]["machines"])

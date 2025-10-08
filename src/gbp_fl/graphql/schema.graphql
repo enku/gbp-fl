@@ -25,6 +25,10 @@ type flFileStats {
   byMachine: [flMachineStats!]!
 }
 
+extend type MachineSummary {
+  fileStats: flMachineStats!
+}
+
 extend type Query {
   flSearch(key: String!, machine: String): [flContentFile!]!
   flSearchV2(key: String!, machines: [String!]): [flContentFile!]!
