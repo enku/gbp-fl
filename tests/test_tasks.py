@@ -5,7 +5,7 @@
 
 from unittest import TestCase, mock
 
-from django.core.cache import cache
+from gentoo_build_publisher.cache import cache
 from unittest_fixtures import Fixtures, given
 
 from gbp_fl.worker import tasks
@@ -30,7 +30,7 @@ class IndexBuildTests(TestCase):
         set_process.assert_called_once_with(build, "index")
 
     @mock.patch("gbp_fl.gateway.GBPGateway.set_process")
-    def test_caches_stats(self, _, fixtures: Fixtures) -> None:
+    def test_caches_stats(self, _: mock.Mock, fixtures: Fixtures) -> None:
         build = fixtures.build
 
         cache.clear()

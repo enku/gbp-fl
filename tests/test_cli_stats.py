@@ -3,8 +3,8 @@
 # pylint: disable=missing-docstring
 from unittest import TestCase
 
-from django.core.cache import cache
 from gbp_testkit import fixtures as testkit
+from gentoo_build_publisher.cache import cache
 from unittest_fixtures import Fixtures, fixture, given, where
 
 from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats

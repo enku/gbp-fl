@@ -5,7 +5,7 @@ from functools import partial
 from typing import Any, TypeAlias, TypedDict, cast
 
 from ariadne import ObjectType, convert_kwargs_to_snake_case
-from django.core.cache import cache
+from gentoo_build_publisher.cache import cache
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import gateway

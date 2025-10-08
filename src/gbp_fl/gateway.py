@@ -187,11 +187,11 @@ class GBPGateway:
 
     def cache_file_stats(self, stats: FileStats) -> None:
         """Save the given FileStats to Django's cache"""
-        from django.core.cache import cache
+        from gentoo_build_publisher.cache import cache
 
         from gbp_fl.types import STATS_CACHE_KEY
 
-        cache.set(STATS_CACHE_KEY, stats, timeout=None)
+        cache.set(STATS_CACHE_KEY, stats)
 
     def get_file_stats(self, repo: Repo) -> FileStats:
         """Calculate the current file stats from the Repo"""

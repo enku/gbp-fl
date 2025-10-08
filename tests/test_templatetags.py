@@ -5,8 +5,8 @@
 from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
-from django.core.cache import cache
 from gentoo_build_publisher import publisher
+from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, params, where
 

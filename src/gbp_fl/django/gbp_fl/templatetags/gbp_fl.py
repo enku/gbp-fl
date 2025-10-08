@@ -4,7 +4,7 @@ from dataclasses import asdict
 from typing import Any, cast
 
 from django import template
-from django.core.cache import cache
+from gentoo_build_publisher.cache import cache
 
 from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
@@ -40,6 +40,6 @@ def get_stats() -> FileStats:
     repo = Repo.from_settings(Settings.from_environ())
     stats = gateway.get_file_stats(repo)
 
-    cache.set(STATS_CACHE_KEY, stats, timeout=None)
+    cache.set(STATS_CACHE_KEY, stats)
 
     return stats
