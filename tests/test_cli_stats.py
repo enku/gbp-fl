@@ -4,32 +4,12 @@
 from unittest import TestCase
 
 from gbp_testkit import fixtures as testkit
-from gentoo_build_publisher.cache import cache
-from unittest_fixtures import Fixtures, fixture, given, where
-
-from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats
+from unittest_fixtures import Fixtures, given, where
 
 from . import lib
 
 
-@fixture()
-def stats_fixture(_: Fixtures) -> FileStats:
-    return FileStats(
-        total=9605802 + 9540343,
-        by_machine={
-            "polaris": MachineStats(total=9605802, build_count=33),
-            "lighthouse": MachineStats(total=9540343, build_count=35),
-        },
-    )
-
-
-@fixture(stats_fixture)
-def cached_stats(fixtures: Fixtures) -> None:
-    cache.clear()
-    cache.set(STATS_CACHE_KEY, fixtures.stats)
-
-
-@given(cached_stats, lib.environ, testkit.gbpcli)
+@given(lib.cached_stats, lib.environ, testkit.gbpcli)
 @where(environ={"GBPCLI_MYMACHINES": "lighthouse", "LC_NUMERIC": "en_US.utf8"})
 class StatsTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:

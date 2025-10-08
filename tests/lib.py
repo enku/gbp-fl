@@ -13,11 +13,21 @@ from unittest import mock
 from gbp_testkit import fixtures as testkit
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
+from gentoo_build_publisher.cache import cache
 from unittest_fixtures import FixtureContext, Fixtures, fixture
 
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
-from gbp_fl.types import BinPkg, Build, BuildLike, ContentFile, Package
+from gbp_fl.types import (
+    STATS_CACHE_KEY,
+    BinPkg,
+    Build,
+    BuildLike,
+    ContentFile,
+    FileStats,
+    MachineStats,
+    Package,
+)
 
 DEFAULT_CONTENTS = """
     lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
@@ -288,3 +298,20 @@ def package(
     return Package(
         cpv=cpv, repo=repo, build_id=build_id, build_time=build_time, path=path
     )
+
+
+@fixture()
+def stats(_: Fixtures) -> FileStats:
+    return FileStats(
+        total=9605802 + 9540343,
+        by_machine={
+            "polaris": MachineStats(total=9605802, build_count=33),
+            "lighthouse": MachineStats(total=9540343, build_count=35),
+        },
+    )
+
+
+@fixture(stats)
+def cached_stats(fixtures: Fixtures) -> None:
+    cache.clear()
+    cache.set(STATS_CACHE_KEY, fixtures.stats)
