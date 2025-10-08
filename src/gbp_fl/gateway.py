@@ -21,7 +21,14 @@ from typing import TYPE_CHECKING, Any, Callable, Iterator, ParamSpec, cast
 
 from gbp_fl import utils
 from gbp_fl.records import Repo
-from gbp_fl.types import Build, BuildLike, FileStats, MissingPackageIdentifier, Package
+from gbp_fl.types import (
+    STATS_CACHE_KEY,
+    Build,
+    BuildLike,
+    FileStats,
+    MissingPackageIdentifier,
+    Package,
+)
 
 if TYPE_CHECKING:
     from gentoo_build_publisher import signals
@@ -188,8 +195,6 @@ class GBPGateway:
     def cache_file_stats(self, stats: FileStats) -> None:
         """Save the given FileStats to Django's cache"""
         from gentoo_build_publisher.cache import cache
-
-        from gbp_fl.types import STATS_CACHE_KEY
 
         cache.set(STATS_CACHE_KEY, stats)
 
