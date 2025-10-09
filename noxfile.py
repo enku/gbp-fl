@@ -13,6 +13,6 @@ def tests(session: nox.Session) -> None:
     ]
     session.install(".[server]", *dev_dependencies)
 
-    session.run("pylint")
+    session.run("pylint", "src", "tests")
     session.run("coverage", "run", "-m", "tests")
     session.run("coverage", "report")
