@@ -29,6 +29,10 @@ extend type MachineSummary {
   fileStats: flMachineStats!
 }
 
+extend type Package {
+  files: [flContentFile!]!
+}
+
 extend type Query {
   flSearch(key: String!, machine: String): [flContentFile!]!
   flSearchV2(key: String!, machines: [String!]): [flContentFile!]!

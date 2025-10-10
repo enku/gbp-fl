@@ -7,13 +7,14 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 import gbp_testkit.fixtures as testkit
+from gbp_testkit.factories import BuildRecordFactory
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
-from unittest_fixtures import Fixtures, given
+from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.types import STATS_CACHE_KEY, BinPkg, Build
 
@@ -245,3 +246,73 @@ class MachineSummaryStatsTests(TestCase):
             },
         ]
         self.assertEqual(expected, result["data"]["machines"])
+
+
+@given(lib.repo, testkit.publisher, testkit.client)
+@given(build=lambda _: BuildRecordFactory(machine="babette", build_id="26"))
+@given(lib.bulk_content_files)
+@where(
+    bulk_content_files="""
+babette 26 acct-group/sgx-0-1            /usr/lib/sysusers.d/acct-group-sgx.conf _ 10
+babette 26 app-admin/perl-cleaner-2.30-1 /usr/sbin/perl-cleaner                  _ 20274
+babette 26 app-admin/perl-cleaner-2.30-1 /usr/share/man/man1/perl-cleaner.1      _ 1929
+babette 26 app-arch/unzip-6.0_p26-1      /usr/bin/unzip                          _ 165896
+babette 26 app-arch/unzip-6.0_p26-1      /usr/share/man/man1/unzip.1             _ 49640
+babette 26 app-crypt/gpgme-1.14.0-1      /usr/bin/gpgme-json                     _ 88224
+babette 26 app-crypt/gpgme-1.14.0-1      /usr/lib64/libgpgme.so                  _ 18
+babette 26 app-crypt/gpgme-1.14.0-1      /usr/share/man/man1/gpgme-json.1        _ 1575
+"""
+)
+class PackageFilesTests(TestCase):
+    query = """query ($id: ID!) {
+      build(id: $id) {
+        id
+        packageDetail {
+          cpv
+          files { path size }
+        }
+      }
+    }"""
+
+    def test(self, fixtures: Fixtures) -> None:
+        repo = fixtures.repo
+        build = fixtures.build
+
+        publisher.pull(build)
+        repo.files.bulk_save(fixtures.bulk_content_files)
+
+        result = graphql(fixtures.client, self.query, {"id": "babette.26"})
+        expected = {
+            "id": "babette.26",
+            "packageDetail": [
+                {
+                    "cpv": "acct-group/sgx-0",
+                    "files": [
+                        {"path": "/usr/lib/sysusers.d/acct-group-sgx.conf", "size": 10}
+                    ],
+                },
+                {
+                    "cpv": "app-admin/perl-cleaner-2.30",
+                    "files": [
+                        {"path": "/usr/sbin/perl-cleaner", "size": 20274},
+                        {"path": "/usr/share/man/man1/perl-cleaner.1", "size": 1929},
+                    ],
+                },
+                {
+                    "cpv": "app-arch/unzip-6.0_p26",
+                    "files": [
+                        {"path": "/usr/bin/unzip", "size": 165896},
+                        {"path": "/usr/share/man/man1/unzip.1", "size": 49640},
+                    ],
+                },
+                {
+                    "cpv": "app-crypt/gpgme-1.14.0",
+                    "files": [
+                        {"path": "/usr/bin/gpgme-json", "size": 88224},
+                        {"path": "/usr/lib64/libgpgme.so", "size": 18},
+                        {"path": "/usr/share/man/man1/gpgme-json.1", "size": 1575},
+                    ],
+                },
+            ],
+        }
+        self.assertEqual(expected, result["data"]["build"])
