@@ -247,6 +247,7 @@ def gbp_package(  # pylint: disable=too-many-arguments
     size: int = 40960,
 ) -> gbp.Package:
     build_time = build_time or fixtures.now.timestamp()
+    record = fixtures.build_record
     return gbp.Package(
         build_id=build_id,
         build_time=build_time,
@@ -254,6 +255,7 @@ def gbp_package(  # pylint: disable=too-many-arguments
         path=path,
         repo=repo,
         size=size,
+        build=gbp.Build(record.machine, record.build_id),
     )
 
 
