@@ -83,7 +83,7 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
 
 @Query.field("flStats")
 def _(_obj: Any, _info: Info) -> GQLFileStats:
-    stats = cast(FileStats, cache.get(STATS_CACHE_KEY))
+    stats = cast(FileStats, getattr(cache, STATS_CACHE_KEY))
 
     return {
         "total": stats.total,

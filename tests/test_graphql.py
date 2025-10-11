@@ -11,6 +11,7 @@ from gbp_testkit.factories import BuildRecordFactory
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher.cache import cache
+from gentoo_build_publisher.cache import clear as cache_clear
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
@@ -213,8 +214,8 @@ class MachineSummaryStatsTests(TestCase):
         for machine in mstats:
             publisher.pull(GBPBuild(machine=machine, build_id="test"))
 
-        cache.clear()
-        cache.set(STATS_CACHE_KEY, stats)
+        cache_clear(cache)
+        setattr(cache, STATS_CACHE_KEY, stats)
 
         query = """
           query {
