@@ -17,7 +17,7 @@ from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.gateway import gateway
-from gbp_fl.types import STATS_CACHE_KEY, BinPkg, Build
+from gbp_fl.types import BinPkg, Build
 
 from . import lib
 
@@ -215,7 +215,7 @@ class MachineSummaryStatsTests(TestCase):
             publisher.pull(GBPBuild(machine=machine, build_id="test"))
 
         cache_clear(gateway.cache)
-        setattr(gateway.cache, STATS_CACHE_KEY, stats)
+        gateway.cache.stats = stats
 
         query = """
           query {

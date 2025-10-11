@@ -11,7 +11,7 @@ from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, params, where
 
 from gbp_fl.gateway import gateway
-from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats
+from gbp_fl.types import FileStats, MachineStats
 
 from . import lib
 
@@ -61,7 +61,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        setattr(gateway.cache, STATS_CACHE_KEY, stats)
+        gateway.cache.stats = stats
 
         response = fixtures.client.get("/")
 
@@ -79,7 +79,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        setattr(gateway.cache, STATS_CACHE_KEY, stats)
+        gateway.cache.stats = stats
 
         response = fixtures.client.get("/")
 

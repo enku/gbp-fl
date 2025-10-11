@@ -12,8 +12,6 @@ from typing import TYPE_CHECKING, Protocol, Self
 if TYPE_CHECKING:
     from gbp_fl.records import ContentFiles
 
-STATS_CACHE_KEY = "gbp-fl-stats"
-
 
 @dataclass(frozen=True)
 class Package:

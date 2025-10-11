@@ -37,7 +37,7 @@ class IndexBuildTests(TestCase):
         cache_clear(gateway.cache)
         tasks.index_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(gateway.cache, "gbp-fl-stats"))
+        self.assertTrue(hasattr(gateway.cache, "stats"))
 
 
 @given(lib.build)
@@ -61,4 +61,4 @@ class DeindexBuildTests(TestCase):
         cache_clear(gateway.cache)
         tasks.deindex_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(gateway.cache, "gbp-fl-stats"))
+        self.assertTrue(hasattr(gateway.cache, "stats"))

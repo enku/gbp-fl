@@ -10,7 +10,7 @@ from graphql import GraphQLResolveInfo
 from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
-from gbp_fl.types import STATS_CACHE_KEY, BinPkg, Build, ContentFile, FileStats
+from gbp_fl.types import BinPkg, Build, ContentFile, FileStats
 
 Info: TypeAlias = GraphQLResolveInfo
 Query = ObjectType("Query")
@@ -82,7 +82,7 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
 
 @Query.field("flStats")
 def _(_obj: Any, _info: Info) -> GQLFileStats:
-    stats = cast(FileStats, getattr(gateway.cache, STATS_CACHE_KEY))
+    stats = cast(FileStats, gateway.cache.stats)
 
     return {
         "total": stats.total,

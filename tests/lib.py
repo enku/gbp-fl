@@ -20,7 +20,6 @@ from gbp_fl.gateway import gateway as gbp_fl_gateway
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
 from gbp_fl.types import (
-    STATS_CACHE_KEY,
     BinPkg,
     Build,
     BuildLike,
@@ -29,7 +28,6 @@ from gbp_fl.types import (
     MachineStats,
     Package,
 )
-
 DEFAULT_CONTENTS = """
     lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
     lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
@@ -317,4 +315,4 @@ def stats(_: Fixtures) -> FileStats:
 @fixture(stats)
 def cached_stats(fixtures: Fixtures) -> None:
     cache_clear(gbp_fl_gateway.cache)
-    setattr(gbp_fl_gateway.cache, STATS_CACHE_KEY, fixtures.stats)
+    gbp_fl_gateway.cache.stats = fixtures.stats

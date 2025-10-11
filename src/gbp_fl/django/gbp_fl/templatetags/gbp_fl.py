@@ -8,7 +8,7 @@ from django import template
 from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
-from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats
+from gbp_fl.types import FileStats, MachineStats
 
 register = template.Library()
 
@@ -33,12 +33,10 @@ def get_stats() -> FileStats:
     If it's in the cache return the cached value.
     Otherwise calculate the value and cache it.
     """
-    if stats := getattr(gateway.cache, STATS_CACHE_KEY, None):
+    if stats := getattr(gateway.cache, "stats", None):
         return cast(FileStats, stats)
 
     repo = Repo.from_settings(Settings.from_environ())
-    stats = gateway.get_file_stats(repo)
-
-    setattr(gateway.cache, STATS_CACHE_KEY, stats)
+    gateway.cache.stats = stats = gateway.get_file_stats(repo)
 
     return stats
