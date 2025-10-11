@@ -10,13 +10,13 @@ import gbp_testkit.fixtures as testkit
 from gbp_testkit.factories import BuildRecordFactory
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
-from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.cache import clear as cache_clear
 from gentoo_build_publisher.graphql import schema
 from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
+from gbp_fl.gateway import gateway
 from gbp_fl.types import STATS_CACHE_KEY, BinPkg, Build
 
 from . import lib
@@ -214,8 +214,8 @@ class MachineSummaryStatsTests(TestCase):
         for machine in mstats:
             publisher.pull(GBPBuild(machine=machine, build_id="test"))
 
-        cache_clear(cache)
-        setattr(cache, STATS_CACHE_KEY, stats)
+        cache_clear(gateway.cache)
+        setattr(gateway.cache, STATS_CACHE_KEY, stats)
 
         query = """
           query {

@@ -4,7 +4,6 @@ from dataclasses import asdict
 from typing import Any, cast
 
 from django import template
-from gentoo_build_publisher.cache import cache
 
 from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
@@ -34,12 +33,12 @@ def get_stats() -> FileStats:
     If it's in the cache return the cached value.
     Otherwise calculate the value and cache it.
     """
-    if stats := getattr(cache, STATS_CACHE_KEY, None):
+    if stats := getattr(gateway.cache, STATS_CACHE_KEY, None):
         return cast(FileStats, stats)
 
     repo = Repo.from_settings(Settings.from_environ())
     stats = gateway.get_file_stats(repo)
 
-    setattr(cache, STATS_CACHE_KEY, stats)
+    setattr(gateway.cache, STATS_CACHE_KEY, stats)
 
     return stats

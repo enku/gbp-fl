@@ -32,6 +32,7 @@ from gbp_fl.types import (
 
 if TYPE_CHECKING:
     from gentoo_build_publisher import signals
+    from gentoo_build_publisher.cache import GBPSiteCache
 
 P = ParamSpec("P")
 
@@ -194,9 +195,7 @@ class GBPGateway:
 
     def cache_file_stats(self, stats: FileStats) -> None:
         """Save the given FileStats to Django's cache"""
-        from gentoo_build_publisher.cache import cache
-
-        setattr(cache, STATS_CACHE_KEY, stats)
+        setattr(self.cache, STATS_CACHE_KEY, stats)
 
     def get_file_stats(self, repo: Repo) -> FileStats:
         """Calculate the current file stats from the Repo"""
@@ -205,6 +204,13 @@ class GBPGateway:
             for machine in self.list_machine_names()
         }
         return FileStats.collect(repo.files, builds_per_machine)
+
+    @property
+    def cache(self) -> "GBPSiteCache":
+        """Return site subcache for gbp-fl"""
+        from gentoo_build_publisher.cache import cache
+
+        return cache / "gbp_fl"
 
     @staticmethod
     def has_plugin(name: str) -> bool:

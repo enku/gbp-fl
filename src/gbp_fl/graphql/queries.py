@@ -5,7 +5,6 @@ from functools import partial
 from typing import Any, TypeAlias, TypedDict, cast
 
 from ariadne import ObjectType, convert_kwargs_to_snake_case
-from gentoo_build_publisher.cache import cache
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import gateway
@@ -83,7 +82,7 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
 
 @Query.field("flStats")
 def _(_obj: Any, _info: Info) -> GQLFileStats:
-    stats = cast(FileStats, getattr(cache, STATS_CACHE_KEY))
+    stats = cast(FileStats, getattr(gateway.cache, STATS_CACHE_KEY))
 
     return {
         "total": stats.total,

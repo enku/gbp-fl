@@ -5,10 +5,10 @@
 
 from unittest import TestCase, mock
 
-from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.cache import clear as cache_clear
 from unittest_fixtures import Fixtures, given
 
+from gbp_fl.gateway import gateway
 from gbp_fl.worker import tasks
 
 from . import lib
@@ -34,10 +34,10 @@ class IndexBuildTests(TestCase):
     def test_caches_stats(self, _: mock.Mock, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        cache_clear(cache)
+        cache_clear(gateway.cache)
         tasks.index_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(cache, "gbp-fl-stats"))
+        self.assertTrue(hasattr(gateway.cache, "gbp-fl-stats"))
 
 
 @given(lib.build)
@@ -58,7 +58,7 @@ class DeindexBuildTests(TestCase):
     def test_caches_stats(self, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        cache_clear(cache)
+        cache_clear(gateway.cache)
         tasks.deindex_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(cache, "gbp-fl-stats"))
+        self.assertTrue(hasattr(gateway.cache, "gbp-fl-stats"))

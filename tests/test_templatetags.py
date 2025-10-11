@@ -6,11 +6,11 @@ from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
 from gentoo_build_publisher import publisher
-from gentoo_build_publisher.cache import cache
 from gentoo_build_publisher.cache import clear as cache_clear
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, params, where
 
+from gbp_fl.gateway import gateway
 from gbp_fl.types import STATS_CACHE_KEY, FileStats, MachineStats
 
 from . import lib
@@ -37,7 +37,7 @@ class MachineDetaiViewTests(TestCase):
         publisher.pull(GBPBuild(machine="polaris", build_id="27"))
 
         if not fixtures.cached:
-            cache_clear(cache)
+            cache_clear(gateway.cache)
 
         response = fixtures.client.get("/machines/polaris/")
 
@@ -50,7 +50,7 @@ class MachineDetaiViewTests(TestCase):
         self.assertIn(expected, response.text)
 
 
-@given(cache_clear=lambda _: cache_clear(cache))
+@given(cache_clear=lambda _: cache_clear(gateway.cache))
 @given(testkit.client)
 class DashboardViewTests(TestCase):
     def test_files_metric(self, fixtures: Fixtures) -> None:
@@ -61,7 +61,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        setattr(cache, STATS_CACHE_KEY, stats)
+        setattr(gateway.cache, STATS_CACHE_KEY, stats)
 
         response = fixtures.client.get("/")
 
@@ -79,7 +79,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        setattr(cache, STATS_CACHE_KEY, stats)
+        setattr(gateway.cache, STATS_CACHE_KEY, stats)
 
         response = fixtures.client.get("/")
 
