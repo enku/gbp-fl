@@ -6,7 +6,6 @@ from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
 from gentoo_build_publisher import publisher
-from gentoo_build_publisher.cache import clear as cache_clear
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, params, where
 
@@ -37,7 +36,7 @@ class MachineDetaiViewTests(TestCase):
         publisher.pull(GBPBuild(machine="polaris", build_id="27"))
 
         if not fixtures.cached:
-            cache_clear(gateway.cache)
+            del gateway.cache.stats
 
         response = fixtures.client.get("/machines/polaris/")
 
@@ -50,7 +49,7 @@ class MachineDetaiViewTests(TestCase):
         self.assertIn(expected, response.text)
 
 
-@given(cache_clear=lambda _: cache_clear(gateway.cache))
+@given(cache_clear=lambda _: delattr(gateway.cache, "stats"))
 @given(testkit.client)
 class DashboardViewTests(TestCase):
     def test_files_metric(self, fixtures: Fixtures) -> None:

@@ -13,7 +13,6 @@ from unittest import mock
 from gbp_testkit import fixtures as testkit
 from gentoo_build_publisher import types as gbp
 from gentoo_build_publisher import worker as gbp_worker
-from gentoo_build_publisher.cache import clear as cache_clear
 from unittest_fixtures import FixtureContext, Fixtures, fixture
 
 from gbp_fl.gateway import gateway as gbp_fl_gateway
@@ -314,5 +313,5 @@ def stats(_: Fixtures) -> FileStats:
 
 @fixture(stats)
 def cached_stats(fixtures: Fixtures) -> None:
-    cache_clear(gbp_fl_gateway.cache)
+    del gbp_fl_gateway.cache.stats
     gbp_fl_gateway.cache.stats = fixtures.stats
