@@ -199,7 +199,7 @@ class GBPGateway:
         """Return site subcache for gbp-fl"""
         from gentoo_build_publisher.cache import cache
 
-        return cache / "gbp_fl"
+        return cache / "fl"
 
     @staticmethod
     def has_plugin(name: str) -> bool:
