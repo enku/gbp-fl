@@ -1,13 +1,5 @@
-type flBinPkg {
-  build: Build
-  cpvb: String!
-  repo: String!
-  url: String
-  files: [flContentFile!]!
-}
-
 type flContentFile {
-  binpkg: flBinPkg!
+  binpkg: Package!
   path: String!
   timestamp: DateTime!
   size: Int!
@@ -30,6 +22,7 @@ extend type MachineSummary {
 }
 
 extend type Package {
+  cpvb: String!
   files: [flContentFile!]!
 }
 
@@ -38,6 +31,6 @@ extend type Query {
   flSearchV2(key: String!, machines: [String!]): [flContentFile!]!
   flCount(machine: String, buildId: String): Int!
   flList(machine: String!, buildId: String!, cpvb: String!): [flContentFile!]!
-  flListPackages(machine: String!, buildId: String!): [flBinPkg!]!
+  flListPackages(machine: String!, buildId: String!): [Package!]!
   flStats: flFileStats!
 }

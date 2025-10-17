@@ -2,21 +2,16 @@
 
 # pylint: disable=missing-docstring
 
-from dataclasses import replace
 from unittest import TestCase
-from unittest.mock import Mock
 
 import gbp_testkit.fixtures as testkit
 from gbp_testkit.factories import BuildRecordFactory
 from gbp_testkit.helpers import graphql
 from gentoo_build_publisher import publisher
-from gentoo_build_publisher.graphql import schema
-from gentoo_build_publisher.records import BuildRecord
 from gentoo_build_publisher.types import Build as GBPBuild
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.gateway import gateway
-from gbp_fl.types import BinPkg, Build
 
 from . import lib
 
@@ -119,25 +114,6 @@ class ResolveQueryCountTests(TestCase):
 
         self.assertTrue("errors" not in result, result.get("errors"))
         self.assertEqual(result["data"]["flCount"], 3)
-
-
-@given(testkit.publisher, lib.now, record=testkit.build_record)
-class ResolveBinPkgBuildTests(TestCase):
-
-    def test(self, fixtures: Fixtures) -> None:
-        f = fixtures
-        build_record: BuildRecord = replace(f.record, submitted=f.now)
-        build = Build(machine=build_record.machine, build_id=build_record.build_id)
-        binpkg = BinPkg(
-            build=build,
-            cpvb="dev-language/python-3.13.1-3",
-            repo="gentoo",
-            build_time=fixtures.now,
-        )
-        publisher.repo.build_records.save(build_record)
-        result = schema.type_map["flBinPkg"].fields["build"].resolve(binpkg, Mock())
-
-        self.assertEqual(result, build_record)
 
 
 @given(lib.repo, lib.bulk_content_files, testkit.client)

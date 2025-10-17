@@ -32,8 +32,7 @@ def handler(args: argparse.Namespace, gbp: GBP, console: Console) -> int:
         row = table.add_row
 
         for item in content_files:
-            if item["binpkg"]["build"]:
-                row(*format_content_file(item, args))
+            row(*format_content_file(item, args))
         console.out.print(table)
     return 0
 
