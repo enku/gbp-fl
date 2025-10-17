@@ -36,6 +36,11 @@ class Build:
     machine: str
     build_id: str
 
+    @property
+    def id(self) -> str:
+        """Return the Build's string id"""
+        return f"{self.machine}.{self.build_id}"
+
 
 @dataclass(frozen=True, kw_only=True, slots=True)
 class BinPkg:

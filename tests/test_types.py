@@ -6,7 +6,7 @@ from unittest import TestCase
 from unittest_fixtures import Fixtures, given, where
 
 from gbp_fl.records import ContentFiles
-from gbp_fl.types import FileStats, MachineStats, Package
+from gbp_fl.types import Build, FileStats, MachineStats, Package
 
 from . import lib
 
@@ -70,3 +70,10 @@ class MachineStatsTests(TestCase):
     def test_build_count_zero_but_has_files(self) -> None:
         with self.assertRaises(ValueError):
             MachineStats(total=12, build_count=0)
+
+
+class BuildTests(TestCase):
+    def test_id(self) -> None:
+        build = Build(machine="babette", build_id="1771")
+
+        self.assertEqual(build.id, "babette.1771")
