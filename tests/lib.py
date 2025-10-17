@@ -27,6 +27,7 @@ from gbp_fl.types import (
     MachineStats,
     Package,
 )
+
 DEFAULT_CONTENTS = """
     lighthouse 34 app-shells/bash-5.2_p37-1 /bin/bash
     lighthouse 34 app-shells/bash-5.2_p37-1 /etc/skel
