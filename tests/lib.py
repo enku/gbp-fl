@@ -314,5 +314,4 @@ def stats(_: Fixtures) -> FileStats:
 
 @fixture(stats)
 def cached_stats(fixtures: Fixtures) -> None:
-    del gbp_fl_gateway.cache.stats
-    gbp_fl_gateway.cache.stats = fixtures.stats
+    gbp_fl_gateway.cache.set("stats", fixtures.stats)

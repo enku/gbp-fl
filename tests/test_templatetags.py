@@ -36,7 +36,7 @@ class MachineDetaiViewTests(TestCase):
         publisher.pull(GBPBuild(machine="polaris", build_id="27"))
 
         if not fixtures.cached:
-            del gateway.cache.stats
+            gateway.cache.delete("stats")
 
         response = fixtures.client.get("/machines/polaris/")
 
@@ -49,7 +49,7 @@ class MachineDetaiViewTests(TestCase):
         self.assertIn(expected, response.text)
 
 
-@given(cache_clear=lambda _: delattr(gateway.cache, "stats"))
+@given(cache_clear=lambda _: gateway.cache.delete("stats"))
 @given(testkit.client)
 class DashboardViewTests(TestCase):
     def test_files_metric(self, fixtures: Fixtures) -> None:
@@ -60,7 +60,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        gateway.cache.stats = stats
+        gateway.cache.set("stats", stats)
 
         response = fixtures.client.get("/")
 
@@ -78,7 +78,7 @@ class DashboardViewTests(TestCase):
                 "lighthouse": MachineStats(total=2, build_count=1),
             },
         )
-        gateway.cache.stats = stats
+        gateway.cache.set("stats", stats)
 
         response = fixtures.client.get("/")
 

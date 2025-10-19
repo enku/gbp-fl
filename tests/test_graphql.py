@@ -189,8 +189,7 @@ class MachineSummaryStatsTests(TestCase):
         for machine in mstats:
             publisher.pull(GBPBuild(machine=machine, build_id="test"))
 
-        del gateway.cache.stats
-        gateway.cache.stats = stats
+        gateway.cache.set("stats", stats)
 
         query = """
           query {

@@ -33,10 +33,10 @@ class IndexBuildTests(TestCase):
     def test_caches_stats(self, _: mock.Mock, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        del gateway.cache.stats
+        gateway.cache.delete("stats")
         tasks.index_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(gateway.cache, "stats"))
+        self.assertTrue(gateway.cache.contains("stats"))
 
 
 @given(lib.build)
@@ -57,7 +57,7 @@ class DeindexBuildTests(TestCase):
     def test_caches_stats(self, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        del gateway.cache.stats
+        gateway.cache.delete("stats")
         tasks.deindex_build(build.machine, build.build_id)
 
-        self.assertTrue(hasattr(gateway.cache, "stats"))
+        self.assertTrue(gateway.cache.contains("stats"))

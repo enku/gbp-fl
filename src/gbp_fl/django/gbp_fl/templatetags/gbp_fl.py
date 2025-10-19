@@ -33,10 +33,10 @@ def get_stats() -> FileStats:
     If it's in the cache return the cached value.
     Otherwise calculate the value and cache it.
     """
-    if stats := getattr(gateway.cache, "stats", None):
+    if stats := gateway.cache.get("stats", None):
         return cast(FileStats, stats)
 
     repo = Repo.from_settings(Settings.from_environ())
-    gateway.cache.stats = stats = gateway.get_file_stats(repo)
+    gateway.cache.set("stats", stats := gateway.get_file_stats(repo))
 
     return stats
