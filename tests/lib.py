@@ -130,9 +130,12 @@ def binpkg(  # pylint: disable=too-many-arguments
     build_time: dt.datetime | None = None,
     repo: str = "gentoo",
 ) -> BinPkg:
+    cpv, build_id_str = cpvb.rsplit("-", 1)
+
     return BinPkg(
         build=build or fixtures.build,
-        cpvb=cpvb,
+        cpv=cpv,
+        build_id=int(build_id_str),
         build_time=build_time or fixtures.now,
         repo=repo,
     )
@@ -158,6 +161,7 @@ def content_file(
 def bulk_content_files(
     fixtures: Fixtures, bulk_content_files: str = DEFAULT_CONTENTS
 ) -> list[ContentFile]:
+    # pylint: disable=too-many-locals
     content_files: list[ContentFile] = []
     cf_defs: str = bulk_content_files.strip()
     for cf_def in cf_defs.split("\n"):
@@ -168,6 +172,7 @@ def bulk_content_files(
 
         parts = cf_def.split()
         machine, build_id, cpvb, path = parts[:4]
+        cpv, build_id_str = cpvb.rsplit("-", 1)
 
         try:
             repo_ = parts[4]
@@ -185,7 +190,13 @@ def bulk_content_files(
             timestamp = fixtures.now
 
         bld = Build(machine=machine, build_id=build_id)
-        pkg = BinPkg(build=bld, cpvb=cpvb, build_time=fixtures.now, repo=repo_)
+        pkg = BinPkg(
+            build=bld,
+            cpv=cpv,
+            build_id=int(build_id_str),
+            build_time=fixtures.now,
+            repo=repo_,
+        )
         content_files.append(
             ContentFile(
                 binpkg=pkg, path=Path(path), timestamp=timestamp, size=int(size)

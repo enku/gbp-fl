@@ -64,7 +64,7 @@ class ContentFiles:
         """
         cf = content_file
         model = get_model(
-            cf.binpkg.build.machine, cf.binpkg.build.build_id, cf.binpkg.cpvb, cf.path
+            cf.binpkg.build.machine, cf.binpkg.build.build_id, cf.binpkg.cpvb(), cf.path
         )
         model.delete()
 
@@ -219,7 +219,7 @@ def content_file_to_model(content_file: ContentFile) -> models.ContentFile:
     model.machine = content_file.binpkg.build.machine
     model.build_id = content_file.binpkg.build.build_id
     model.path = str(content_file.path)
-    model.cpvb = content_file.binpkg.cpvb
+    model.cpvb = content_file.binpkg.cpvb()
     model.repo = content_file.binpkg.repo
     model.size = content_file.size
     model.timestamp = content_file.timestamp
@@ -232,6 +232,13 @@ def model_to_content_file(model: models.ContentFile) -> ContentFile:
     m = model
     path = Path(m.path)
     build = Build(machine=m.machine, build_id=m.build_id)
-    binpkg = BinPkg(cpvb=m.cpvb, build=build, build_time=m.timestamp, repo=m.repo)
+    cpv, build_id_str = m.cpvb.rsplit("-", 1)
+    binpkg = BinPkg(
+        cpv=cpv,
+        build_id=int(build_id_str),
+        build=build,
+        build_time=m.timestamp,
+        repo=m.repo,
+    )
 
     return ContentFile(path=path, binpkg=binpkg, timestamp=m.timestamp, size=m.size)

@@ -75,7 +75,13 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
     time = partial(dt.datetime.fromtimestamp, tz=dt.UTC)
 
     return [
-        BinPkg(build=build, cpvb=p.cpvb, repo=p.repo, build_time=time(p.build_time))
+        BinPkg(
+            build=build,
+            cpv=p.cpv,
+            build_id=p.build_id,
+            repo=p.repo,
+            build_time=time(p.build_time),
+        )
         for p in gateway.get_packages(build)
     ]
 

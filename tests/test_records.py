@@ -56,7 +56,7 @@ class ContentFilesTests(TestCase):
         record = files.get(
             content_file.binpkg.build.machine,
             content_file.binpkg.build.build_id,
-            content_file.binpkg.cpvb,
+            content_file.binpkg.cpvb(),
             content_file.path,
         )
 
@@ -80,7 +80,7 @@ class ContentFilesTests(TestCase):
         binpkg = content_file.binpkg
         build = binpkg.build
         record = files.get(
-            build.machine, build.build_id, binpkg.cpvb, content_file.path
+            build.machine, build.build_id, binpkg.cpvb(), content_file.path
         )
 
         self.assertEqual(record, content_file)

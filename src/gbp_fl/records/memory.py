@@ -32,7 +32,7 @@ class ContentFiles:
 
         binpkg = new.binpkg
         build = binpkg.build
-        files[build.machine, build.build_id, binpkg.cpvb, str(new.path)] = new
+        files[build.machine, build.build_id, binpkg.cpvb(), str(new.path)] = new
 
         return new
 
@@ -66,7 +66,7 @@ class ContentFiles:
         build = binpkg.build
         try:
             del files[
-                build.machine, build.build_id, binpkg.cpvb, str(content_file.path)
+                build.machine, build.build_id, binpkg.cpvb(), str(content_file.path)
             ]
         except KeyError:
             raise RecordNotFound() from None

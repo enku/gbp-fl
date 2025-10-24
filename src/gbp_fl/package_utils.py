@@ -52,7 +52,8 @@ def make_binpkg(build: Build, gbp_package: Package) -> BinPkg:
     """Create a BinPkg given the build and Package"""
     return BinPkg(
         build=Build(machine=build.machine, build_id=build.build_id),
-        cpvb=f"{gbp_package.cpv}-{gbp_package.build_id}",
+        cpv=gbp_package.cpv,
+        build_id=gbp_package.build_id,
         repo=gbp_package.repo,
         build_time=dt.datetime.fromtimestamp(gbp_package.build_time, dt.UTC),
     )

@@ -16,6 +16,10 @@ PackageType = ObjectType("Package")
 def _(package: BinPkg | Package, _info: Info) -> list[ContentFile]:
     repo: Repo = Repo.from_settings(Settings.from_environ())
     build = package.build
-    cpvb = package.cpvb if isinstance(package, BinPkg) else package.cpvb()
 
-    return list(repo.files.for_package(build.machine, build.build_id, cpvb))
+    return list(repo.files.for_package(build.machine, build.build_id, package.cpvb()))
+
+
+@PackageType.field("cpvb")
+def _(package: BinPkg | Package, _info: Info) -> str:
+    return package.cpvb()
