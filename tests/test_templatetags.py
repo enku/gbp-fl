@@ -64,8 +64,9 @@ class DashboardViewTests(TestCase):
 
         response = fixtures.client.get("/")
 
-        expected = """<div class="col-lg metric" align="center">
-  <span class="number" title="">6</span>
+        expected = """\
+<div class="col-lg metric" align="center">
+  <span class="number" title="" data-target="6">0</span><span class="suffix"></span>
   <h2 class="label">Files</h2>
 </div>"""
         self.assertIn(expected, response.text)
