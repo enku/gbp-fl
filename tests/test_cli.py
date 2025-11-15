@@ -1,28 +1,18 @@
-# pylint: disable=missing-docstring,unused-argument
-import argparse
-from unittest import TestCase, mock
+# pylint: disable=missing-docstring
+from unittest import TestCase
 
 import gbp_testkit.fixtures as testkit
 from unittest_fixtures import Fixtures, given
 
-from gbp_fl import cli
 
-
-@given(testkit.console)
+@given(testkit.gbpcli)
 class HandlerTests(TestCase):
     def test(self, fixtures: Fixtures) -> None:
-        args = argparse.Namespace()
-        gbp = mock.Mock()
+        cli = fixtures.gbpcli
         console = fixtures.console
 
-        status = cli.handler(args, gbp, console)
+        status = cli("gbp fl")
 
         self.assertEqual(status, 1)
-        self.assertEqual(console.out.file.getvalue(), "")
-        self.assertTrue(console.err.file.getvalue().startswith("Subcommands:"))
-
-
-class ParseArgsTests(TestCase):
-    def test(self) -> None:
-        parser = argparse.ArgumentParser()
-        cli.parse_args(parser)
+        self.assertEqual(console.stdout, "$ gbp fl\n")
+        self.assertTrue(console.stderr.startswith("Subcommands:"))
