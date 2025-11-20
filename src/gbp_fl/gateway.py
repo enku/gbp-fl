@@ -194,6 +194,25 @@ class GBPGateway:
         }
         return FileStats.collect(repo.files, builds_per_machine)
 
+    def get_cached_stats(self) -> FileStats | None:
+        """Return the cached FileStats
+
+        If no FileStats are cached, return None.
+        """
+        from gentoo_build_publisher.cache import cache
+
+        fl_cache = cache / "fl"
+
+        return cast(FileStats | None, fl_cache.get("stats"))
+
+    def set_cached_stats(self, stats: FileStats) -> None:
+        """Save the given FileStats to the cache"""
+        from gentoo_build_publisher.cache import cache
+
+        fl_cache = cache / "fl"
+
+        fl_cache.set("stats", stats)
+
     @property
     def cache(self) -> "GBPSiteCache":
         """Return site subcache for gbp-fl"""

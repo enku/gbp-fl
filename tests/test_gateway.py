@@ -10,6 +10,7 @@ import gentoo_build_publisher
 from gbp_testkit.factories import ArtifactFactory
 from gentoo_build_publisher import publisher
 from gentoo_build_publisher import types as gtype
+from gentoo_build_publisher.cache import cache, clear
 from unittest_fixtures import FixtureContext, Fixtures, given, where
 
 from gbp_fl import gateway as gw
@@ -233,3 +234,32 @@ class RegisterSignalTests(TestCase):
         gbp.emit_signal("RegisterSignalTests", a="called")
 
         self.assertEqual(arg, "called")
+
+
+@given(lib.stats, fl_cache=lambda _: cache / "fl", cache_clear=lambda _: clear())
+class StatsCachingTests(TestCase):
+    def test_sets_the_stats(self, fixtures: Fixtures) -> None:
+        stats = fixtures.stats
+        gbp = gw.GBPGateway()
+
+        gbp.set_cached_stats(stats)
+
+        fl_cache = cache / "fl"
+        self.assertEqual(fl_cache.get("stats"), stats)
+
+    def test_gets_the_stats(self, fixtures: Fixtures) -> None:
+        stats = fixtures.stats
+        gbp = gw.GBPGateway()
+        fl_cache = cache / "fl"
+
+        fl_cache.set("stats", stats)
+        cached_stats = gbp.get_cached_stats()
+
+        self.assertEqual(cached_stats, stats)
+
+    def test_gets_the_cache_empty(self, fixtures: Fixtures) -> None:
+        gbp = gw.GBPGateway()
+
+        cached_stats = gbp.get_cached_stats()
+
+        self.assertEqual(cached_stats, None)
