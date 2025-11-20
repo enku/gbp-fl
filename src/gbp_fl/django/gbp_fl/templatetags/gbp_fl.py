@@ -1,7 +1,7 @@
 """Template tags for gbp-fl"""
 
 from dataclasses import asdict
-from typing import Any, cast
+from typing import Any
 
 from django import template
 
@@ -33,10 +33,10 @@ def get_stats() -> FileStats:
     If it's in the cache return the cached value.
     Otherwise calculate the value and cache it.
     """
-    if stats := gateway.cache.get("stats", None):
-        return cast(FileStats, stats)
+    if stats := gateway.get_cached_stats():
+        return stats
 
     repo = Repo.from_settings(Settings.from_environ())
-    gateway.cache.set("stats", stats := gateway.get_file_stats(repo))
+    gateway.set_cached_stats(stats := gateway.get_file_stats(repo))
 
     return stats

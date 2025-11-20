@@ -2,17 +2,18 @@
 
 # The tasks, by design, do basically nothing. We just have to assert the call the
 # appropriate functions with the appropriate args
+# pylint: disable=missing-docstring
 
 from unittest import TestCase, mock
 
+from gentoo_build_publisher.cache import cache
 from unittest_fixtures import Fixtures, given
 
-from gbp_fl.gateway import gateway
 from gbp_fl.worker import tasks
 
 from . import lib
 
-# pylint: disable=missing-docstring
+FL_CACHE = cache / "fl"
 
 
 @given(lib.build)
@@ -33,10 +34,10 @@ class IndexBuildTests(TestCase):
     def test_caches_stats(self, _: mock.Mock, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        gateway.cache.delete("stats")
+        FL_CACHE.delete("stats")
         tasks.index_build(build.machine, build.build_id)
 
-        self.assertTrue(gateway.cache.contains("stats"))
+        self.assertTrue(FL_CACHE.contains("stats"))
 
 
 @given(lib.build)
@@ -57,7 +58,7 @@ class DeindexBuildTests(TestCase):
     def test_caches_stats(self, fixtures: Fixtures) -> None:
         build = fixtures.build
 
-        gateway.cache.delete("stats")
+        FL_CACHE.delete("stats")
         tasks.deindex_build(build.machine, build.build_id)
 
-        self.assertTrue(gateway.cache.contains("stats"))
+        self.assertTrue(FL_CACHE.contains("stats"))

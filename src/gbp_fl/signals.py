@@ -31,7 +31,7 @@ def cache_stats(**_kwargs: Any) -> None:
     """
     repo = Repo.from_settings(Settings.from_environ())
 
-    gateway.cache.set("stats", gateway.get_file_stats(repo))
+    gateway.set_cached_stats(gateway.get_file_stats(repo))
 
 
 def init() -> None:

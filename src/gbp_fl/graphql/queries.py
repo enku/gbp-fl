@@ -2,7 +2,7 @@
 
 import datetime as dt
 from functools import partial
-from typing import Any, TypeAlias, TypedDict, cast
+from typing import Any, TypeAlias, TypedDict
 
 from ariadne import ObjectType, convert_kwargs_to_snake_case
 from graphql import GraphQLResolveInfo
@@ -10,7 +10,7 @@ from graphql import GraphQLResolveInfo
 from gbp_fl.gateway import gateway
 from gbp_fl.records import Repo
 from gbp_fl.settings import Settings
-from gbp_fl.types import BinPkg, Build, ContentFile, FileStats
+from gbp_fl.types import BinPkg, Build, ContentFile
 
 Info: TypeAlias = GraphQLResolveInfo
 Query = ObjectType("Query")
@@ -88,7 +88,8 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
 
 @Query.field("flStats")
 def _(_obj: Any, _info: Info) -> GQLFileStats:
-    stats = cast(FileStats, gateway.cache.get("stats"))
+    stats = gateway.get_cached_stats()
+    assert stats
 
     return {
         "total": stats.total,

@@ -25,7 +25,6 @@ from gbp_fl.types import Build, BuildLike, FileStats, MissingPackageIdentifier, 
 
 if TYPE_CHECKING:
     from gentoo_build_publisher import signals
-    from gentoo_build_publisher.cache import GBPSiteCache
 
 P = ParamSpec("P")
 
@@ -212,13 +211,6 @@ class GBPGateway:
         fl_cache = cache / "fl"
 
         fl_cache.set("stats", stats)
-
-    @property
-    def cache(self) -> "GBPSiteCache":
-        """Return site subcache for gbp-fl"""
-        from gentoo_build_publisher.cache import cache
-
-        return cache / "fl"
 
     @staticmethod
     def has_plugin(name: str) -> bool:
