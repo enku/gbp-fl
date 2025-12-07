@@ -22,11 +22,10 @@ class Package:
     build_id: int
     build_time: int
     path: str
+    cpvb: str = field(init=False, compare=False)
 
-    @property
-    def cpvb(self) -> str:
-        """The cpv-b string for the Package"""
-        return f"{self.cpv}-{self.build_id}"
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "cpvb", f"{self.cpv}-{self.build_id}")
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
