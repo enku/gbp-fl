@@ -4,11 +4,11 @@ from importlib import resources
 
 from ariadne import gql
 
-from .content_file import flContentFile
-from .machine_summary import MachineSummary
-from .mutations import Mutation
-from .packages import PackageType
-from .queries import Query
+from .content_file import FL_CONTENT_FILE
+from .machine_summary import MACHINE_SUMMARY
+from .mutations import MUTATION
+from .packages import PACKAGE
+from .queries import QUERY
 
 type_defs = gql(resources.read_text("gbp_fl.graphql", "schema.graphql"))
-resolvers = [MachineSummary, Mutation, PackageType, Query, flContentFile]
+resolvers = [MACHINE_SUMMARY, MUTATION, PACKAGE, QUERY, FL_CONTENT_FILE]

@@ -8,10 +8,10 @@ from gbp_fl.gateway import gateway
 from gbp_fl.types import MachineStats
 
 type Info = GraphQLResolveInfo
-MachineSummary = ObjectType("MachineSummary")
+MACHINE_SUMMARY = ObjectType("MachineSummary")
 
 
-@MachineSummary.field("fileStats")
+@MACHINE_SUMMARY.field("fileStats")
 def _(machine_info: MachineInfo, _info: Info) -> MachineStats:
     machine = machine_info.machine
     stats = gateway.get_cached_stats()

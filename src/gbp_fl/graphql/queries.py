@@ -13,7 +13,7 @@ from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, Build, ContentFile
 
 Info: TypeAlias = GraphQLResolveInfo
-Query = ObjectType("Query")
+QUERY = ObjectType("Query")
 
 # pylint: disable=missing-docstring
 
@@ -30,8 +30,8 @@ class GQLFileStats(TypedDict):
     by_machine: list[GQLMachineStats]
 
 
-@Query.field("flSearch")
-def _(
+@QUERY.field("flSearch")
+def fl_search(
     _obj: Any, _info: Info, *, key: str, machine: str | None = None
 ) -> list[ContentFile]:
     repo = Repo.from_settings(Settings.from_environ())
@@ -39,8 +39,8 @@ def _(
     return list(repo.files.search(key, [machine] if machine else None))
 
 
-@Query.field("flSearchV2")
-def _(
+@QUERY.field("flSearchV2")
+def fl_search_v2(
     _obj: Any, _info: Info, *, key: str, machines: list[str] | None = None
 ) -> list[ContentFile]:
     repo = Repo.from_settings(Settings.from_environ())
@@ -48,9 +48,9 @@ def _(
     return list(repo.files.search(key, machines))
 
 
-@Query.field("flCount")
+@QUERY.field("flCount")
 @convert_kwargs_to_snake_case
-def _(
+def fl_count(
     _obj: Any, _info: Info, *, machine: str | None = None, build_id: str | None = None
 ) -> int:
     repo = Repo.from_settings(Settings.from_environ())
@@ -58,9 +58,9 @@ def _(
     return repo.files.count(machine, build_id, None)
 
 
-@Query.field("flList")
+@QUERY.field("flList")
 @convert_kwargs_to_snake_case
-def _(
+def fl_list(
     _obj: Any, _info: Info, *, machine: str, build_id: str, cpvb: str
 ) -> list[ContentFile]:
     repo = Repo.from_settings(Settings.from_environ())
@@ -68,9 +68,11 @@ def _(
     return list(repo.files.for_package(machine, build_id, cpvb))
 
 
-@Query.field("flListPackages")
+@QUERY.field("flListPackages")
 @convert_kwargs_to_snake_case
-def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
+def fl_list_packages(
+    _obj: Any, _info: Info, *, machine: str, build_id: str
+) -> list[BinPkg]:
     build = Build(machine=machine, build_id=build_id)
     time = partial(dt.datetime.fromtimestamp, tz=dt.UTC)
 
@@ -86,8 +88,8 @@ def _(_obj: Any, _info: Info, *, machine: str, build_id: str) -> list[BinPkg]:
     ]
 
 
-@Query.field("flStats")
-def _(_obj: Any, _info: Info) -> GQLFileStats:
+@QUERY.field("flStats")
+def fl_stats(_obj: Any, _info: Info) -> GQLFileStats:
     stats = gateway.get_cached_stats()
     assert stats
 

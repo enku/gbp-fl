@@ -2,4 +2,4 @@
 
 from ariadne import ObjectType
 
-Mutation = ObjectType("Mutation")
+MUTATION = ObjectType("Mutation")

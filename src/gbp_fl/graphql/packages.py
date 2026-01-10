@@ -9,17 +9,19 @@ from gbp_fl.settings import Settings
 from gbp_fl.types import BinPkg, ContentFile
 
 type Info = GraphQLResolveInfo
-PackageType = ObjectType("Package")
+PACKAGE = ObjectType("Package")
 
 
-@PackageType.field("files")
-def _(package: BinPkg | Package, _info: Info) -> list[ContentFile]:
+@PACKAGE.field("files")
+def files(package: BinPkg | Package, _info: Info) -> list[ContentFile]:
+    """Return all ContentFiles for the given package"""
     repo: Repo = Repo.from_settings(Settings.from_environ())
     build = package.build
 
     return list(repo.files.for_package(build.machine, build.build_id, package.cpvb()))
 
 
-@PackageType.field("cpvb")
-def _(package: BinPkg | Package, _info: Info) -> str:
+@PACKAGE.field("cpvb")
+def cpvb(package: BinPkg | Package, _info: Info) -> str:
+    """return cpvb for the given package"""
     return package.cpvb()
