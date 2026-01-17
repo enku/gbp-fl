@@ -19,14 +19,13 @@ def all_builds_have_indices(console: Console) -> tuple[int, int]:
     """Check that the indices are good"""
     warnings = 0
     indexed_builds = set(get_builds())
+    err = console.err.print
 
     for machine in gateway.list_machine_names():
         for build in gateway.get_builds_for_machine(machine):
             if not build in indexed_builds:
                 warnings += 1
-                console.err.print(
-                    f"Warning: build {build.machine}.{build.build_id} is not indexed."
-                )
+                err(f"Warning: build {build.machine}.{build.build_id} is not indexed.")
 
     return (0, warnings)
 
@@ -38,9 +37,8 @@ def all_indices_have_builds(console: Console) -> tuple[int, int]:
     for build in get_builds():
         gbp_build = GBPBuild(machine=build.machine, build_id=build.build_id)
         if not publisher.pulled(gbp_build):
-            console.err.print(
-                f"Warning: an index exists for build {gbp_build} that does not exist."
-            )
+            err = console.err.print
+            err(f"Warning: an index exists for build {gbp_build} that does not exist.")
             warnings += 1
 
     return (0, warnings)
