@@ -57,11 +57,10 @@ class GetPackagesTests(TestCase):
         package = fixtures.package
         gbp = gw.GBPGateway()
         g_build = gtype.Build(machine=build.machine, build_id=build.build_id)
+        artifact_builder = ArtifactFactory(initial_packages=[], timestamp=10)
 
-        publisher.jenkins.artifact_builder = ArtifactFactory(
-            initial_packages=[], timestamp=10
-        )
-        publisher.jenkins.artifact_builder.build(g_build, package.cpv)
+        artifact_builder.build(g_build, package.cpv)
+        publisher.jenkins.artifact_builder = artifact_builder  # type: ignore
         publisher.pull(g_build)
 
         packages = gbp.get_packages(fixtures.build)
