@@ -4,7 +4,7 @@ import datetime as dt
 from functools import partial
 from typing import Any, TypeAlias, TypedDict
 
-from ariadne import ObjectType, convert_kwargs_to_snake_case
+from ariadne import ObjectType
 from graphql import GraphQLResolveInfo
 
 from gbp_fl.gateway import gateway
@@ -49,7 +49,6 @@ def fl_search_v2(
 
 
 @QUERY.field("flCount")
-@convert_kwargs_to_snake_case
 def fl_count(
     _obj: Any, _info: Info, *, machine: str | None = None, build_id: str | None = None
 ) -> int:
@@ -59,7 +58,6 @@ def fl_count(
 
 
 @QUERY.field("flList")
-@convert_kwargs_to_snake_case
 def fl_list(
     _obj: Any, _info: Info, *, machine: str, build_id: str, cpvb: str
 ) -> list[ContentFile]:
@@ -69,7 +67,6 @@ def fl_list(
 
 
 @QUERY.field("flListPackages")
-@convert_kwargs_to_snake_case
 def fl_list_packages(
     _obj: Any, _info: Info, *, machine: str, build_id: str
 ) -> list[BinPkg]:
