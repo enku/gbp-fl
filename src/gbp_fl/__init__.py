@@ -19,4 +19,5 @@ plugin = {
         "all_builds_have_indices": "gbp_fl.checks:all_builds_have_indices",
         "all_indices_have_builds": "gbp_fl.checks:all_indices_have_builds",
     },
+    "link": "https://github.com/enku/gbp-fl",
 }
