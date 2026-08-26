@@ -32,12 +32,12 @@ def all_builds_have_indices(console: Console) -> tuple[int, int]:
 
 def all_indices_have_builds(console: Console) -> tuple[int, int]:
     """Check that all indices have a corresponding build"""
+    err = console.err.print
     warnings = 0
 
     for build in get_builds():
         gbp_build = GBPBuild(machine=build.machine, build_id=build.build_id)
         if not publisher.pulled(gbp_build):
-            err = console.err.print
             err(f"Warning: an index exists for build {gbp_build} that does not exist.")
             warnings += 1
 
