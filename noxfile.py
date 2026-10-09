@@ -6,7 +6,7 @@ import nox
 PYTHON_VERSIONS = (
     "3.12",
     "3.13",
-    # "3.14",  Disable for now. Pylint false positive
+    "3.14",
 )
 
 
